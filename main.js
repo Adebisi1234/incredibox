@@ -20,8 +20,17 @@ MORE TO Come
 const singers = document.querySelectorAll(".singer");
 const buttons = document.querySelectorAll(".button");
 let interval = 0;
+let intervalId = 0;
 let songId = "";
 let currentAudio = [];
+const pausedSongs = {
+    one: false,
+    two: false,
+    three: false,
+    four: false,
+    fix: false,
+    six: false,
+};
 // BUTTONS
 buttons.forEach((button) => {
     button.addEventListener("dragstart", (ev) => {
@@ -45,7 +54,9 @@ singers.forEach((singer) => {
     });
     singer.addEventListener("click", (ev) => {
         const id = ev.target.getAttribute("data-song-id");
-        id.length > 0 ? handleRemoveAudio(id) : handleAddAudio(id);
+        id && document.querySelector(`audio[data-song-id='${id}']`)
+            ? handleRemoveAudio(id)
+            : handleAddAudio(id);
     });
     singer.addEventListener("drop", (ev) => {
         ev.preventDefault();
@@ -56,8 +67,12 @@ singers.forEach((singer) => {
 });
 function handleRemoveAudio(id) {
     const paused = document.querySelector(`audio[data-song-id='${id}']`);
-    console.log(paused);
-    paused === null || paused === void 0 ? void 0 : paused.remove();
+    paused.pause();
+    paused.src = "";
+    paused.remove();
+    if (!document.getElementsByTagName("audio").length) {
+        timeOut(true);
+    }
 }
 function handleAddAudio(id) {
     const audio = document.createElement("audio");
@@ -90,9 +105,12 @@ function getAudioURl(id) {
             return "";
     }
 }
-function timeOut() {
-    setInterval(() => {
+function timeOut(clear = false) {
+    if (clear) {
+        clearInterval(intervalId);
+    }
+    intervalId = setInterval(() => {
         interval += 1;
-        interval % 5 === 0 && currentAudio.forEach((audio) => audio.play());
+        interval % 5 === 0 && currentAudio.forEach((audio) => audio === null || audio === void 0 ? void 0 : audio.play());
     }, 1000);
 }

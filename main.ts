@@ -21,8 +21,18 @@ const singers: NodeListOf<HTMLDivElement> =
 const buttons: NodeListOf<HTMLDivElement> =
   document.querySelectorAll(".button");
 let interval: number = 0;
+let intervalId: number = 0;
 let songId: string = "";
 let currentAudio: HTMLAudioElement[] = [];
+
+const pausedSongs = {
+  one: false,
+  two: false,
+  three: false,
+  four: false,
+  fix: false,
+  six: false,
+};
 
 // BUTTONS
 buttons.forEach((button) => {
@@ -48,7 +58,9 @@ singers.forEach((singer: HTMLDivElement): void => {
   });
   singer.addEventListener("click", (ev: MouseEvent) => {
     const id = (ev.target as HTMLDivElement).getAttribute("data-song-id")!;
-    id.length > 0 ? handleRemoveAudio(id!) : handleAddAudio(id);
+    id && document.querySelector(`audio[data-song-id='${id}']`)
+      ? handleRemoveAudio(id!)
+      : handleAddAudio(id);
   });
   singer.addEventListener("drop", (ev: DragEvent) => {
     ev.preventDefault();
@@ -62,8 +74,13 @@ function handleRemoveAudio(id: string) {
   const paused: HTMLAudioElement = document.querySelector(
     `audio[data-song-id='${id}']`
   )!;
-  console.log(paused);
-  paused?.remove();
+  paused.pause();
+  paused.src = "";
+  paused.remove();
+
+  if (!document.getElementsByTagName("audio").length) {
+    timeOut(true);
+  }
 }
 
 function handleAddAudio(id: string) {
@@ -99,10 +116,13 @@ function getAudioURl(id: string) {
   }
 }
 
-function timeOut() {
-  setInterval(() => {
+function timeOut(clear: boolean = false) {
+  if (clear) {
+    clearInterval(intervalId);
+  }
+  intervalId = setInterval(() => {
     interval += 1;
 
-    interval % 5 === 0 && currentAudio.forEach((audio) => audio.play());
+    interval % 5 === 0 && currentAudio.forEach((audio) => audio?.play());
   }, 1000);
 }
