@@ -1,0 +1,81 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+body {
+    user-select: none;
+}
+.container, .singers, .buttons {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    flex-wrap: wrap;
+}
+
+.singers > * {
+    background-color: aliceblue;
+    flex: 1;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    height: 80%;
+    display: flex;
+    position: relative;
+}
+
+.singers {
+    align-items: flex-end;
+    width: 50vw;
+    height: 40vh;
+    padding: 20px;
+    
+}
+
+.buttons {
+    width: 50vw;
+    height: 20vh;
+    background: #111;
+    column-gap: 50px;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    > * {
+        width: 50px;
+        height: 50px;
+        background-color: green;
+    }
+}
+
+.active {
+    border: 5px solid rebeccapurple;
+}
+
+.end {
+    border: 5px solid blue;
+}
+.head {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: -50px;
+    
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+img {
+    width: 100%;
+    height: auto;
+}
+
+.container {
+    width: 100vw;
+    height: 100vh;
+    background-color: aqua;
+    flex-direction: column;
+}
