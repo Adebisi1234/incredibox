@@ -20,14 +20,13 @@ const singers: NodeListOf<HTMLDivElement> =
   document.querySelectorAll(".singer");
 const buttons: NodeListOf<HTMLDivElement> =
   document.querySelectorAll(".button");
-let num: number = 0;
 let interval: number = 0;
+let songId: string = "";
+let currentAudio: HTMLAudioElement[] = [];
 
 // BUTTONS
 buttons.forEach((button) => {
   button.addEventListener("dragstart", (ev: DragEvent) => {
-    console.log(ev);
-    console.log((ev.target as HTMLAudioElement).getAttribute("data-song-id")!);
     songId = (ev.target as HTMLAudioElement).getAttribute("data-song-id")!;
   });
   button.addEventListener("dragend", (ev: DragEvent) => {
@@ -48,40 +47,41 @@ singers.forEach((singer: HTMLDivElement): void => {
     ev.preventDefault();
   });
   singer.addEventListener("click", (ev: MouseEvent) => {
-    const id = (ev.target as HTMLDivElement).getAttribute("data-song-id");
-    handleRemoveAudio(id!);
+    const id = (ev.target as HTMLDivElement).getAttribute("data-song-id")!;
+    id.length > 0 ? handleRemoveAudio(id!) : handleAddAudio(id);
   });
   singer.addEventListener("drop", (ev: DragEvent) => {
     ev.preventDefault();
     (ev.target as HTMLDivElement).setAttribute("data-song-id", songId);
     (ev.target as HTMLDivElement).classList.replace("active", "end");
-    num++;
-    handleAudio(num);
+    handleAddAudio(songId);
   });
 });
-let currentAudio: HTMLAudioElement | undefined = undefined;
-let songId = "";
+
 function handleRemoveAudio(id: string) {
-  const paused = document.querySelector(`audio[data-song-id='${id}']`);
+  const paused: HTMLAudioElement = document.querySelector(
+    `audio[data-song-id='${id}']`
+  )!;
+  console.log(paused);
   paused?.remove();
 }
 
-function handleAudio(num: number) {
+function handleAddAudio(id: string) {
   const audio: HTMLAudioElement = document.createElement("audio");
   audio.preload = "auto";
   audio.loop = true;
-  audio.src = getAudioURl(num);
-  audio.setAttribute("data-song-id", songId);
+  audio.src = getAudioURl(id);
+  audio.setAttribute("data-song-id", id);
   document.body.append(audio);
-  currentAudio = audio;
+  currentAudio.push(audio);
   if (document.getElementsByTagName("audio").length === 1) {
     audio.play();
     timeOut();
   }
 }
 
-function getAudioURl(num: number) {
-  switch (num) {
+function getAudioURl(id: string) {
+  switch (+id) {
     case 1:
       return "./public/one.ogg";
     case 2:
@@ -103,6 +103,6 @@ function timeOut() {
   setInterval(() => {
     interval += 1;
 
-    interval % 5 === 0 && currentAudio?.play();
+    interval % 5 === 0 && currentAudio.forEach((audio) => audio.play());
   }, 1000);
 }

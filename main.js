@@ -19,13 +19,12 @@ MORE TO Come
 */
 const singers = document.querySelectorAll(".singer");
 const buttons = document.querySelectorAll(".button");
-let num = 0;
 let interval = 0;
+let songId = "";
+let currentAudio = [];
 // BUTTONS
 buttons.forEach((button) => {
     button.addEventListener("dragstart", (ev) => {
-        console.log(ev);
-        console.log(ev.target.getAttribute("data-song-id"));
         songId = ev.target.getAttribute("data-song-id");
     });
     button.addEventListener("dragend", (ev) => {
@@ -46,37 +45,35 @@ singers.forEach((singer) => {
     });
     singer.addEventListener("click", (ev) => {
         const id = ev.target.getAttribute("data-song-id");
-        handleRemoveAudio(id);
+        id.length > 0 ? handleRemoveAudio(id) : handleAddAudio(id);
     });
     singer.addEventListener("drop", (ev) => {
         ev.preventDefault();
         ev.target.setAttribute("data-song-id", songId);
         ev.target.classList.replace("active", "end");
-        num++;
-        handleAudio(num);
+        handleAddAudio(songId);
     });
 });
-let currentAudio = undefined;
-let songId = "";
 function handleRemoveAudio(id) {
     const paused = document.querySelector(`audio[data-song-id='${id}']`);
+    console.log(paused);
     paused === null || paused === void 0 ? void 0 : paused.remove();
 }
-function handleAudio(num) {
+function handleAddAudio(id) {
     const audio = document.createElement("audio");
     audio.preload = "auto";
     audio.loop = true;
-    audio.src = getAudioURl(num);
-    audio.setAttribute("data-song-id", songId);
+    audio.src = getAudioURl(id);
+    audio.setAttribute("data-song-id", id);
     document.body.append(audio);
-    currentAudio = audio;
+    currentAudio.push(audio);
     if (document.getElementsByTagName("audio").length === 1) {
         audio.play();
         timeOut();
     }
 }
-function getAudioURl(num) {
-    switch (num) {
+function getAudioURl(id) {
+    switch (+id) {
         case 1:
             return "./public/one.ogg";
         case 2:
@@ -96,6 +93,6 @@ function getAudioURl(num) {
 function timeOut() {
     setInterval(() => {
         interval += 1;
-        interval % 5 === 0 && (currentAudio === null || currentAudio === void 0 ? void 0 : currentAudio.play());
+        interval % 5 === 0 && currentAudio.forEach((audio) => audio.play());
     }, 1000);
 }
