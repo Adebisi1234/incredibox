@@ -25,15 +25,6 @@ let intervalId: number = 0;
 let songId: string = "";
 let currentAudio: HTMLAudioElement[] = [];
 
-const pausedSongs = {
-  one: false,
-  two: false,
-  three: false,
-  four: false,
-  fix: false,
-  six: false,
-};
-
 // BUTTONS
 buttons.forEach((button) => {
   button.addEventListener("dragstart", (ev: DragEvent) => {
@@ -50,6 +41,10 @@ singers.forEach((singer: HTMLDivElement): void => {
   singer.addEventListener("dragenter", (ev: DragEvent) => {
     (ev.target as HTMLDivElement).classList.add("active");
   });
+  singer.addEventListener("pointermove", () => {});
+  singer.addEventListener("pointerdown", () => {});
+  singer.addEventListener("pointerup", () => {});
+  singer.addEventListener("pointerleave", () => {});
   singer.addEventListener("dragleave", (ev: DragEvent) => {
     (ev.target as HTMLDivElement).classList.remove("active");
   });
@@ -89,6 +84,14 @@ function handleAddAudio(id: string) {
   audio.loop = true;
   audio.src = getAudioURl(id);
   audio.setAttribute("data-song-id", id);
+  audio.addEventListener("ended", (ev: Event) => {
+    let src = (ev.target as HTMLAudioElement).src;
+    src.endsWith("_a.ogg")
+      ? (src = src.replace("_a.ogg", "_b.ogg"))
+      : (src = src.replace("_b.ogg", "_a.ogg"));
+    console.log(src);
+    (ev.target as HTMLAudioElement).play();
+  });
   document.body.append(audio);
   currentAudio.push(audio);
   if (document.getElementsByTagName("audio").length === 1) {
@@ -100,17 +103,46 @@ function handleAddAudio(id: string) {
 function getAudioURl(id: string) {
   switch (+id) {
     case 1:
-      return "./public/one.ogg";
+      return "./public/1_atlanta_a.ogg";
     case 2:
-      return "./public/two.ogg";
+      return "./public/2_tuctom_a.ogg";
     case 3:
-      return "./public/three.ogg";
+      return "./public/3_foubreak_a.ogg";
     case 4:
-      return "./public/four.ogg";
+      return "./public/4_koukaki_a.ogg";
     case 5:
-      return "./public/five.ogg";
+      return "./public/5_koungou_a.ogg";
     case 6:
-      return "./public/six.ogg";
+      return "./public/6_bass_a.ogg";
+    case 7:
+      return "./public/7_monk_a.ogg";
+    case 8:
+      return "./public/8_sonar_a.ogg";
+    case 9:
+      return "./public/9_souffle_a.ogg";
+    case 10:
+      return "./public/10_epifle_a.ogg";
+    case 11:
+      return "./public/11_arpeg_a.ogg";
+    case 12:
+      return "./public/12_tromp_a.ogg";
+    case 13:
+      return "./public/13_pizzi_a.ogg";
+    case 14:
+      return "./public/14_organ_a.ogg";
+    case 15:
+      return "./public/15_synth_a.ogg";
+    case 16:
+      return "./public/16_follow_a.ogg";
+    case 17:
+      return "./public/17_choir_a.ogg";
+    case 18:
+      return "./public/18_houhou_a.ogg";
+    case 19:
+      return "./public/19_reach_a.ogg";
+    case 20:
+      return "./public/20_believe_a.ogg";
+
     default:
       return "";
   }
