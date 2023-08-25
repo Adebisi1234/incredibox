@@ -29,8 +29,11 @@ buttons.forEach((button) => {
         songId = ev.target.getAttribute("data-song-id");
     });
     button.addEventListener("dragend", (ev) => {
-        ev.target.draggable = false;
-        ev.target.style.opacity = "0.5";
+        var _a;
+        if (((_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.dropEffect) === "copy") {
+            ev.target.draggable = false;
+            ev.target.style.opacity = "0.5";
+        }
     });
 });
 // SINGERS
@@ -38,10 +41,14 @@ singers.forEach((singer) => {
     singer.addEventListener("dragenter", (ev) => {
         ev.target.classList.add("active");
     });
-    singer.addEventListener("pointermove", () => { });
-    singer.addEventListener("pointerdown", () => { });
-    singer.addEventListener("pointerup", () => { });
-    singer.addEventListener("pointerleave", () => { });
+    // singer.addEventListener("pointermove", () => {});
+    // singer.addEventListener("pointerdown", () => {});
+    // singer.addEventListener("pointerup", () => {});
+    // singer.addEventListener("pointerleave", (ev: PointerEvent) => {
+    //   const id = (ev.target as HTMLDivElement).getAttribute("data-song-id")!;
+    //   id && document.querySelector(`audio[data-song-id='${id}']`)
+    //     && handleRemoveAudio(id!)
+    // });
     singer.addEventListener("dragleave", (ev) => {
         ev.target.classList.remove("active");
     });
@@ -50,9 +57,8 @@ singers.forEach((singer) => {
     });
     singer.addEventListener("click", (ev) => {
         const id = ev.target.getAttribute("data-song-id");
-        id && document.querySelector(`audio[data-song-id='${id}']`)
-            ? handleRemoveAudio(id)
-            : handleAddAudio(id);
+        const audio = document.querySelector(`audio[data-song-id='${id}']`);
+        audio.muted = !audio.muted;
     });
     singer.addEventListener("drop", (ev) => {
         ev.preventDefault();
@@ -76,14 +82,6 @@ function handleAddAudio(id) {
     audio.loop = true;
     audio.src = getAudioURl(id);
     audio.setAttribute("data-song-id", id);
-    audio.addEventListener("ended", (ev) => {
-        let src = ev.target.src;
-        src.endsWith("_a.ogg")
-            ? (src = src.replace("_a.ogg", "_b.ogg"))
-            : (src = src.replace("_b.ogg", "_a.ogg"));
-        console.log(src);
-        ev.target.play();
-    });
     document.body.append(audio);
     currentAudio.push(audio);
     if (document.getElementsByTagName("audio").length === 1) {
@@ -143,6 +141,20 @@ function timeOut(clear = false) {
     }
     intervalId = setInterval(() => {
         interval += 1;
-        interval % 5 === 0 && currentAudio.forEach((audio) => audio === null || audio === void 0 ? void 0 : audio.play());
+        interval % 5 === 0 &&
+            (() => {
+                // let audios: NodeListOf<HTMLAudioElement> =
+                //   document.querySelectorAll("audio");
+                // audios.forEach((audio) => {
+                //   let src: string = audio.src;
+                //   src.endsWith("_a.ogg")
+                //     ? (src = src.replace("_a.ogg", "_b.ogg"))
+                //     : (src = src.replace("_b.ogg", "_a.ogg"));
+                //   audio.src = src;
+                //   console.log(audio.src);
+                //   audio.play();
+                // });
+                currentAudio.forEach((audio) => audio === null || audio === void 0 ? void 0 : audio.play());
+            })();
     }, 1000);
 }

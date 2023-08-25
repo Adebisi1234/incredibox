@@ -31,8 +31,10 @@ buttons.forEach((button) => {
     songId = (ev.target as HTMLAudioElement).getAttribute("data-song-id")!;
   });
   button.addEventListener("dragend", (ev: DragEvent) => {
-    (ev.target as HTMLAudioElement).draggable = false;
-    (ev.target as HTMLAudioElement).style.opacity = "0.5";
+    if (ev.dataTransfer?.dropEffect === "copy") {
+      (ev.target as HTMLAudioElement).draggable = false;
+      (ev.target as HTMLAudioElement).style.opacity = "0.5";
+    }
   });
 });
 
@@ -41,10 +43,14 @@ singers.forEach((singer: HTMLDivElement): void => {
   singer.addEventListener("dragenter", (ev: DragEvent) => {
     (ev.target as HTMLDivElement).classList.add("active");
   });
-  singer.addEventListener("pointermove", () => {});
-  singer.addEventListener("pointerdown", () => {});
-  singer.addEventListener("pointerup", () => {});
-  singer.addEventListener("pointerleave", () => {});
+  // singer.addEventListener("pointermove", () => {});
+  // singer.addEventListener("pointerdown", () => {});
+  // singer.addEventListener("pointerup", () => {});
+  // singer.addEventListener("pointerleave", (ev: PointerEvent) => {
+  //   const id = (ev.target as HTMLDivElement).getAttribute("data-song-id")!;
+  //   id && document.querySelector(`audio[data-song-id='${id}']`)
+  //     && handleRemoveAudio(id!)
+  // });
   singer.addEventListener("dragleave", (ev: DragEvent) => {
     (ev.target as HTMLDivElement).classList.remove("active");
   });
@@ -53,9 +59,10 @@ singers.forEach((singer: HTMLDivElement): void => {
   });
   singer.addEventListener("click", (ev: MouseEvent) => {
     const id = (ev.target as HTMLDivElement).getAttribute("data-song-id")!;
-    id && document.querySelector(`audio[data-song-id='${id}']`)
-      ? handleRemoveAudio(id!)
-      : handleAddAudio(id);
+    const audio: HTMLAudioElement = document.querySelector(
+      `audio[data-song-id='${id}']`
+    )!;
+    audio.muted = !audio.muted;
   });
   singer.addEventListener("drop", (ev: DragEvent) => {
     ev.preventDefault();
@@ -84,14 +91,6 @@ function handleAddAudio(id: string) {
   audio.loop = true;
   audio.src = getAudioURl(id);
   audio.setAttribute("data-song-id", id);
-  audio.addEventListener("ended", (ev: Event) => {
-    let src = (ev.target as HTMLAudioElement).src;
-    src.endsWith("_a.ogg")
-      ? (src = src.replace("_a.ogg", "_b.ogg"))
-      : (src = src.replace("_b.ogg", "_a.ogg"));
-    console.log(src);
-    (ev.target as HTMLAudioElement).play();
-  });
   document.body.append(audio);
   currentAudio.push(audio);
   if (document.getElementsByTagName("audio").length === 1) {
@@ -154,7 +153,21 @@ function timeOut(clear: boolean = false) {
   }
   intervalId = setInterval(() => {
     interval += 1;
+    interval % 5 === 0 &&
+      (() => {
+        // let audios: NodeListOf<HTMLAudioElement> =
+        //   document.querySelectorAll("audio");
+        // audios.forEach((audio) => {
+        //   let src: string = audio.src;
+        //   src.endsWith("_a.ogg")
+        //     ? (src = src.replace("_a.ogg", "_b.ogg"))
+        //     : (src = src.replace("_b.ogg", "_a.ogg"));
+        //   audio.src = src;
+        //   console.log(audio.src);
+        //   audio.play();
+        // });
 
-    interval % 5 === 0 && currentAudio.forEach((audio) => audio?.play());
+        currentAudio.forEach((audio) => audio?.play());
+      })();
   }, 1000);
 }
