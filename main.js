@@ -92,45 +92,45 @@ function handleAddAudio(id) {
 function getAudioURl(id) {
     switch (+id) {
         case 1:
-            return "./public/1_atlanta_a.ogg";
+            return "./public/1_atlanta.ogg";
         case 2:
-            return "./public/2_tuctom_a.ogg";
+            return "./public/2_tuctom.ogg";
         case 3:
-            return "./public/3_foubreak_a.ogg";
+            return "./public/3_foubreak.ogg";
         case 4:
-            return "./public/4_koukaki_a.ogg";
+            return "./public/4_koukaki.ogg";
         case 5:
-            return "./public/5_koungou_a.ogg";
+            return "./public/5_koungou.ogg";
         case 6:
-            return "./public/6_bass_a.ogg";
+            return "./public/6_bass.ogg";
         case 7:
-            return "./public/7_monk_a.ogg";
+            return "./public/7_monk.ogg";
         case 8:
-            return "./public/8_sonar_a.ogg";
+            return "./public/8_sonar.ogg";
         case 9:
-            return "./public/9_souffle_a.ogg";
+            return "./public/9_souffle.ogg";
         case 10:
-            return "./public/10_epifle_a.ogg";
+            return "./public/10_epifle.ogg";
         case 11:
-            return "./public/11_arpeg_a.ogg";
+            return "./public/11_arpeg.ogg";
         case 12:
-            return "./public/12_tromp_a.ogg";
+            return "./public/12_tromp.ogg";
         case 13:
-            return "./public/13_pizzi_a.ogg";
+            return "./public/13_pizzi.ogg";
         case 14:
-            return "./public/14_organ_a.ogg";
+            return "./public/14_organ.ogg";
         case 15:
-            return "./public/15_synth_a.ogg";
+            return "./public/15_synth.ogg";
         case 16:
-            return "./public/16_follow_a.ogg";
+            return "./public/16_follow.ogg";
         case 17:
-            return "./public/17_choir_a.ogg";
+            return "./public/17_choir.ogg";
         case 18:
-            return "./public/18_houhou_a.ogg";
+            return "./public/18_houhou.ogg";
         case 19:
-            return "./public/19_reach_a.ogg";
+            return "./public/19_reach.ogg";
         case 20:
-            return "./public/20_believe_a.ogg";
+            return "./public/20_believe.ogg";
         default:
             return "";
     }
@@ -143,17 +143,6 @@ function timeOut(clear = false) {
         interval += 1;
         interval % 5 === 0 &&
             (() => {
-                // let audios: NodeListOf<HTMLAudioElement> =
-                //   document.querySelectorAll("audio");
-                // audios.forEach((audio) => {
-                //   let src: string = audio.src;
-                //   src.endsWith("_a.ogg")
-                //     ? (src = src.replace("_a.ogg", "_b.ogg"))
-                //     : (src = src.replace("_b.ogg", "_a.ogg"));
-                //   audio.src = src;
-                //   console.log(audio.src);
-                //   audio.play();
-                // });
                 currentAudio.forEach((audio) => audio === null || audio === void 0 ? void 0 : audio.play());
             })();
     }, 1000);
