@@ -32,5 +32,8 @@ const log = (data) => {
   console.log(data);
 };
 audios.forEach((audio) => {
-  concatAudio(`cat ${audio}_a.ogg ${audio}_b.ogg > ${audio}.ogg`, log);
+  concatAudio(
+    `ffmpeg -i "concat:${audio}_a.ogg|${audio}_b.ogg" -c copy ${audio}.ogg`,
+    log
+  );
 });

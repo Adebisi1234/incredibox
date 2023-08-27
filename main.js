@@ -143,7 +143,7 @@ function timeOut(clear = false) {
         interval += 1;
         interval % 5 === 0 &&
             (() => {
-                currentAudio.forEach((audio) => audio === null || audio === void 0 ? void 0 : audio.play());
+                currentAudio.forEach((audio) => (audio === null || audio === void 0 ? void 0 : audio.paused) && (audio === null || audio === void 0 ? void 0 : audio.play()));
             })();
     }, 1000);
 }

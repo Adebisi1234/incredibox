@@ -155,7 +155,7 @@ function timeOut(clear: boolean = false) {
     interval += 1;
     interval % 5 === 0 &&
       (() => {
-        currentAudio.forEach((audio) => audio?.play());
+        currentAudio.forEach((audio) => audio?.paused && audio?.play());
       })();
   }, 1000);
 }
