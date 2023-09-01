@@ -17,7 +17,7 @@ MORE TO Come
 */
 const singers: NodeListOf<HTMLDivElement> =
   document.querySelectorAll(".singer");
-const songs: NodeListOf<HTMLDivElement> = document.querySelectorAll(".button");
+const songs: NodeListOf<HTMLDivElement> = document.querySelectorAll(".song");
 let beat: number = 0;
 let intervalId: number = 0;
 let songId: string = "";
@@ -64,13 +64,15 @@ singers.forEach((singer: HTMLDivElement): void => {
   });
   singer.addEventListener("drop", (ev: DragEvent) => {
     ev.preventDefault();
-    (ev.target as HTMLDivElement).setAttribute("data-song-id", songId);
-    (ev.target as HTMLDivElement).lastElementChild?.setAttribute(
-      "data-song-id",
-      songId
-    );
-    (ev.target as HTMLDivElement).classList.replace("active", "end");
-    handleAddAudio(songId);
+    if ((ev.target as HTMLDivElement).getAttribute("data-song-id") === null) {
+      (ev.target as HTMLDivElement).setAttribute("data-song-id", songId);
+      (ev.target as HTMLDivElement).lastElementChild?.setAttribute(
+        "data-song-id",
+        songId
+      );
+      (ev.target as HTMLDivElement).classList.replace("active", "end");
+      handleAddAudio(songId);
+    }
   });
 });
 
@@ -94,12 +96,13 @@ function handleAddAudio(id: string) {
   audio.src = getAudioURl(id);
   audio.setAttribute("data-song-id", id);
   // Loader slider unsteady
-  document
-    .querySelector(`.loader[data-song-id='${id}']`)
-    ?.classList.add("active");
+  id !== "1" &&
+    document
+      .querySelector(`.loader[data-song-id='${id}']`)
+      ?.classList.add("loading");
   document.documentElement.style.setProperty(
     "--transition-time",
-    `${beat % 5}`
+    `${beat % 5}s`
   );
   document.body.append(audio);
   currentAudios.push(audio);
@@ -167,11 +170,10 @@ function beatInterval(clear: boolean = false) {
       currentAudios.forEach((audio: HTMLAudioElement, i) => {
         audio?.paused && audio?.play();
         const id = audio.getAttribute("data-song-id");
+        document.documentElement.style.setProperty("--transition-time", `0s`);
         document
           .querySelector(`.loader[data-song-id='${id}']`)
-          ?.classList.remove("active");
-        currentAudios.splice(i, 1);
-        console.log("currentAudios", currentAudios);
+          ?.classList.remove("loading");
       });
   }, 1000);
 }

@@ -17,7 +17,7 @@ We'll have a function for each small features and there'll be event listener on 
 MORE TO Come
 */
 const singers = document.querySelectorAll(".singer");
-const songs = document.querySelectorAll(".button");
+const songs = document.querySelectorAll(".song");
 let beat = 0;
 let intervalId = 0;
 let songId = "";
@@ -85,9 +85,10 @@ function handleAddAudio(id) {
     audio.src = getAudioURl(id);
     audio.setAttribute("data-song-id", id);
     // Loader slider unsteady
-    (_a = document
-        .querySelector(`.loader[data-song-id='${id}']`)) === null || _a === void 0 ? void 0 : _a.classList.add("active");
-    document.documentElement.style.setProperty("--transition-time", `${beat % 5}`);
+    id !== "1" &&
+        ((_a = document
+            .querySelector(`.loader[data-song-id='${id}']`)) === null || _a === void 0 ? void 0 : _a.classList.add("loading"));
+    document.documentElement.style.setProperty("--transition-time", `${beat % 5}s`);
     document.body.append(audio);
     currentAudios.push(audio);
     if (document.getElementsByTagName("audio").length === 1) {
@@ -152,10 +153,9 @@ function beatInterval(clear = false) {
                 var _a;
                 (audio === null || audio === void 0 ? void 0 : audio.paused) && (audio === null || audio === void 0 ? void 0 : audio.play());
                 const id = audio.getAttribute("data-song-id");
+                document.documentElement.style.setProperty("--transition-time", `0s`);
                 (_a = document
-                    .querySelector(`.loader[data-song-id='${id}']`)) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
-                currentAudios.splice(i, 1);
-                console.log("currentAudios", currentAudios);
+                    .querySelector(`.loader[data-song-id='${id}']`)) === null || _a === void 0 ? void 0 : _a.classList.remove("loading");
             });
     }, 1000);
 }
