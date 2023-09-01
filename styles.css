@@ -3,8 +3,9 @@
     padding: 0;
     margin: 0;
 }
-body {
+html {
     user-select: none;
+    --transition-time: 5s;
 }
 .container, .singers, .buttons {
     display: flex;
@@ -78,4 +79,20 @@ img {
     height: 100vh;
     background-color: aqua;
     flex-direction: column;
+}
+
+.loader {
+    margin: 0 2%;
+    width: 0px;
+    height: 4px;
+    border-radius: 8px;
+    transition-duration: var(--transition-time);
+    transition-property: all;
+    transition-timing-function: ease;
+    position: absolute;
+    bottom: 0;
+}
+
+.loader .active {
+    width: 100%;
 }
