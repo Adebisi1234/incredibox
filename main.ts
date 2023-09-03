@@ -1,14 +1,49 @@
 class GlobalState {
   private ready = false;
+  private audioQueue: HTMLAudioElement[] = [];
+  readonly beat: number = 7;
+  private interval: number = 1000;
+  private counter: number = 0;
+  public beatIntervalId: number = 0;
+  private audiosInDom: { [key: number]: HTMLAudioElement } = {};
+
+  constructor(beat?: number, interval?: number) {
+    if (beat && interval) {
+      this.beat = beat;
+      this.interval = interval;
+    }
+  }
+  get getCounter() {
+    return this.counter;
+  }
+  set setCounter(num: number) {
+    this.counter += num;
+  }
+  get getInterval() {
+    return this.interval;
+  }
+  get getAudiosInDom() {
+    return this.audiosInDom;
+  }
+  set setAudiosInDom({ id, audio }: { id: number; audio: HTMLAudioElement }) {
+    this.audiosInDom[id] = audio;
+  }
   get isReady() {
     return this.ready;
   }
   set isLoading(loading: boolean) {
     this.ready = !loading;
   }
+
+  get getAudioQueue() {
+    return this.audioQueue;
+  }
+  set setAudioQueue(newAudio: HTMLAudioElement) {
+    this.audioQueue.push(newAudio);
+  }
 }
 
-const GLOBAL = new GlobalState();
+const global = new GlobalState();
 
 // Fetch all audio's and videos beforehand
 const allVideoLinks: { [key: number]: string } = {
@@ -57,31 +92,28 @@ async function fetchBlob(audioLink: string): Promise<Blob> {
 }
 
 // Fetch all audio and video files into memory
-try {
-  (async function cacheAudioURL() {
+async function cacheFilesURL(
+  allAudioLinks: {
+    [key: number]: string;
+  },
+  allVideoLinks: {
+    [key: number]: string;
+  }
+) {
+  try {
     for (const audioLink in allAudioLinks) {
-      const audioBlob = await fetchBlob(audioLink);
+      const audioBlob = await fetchBlob(allAudioLinks[audioLink]);
       allCachedAudioURL[audioLink] = URL.createObjectURL(audioBlob);
     }
-    console.log(allCachedAudioURL);
-  })();
-
-  (async function cacheVideoURL() {
-    for (const VideoLink in allVideoLinks) {
-      const VideoBlob = await fetchBlob(VideoLink);
-      allCachedVideoURL[VideoLink] = URL.createObjectURL(VideoBlob);
+    for (const videoLink in allVideoLinks) {
+      const videoBlob = await fetchBlob(allVideoLinks[videoLink]);
+      allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
     }
-    console.log(allCachedVideoURL);
-  })();
-} catch (err) {
-  throw new Error();
-}
-GLOBAL.isLoading = false;
-
-if (GLOBAL.isReady) {
-  (
-    document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
-  ).style.display = "none";
+    global.isLoading = false;
+    console.log(allCachedAudioURL, allCachedVideoURL, global.isReady);
+  } catch (err) {
+    throw new Error();
+  }
 }
 
 // dragging songs
@@ -90,10 +122,47 @@ if (GLOBAL.isReady) {
 
 // Playing video
 
-// Playing audio
+// adding & Playing audio
+
+function addAudio(id: string) {
+  const newAudio = document.createElement("audio");
+  newAudio.setAttribute("data-song-id", id);
+  newAudio.loop = true;
+  newAudio.src = allCachedAudioURL[Number(id)];
+  if (Object.keys(global.getAudiosInDom).length === 0) {
+    document.body.append(newAudio);
+    newAudio.play();
+    startBeatInterval();
+    global.setAudiosInDom = { id: +id, audio: newAudio };
+  } else {
+    global.setAudioQueue = newAudio;
+    global.setAudiosInDom = { id: +id, audio: newAudio };
+  }
+}
+
+function startBeatInterval() {
+  global.beatIntervalId = setInterval(() => {
+    global.setCounter += 1;
+    if (global.getCounter % global.beat === 0) {
+      global.getAudioQueue.forEach((audio, i) => {
+        audio.paused && audio.play();
+        global.getAudioQueue.splice(i, 1);
+      });
+    }
+  }, global.getInterval);
+}
 
 // Muting audio
 
-// Removing audio
+// Removing audio & clear interval
 
 // Animations
+
+// Start application
+cacheFilesURL(allAudioLinks, allVideoLinks).then(() => {
+  if (global.isReady) {
+    (
+      document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
+    ).style.display = "none";
+  }
+});

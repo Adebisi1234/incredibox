@@ -1,186 +1,155 @@
 "use strict";
-/*
-Now let see how we'll implement this
-
-All the audio files will be located in the /public folder, on later implementation they will be fetched lazily optimizing the website
-
-We'll have a function for each small features and there'll be event listener on every single piece of the app from the songs to the singers
-
-**Singers**
-* The container element will have an onDragEnter **event listener(event)** on it - which moves the eyes of the singers toward the moved song
-* Each singer will have an onDrop event on it - Which triggers the changeSrcOfAudio function that controls the song and a class will be added that shows it's active
-
-** songs**
-* The song will be draggable, and the singers will be it's only active drop point, it'll return to it's original position otherwise
-* Each song will have an id that identifies the song it represent
-
-MORE TO Come
-*/
-const singers = document.querySelectorAll(".singer");
-const songs = document.querySelectorAll(".song");
-let beat = 0;
-let intervalId = 0;
-let songId = "";
-let currentAudios = [];
-let test;
-// songs
-songs.forEach((song) => {
-  song.addEventListener("dragstart", (ev) => {
-    songId = ev.target.getAttribute("data-song-id");
-    ev.target.style.opacity = "0.5";
-  });
-  song.addEventListener("drag", (ev) => {
-    ev.target.style.opacity = "1";
-  });
-});
-// SINGERS
-singers.forEach((singer) => {
-  singer.addEventListener("dragenter", (ev) => {
-    ev.target.classList.add("active");
-  });
-  // singer.addEventListener("pointermove", () => {});
-  // singer.addEventListener("pointerdown", () => {});
-  // singer.addEventListener("pointerup", () => {});
-  // singer.addEventListener("pointerleave", (ev: PointerEvent) => {
-  //   const id = (ev.target as HTMLDivElement).getAttribute("data-song-id")!;
-  //   id && document.querySelector(`audio[data-song-id='${id}']`)
-  //     && handleRemoveAudio(id!)
-  // });
-  singer.addEventListener("dragleave", (ev) => {
-    ev.target.classList.remove("active");
-  });
-  singer.addEventListener("dragover", (ev) => {
-    ev.preventDefault();
-  });
-  singer.addEventListener("click", (ev) => {
-    const id = ev.target.getAttribute("data-song-id");
-    const audio = document.querySelector(`audio[data-song-id='${id}']`);
-    audio.muted = !audio.muted;
-  });
-  singer.addEventListener("drop", (ev) => {
-    var _a;
-    ev.preventDefault();
-    if (ev.target.getAttribute("data-song-id") === null) {
-      ev.target.setAttribute("data-song-id", songId);
-      (_a = ev.target.lastElementChild) === null || _a === void 0
-        ? void 0
-        : _a.setAttribute("data-song-id", songId);
-      ev.target.classList.replace("active", "end");
-      const playedSong = document.querySelector(
-        `.song[data-song-id='${songId}'`
-      );
-      playedSong.style.opacity = "0.5";
-      playedSong.draggable = false;
-      handleAddAudio(songId);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+class GlobalState {
+    constructor(beat, interval) {
+        this.ready = false;
+        this.audioQueue = [];
+        this.beat = 7;
+        this.interval = 1000;
+        this.counter = 0;
+        this.beatIntervalId = 0;
+        this.audiosInDom = {};
+        if (beat && interval) {
+            this.beat = beat;
+            this.interval = interval;
+        }
     }
-  });
+    get getCounter() {
+        return this.counter;
+    }
+    set setCounter(num) {
+        this.counter += num;
+    }
+    get getInterval() {
+        return this.interval;
+    }
+    get getAudiosInDom() {
+        return this.audiosInDom;
+    }
+    set setAudiosInDom({ id, audio }) {
+        this.audiosInDom[id] = audio;
+    }
+    get isReady() {
+        return this.ready;
+    }
+    set isLoading(loading) {
+        this.ready = !loading;
+    }
+    get getAudioQueue() {
+        return this.audioQueue;
+    }
+    set setAudioQueue(newAudio) {
+        this.audioQueue.push(newAudio);
+    }
+}
+const global = new GlobalState();
+// Fetch all audio's and videos beforehand
+const allVideoLinks = {
+    1: "./public/video1.webm",
+    2: "./public/video2.webm",
+    3: "./public/video3.webm",
+};
+const allAudioLinks = {
+    1: "./public/1_atlanta.ogg",
+    2: "./public/2_tuctom.ogg",
+    3: "./public/3_foubreak.ogg",
+    4: "./public/4_koukaki.ogg",
+    5: "./public/5_koungou.ogg",
+    6: "./public/6_bass.ogg",
+    7: "./public/7_monk.ogg",
+    8: "./public/8_sonar.ogg",
+    9: "./public/9_souffle.ogg",
+    10: "./public/10_epifle.ogg",
+    11: "./public/11_arpeg.ogg",
+    12: "./public/12_tromp.ogg",
+    13: "./public/13_pizzi.ogg",
+    14: "./public/14_organ.ogg",
+    15: "./public/15_synth.ogg",
+    16: "./public/16_follow.ogg",
+    17: "./public/17_choir.ogg",
+    18: "./public/18_houhou.ogg",
+    19: "./public/19_reach.ogg",
+    20: "./public/20_believe.ogg",
+};
+const allCachedAudioURL = {};
+const allCachedVideoURL = {};
+// fetch blog helper function
+function fetchBlob(audioLink) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield (yield fetch(audioLink)).blob();
+            return response;
+        }
+        catch (err) {
+            throw new Error("Invalid URL");
+        }
+    });
+}
+// Fetch all audio and video files into memory
+function cacheFilesURL(allAudioLinks, allVideoLinks) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            for (const audioLink in allAudioLinks) {
+                const audioBlob = yield fetchBlob(allAudioLinks[audioLink]);
+                allCachedAudioURL[audioLink] = URL.createObjectURL(audioBlob);
+            }
+            for (const videoLink in allVideoLinks) {
+                const videoBlob = yield fetchBlob(allVideoLinks[videoLink]);
+                allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
+            }
+            global.isLoading = false;
+            console.log(allCachedAudioURL, allCachedVideoURL, global.isReady);
+        }
+        catch (err) {
+            throw new Error();
+        }
+    });
+}
+// dragging songs
+// customizing the singers
+// Playing video
+// adding & Playing audio
+function addAudio(id) {
+    const newAudio = document.createElement("audio");
+    newAudio.setAttribute("data-song-id", id);
+    newAudio.loop = true;
+    newAudio.src = allCachedAudioURL[Number(id)];
+    if (Object.keys(global.getAudiosInDom).length === 0) {
+        document.body.append(newAudio);
+        newAudio.play();
+        startBeatInterval();
+        global.setAudiosInDom = { id: +id, audio: newAudio };
+    }
+    else {
+        global.setAudioQueue = newAudio;
+        global.setAudiosInDom = { id: +id, audio: newAudio };
+    }
+}
+function startBeatInterval() {
+    global.beatIntervalId = setInterval(() => {
+        global.setCounter += 1;
+        if (global.getCounter % global.beat === 0) {
+            global.getAudioQueue.forEach((audio, i) => {
+                audio.paused && audio.play();
+                global.getAudioQueue.splice(i, 1);
+            });
+        }
+    }, global.getInterval);
+}
+// Muting audio
+// Removing audio & clear interval
+// Animations
+// Start application
+cacheFilesURL(allAudioLinks, allVideoLinks).then(() => {
+    if (global.isReady) {
+        document.getElementsByClassName("splashscreen")[0].style.display = "none";
+    }
 });
-function handleRemoveAudio(id) {
-  const audioToRemove = document.querySelector(`audio[data-song-id='${id}']`);
-  audioToRemove.pause();
-  audioToRemove.src = "";
-  audioToRemove.remove();
-  if (!document.getElementsByTagName("audio").length) {
-    beatInterval(true);
-  }
-}
-function handleAddAudio(id) {
-  var _a;
-  const audio = document.createElement("audio");
-  audio.preload = "auto";
-  audio.loop = true;
-  audio.src = getAudioURl(id);
-  console.log(audio.duration);
-  audio.setAttribute("data-song-id", id);
-  // Loader slider unsteady
-  test = id === "1" ? Math.floor(audio.duration / 2) : 7;
-  id !== "1" &&
-    ((_a = document.querySelector(`.loader[data-song-id='${id}']`)) === null ||
-    _a === void 0
-      ? void 0
-      : _a.classList.add("loading"));
-  document.documentElement.style.setProperty(
-    "--transition-time",
-    `${beat % 5}s`
-  );
-  document.body.append(audio);
-  currentAudios.push(audio);
-  if (document.getElementsByTagName("audio").length === 1) {
-    audio.play();
-    beatInterval();
-  }
-}
-function getAudioURl(id) {
-  switch (+id) {
-    case 1:
-      return "./public/1_atlanta.ogg";
-    case 2:
-      return "./public/2_tuctom.ogg";
-    case 3:
-      return "./public/3_foubreak.ogg";
-    case 4:
-      return "./public/4_koukaki.ogg";
-    case 5:
-      return "./public/5_koungou.ogg";
-    case 6:
-      return "./public/6_bass.ogg";
-    case 7:
-      return "./public/7_monk.ogg";
-    case 8:
-      return "./public/8_sonar.ogg";
-    case 9:
-      return "./public/9_souffle.ogg";
-    case 10:
-      return "./public/10_epifle.ogg";
-    case 11:
-      return "./public/11_arpeg.ogg";
-    case 12:
-      return "./public/12_tromp.ogg";
-    case 13:
-      return "./public/13_pizzi.ogg";
-    case 14:
-      return "./public/14_organ.ogg";
-    case 15:
-      return "./public/15_synth.ogg";
-    case 16:
-      return "./public/16_follow.ogg";
-    case 17:
-      return "./public/17_choir.ogg";
-    case 18:
-      return "./public/18_houhou.ogg";
-    case 19:
-      return "./public/19_reach.ogg";
-    case 20:
-      return "./public/20_believe.ogg";
-    default:
-      return "";
-  }
-}
-function beatInterval(clear = false) {
-  if (clear) {
-    clearInterval(intervalId);
-  }
-  intervalId = setInterval(() => {
-    beat += 1;
-    beat % test === 0 &&
-      currentAudios.forEach((audio, i) => {
-        var _a;
-        (audio === null || audio === void 0 ? void 0 : audio.paused) &&
-          (audio === null || audio === void 0 ? void 0 : audio.play());
-        const id = audio.getAttribute("data-song-id");
-        document.documentElement.style.setProperty("--transition-time", `0s`);
-        (_a = document.querySelector(`.loader[data-song-id='${id}']`)) ===
-          null || _a === void 0
-          ? void 0
-          : _a.classList.remove("loading");
-      });
-  }, 1000);
-}
-
-// fetch(getAudioURl(1)).then(async (resp) => {
-//   const audioURl = URL.createObjectURL(await resp.blob());
-//   console.log(audioURl);
-//   const audio = document.getElementById("audio");
-//   audio.src = audioURl;
-//   audio.play();
-// });
