@@ -11,41 +11,73 @@ html {
 
 body {
     display: flex;
+    align-items: center;
+}
+
+.container {
+    display: flex;
     flex-direction: column;
+    width: 100vw;
     max-width: 100vw;
-    height: 100vh;
-    /* aspect-ratio: 16/9; */
+    max-height: 100vh;
+    aspect-ratio: 658/428;
 }
 
 header {
     display: flex;
-    flex: 1;
+    height: 15%;
 }
 
 main {
-    flex: 3;
+    height: 100%;
     display: flex;
     align-items: flex-end;
     height: 329px;
     justify-content: center;
     background-image: url("./mainbg.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .singers {
     display: flex;
     justify-content: center;
+    gap: 4px;
     height: 100%;
     width: 100%;
     padding: 0 10%;
+    overflow: hidden;
 }
 
 .singer {
     width: 100%;
-    max-width: 167px;
+    max-width: 120px;
     height: 100%;
     border: 1px solid green;
-    position: relative;
 }
+
+.frame {
+    margin-top: 20px;
+    height: 100%;
+    position: relative;
+    background-image: url("/singer.png");
+    background-size: contain;
+
+}
+
+.splashscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background-image: url(/home.jpg);
+    background-size: cover;
+}
+
+img {
+    width: 100%;
+}
+
+
 
 .loader {
     height: 4px;
@@ -61,14 +93,22 @@ main {
     position: absolute;
 }
 
-.loader:hover {
+.loader.loading {
     width: 100%;
     background: grey;
 }
 
 footer {
-    flex: 2;
+    height: 33%;
     padding: 1% 15%;
+
+}
+
+
+
+.songs {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -76,36 +116,31 @@ footer {
     align-items: center;
 }
 
-.left {
-    margin-left: 50px;
-    width: fit-content;
-    height: 72px;
-    flex: 0;
-    display: flex;
-    gap: 9px;
+.songs>* {
+    width: 100%;
     height: 100%;
+    flex: 1;
+    display: flex;
+    border: 1px solid red;
+    padding: 4px 0;
+}
 
-    >* {
-        background-color: aqua;
-        width: 72px;
-        height: 72px;
-        border-radius: 4px;
-    }
+.song {
+    background-color: aqua;
+    aspect-ratio: 1;
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 0%;
+    height: unset;
+    margin: 0 4px;
+    cursor: grab;
+    border-radius: 4px;
+}
+
+.left {
+    padding-left: 5%;
 }
 
 .right {
-    margin-right: 50px;
-    width: fit-content;
-    height: 72px;
-    flex: 0;
-    display: flex;
-    gap: 9px;
-    height: 100%;
-
-    >* {
-        background-color: aqua;
-        width: 72px;
-        height: 72px;
-        border-radius: 4px;
-    }
+    padding-right: 5%;
 }
