@@ -140,10 +140,14 @@ stage.addEventListener("pointermove", handleStagePointerMove);
 // Buttons
 
 // Testing
+const movedSongs: HTMLDivElement[] = [];
 let currentMovingSong: HTMLDivElement | undefined = undefined;
 function handleSongPointerDown(ev: PointerEvent): void {
   // console.log("song pointer down");
   currentMovingSong = ev.target as HTMLDivElement;
+  if (movedSongs.includes(currentMovingSong)) {
+    currentMovingSong = undefined;
+  }
   document.body.addEventListener("pointermove", handleBodyPointerMove);
   document.body.addEventListener("pointerup", handleSongPointerUp);
   singers.forEach((singer) => {
@@ -153,8 +157,11 @@ function handleSongPointerDown(ev: PointerEvent): void {
 }
 function handleSongPointerUp(ev: PointerEvent): void {
   // console.log("song pointer up");
-  currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
-  currentMovingSong = undefined;
+  if (currentMovingSong) {
+    currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
+    movedSongs.push(currentMovingSong);
+    currentMovingSong = undefined;
+  }
   document.body.removeEventListener("pointermove", handleBodyPointerMove);
   document.body.removeEventListener("pointerup", handleSongPointerUp);
   singers.forEach((singer) => {
@@ -167,10 +174,12 @@ function handleBodyPointerMove(ev: PointerEvent): void {
   console.log(ev, "current target", ev.currentTarget, "target", ev.target);
   if (currentMovingSong) {
     currentMovingSong.style.opacity = "0.5";
-    currentMovingSong.style.transformOrigin = "bottom";
+    currentMovingSong.style.transformOrigin = "center";
     currentMovingSong.style.transform = `translate3d(${
       ev.clientX - currentMovingSong.offsetLeft
-    }px, ${ev.clientY - currentMovingSong.offsetTop}px, 10px)`;
+    }px, ${
+      ev.clientY - currentMovingSong.offsetTop
+    }px, 10px) translate(-50%, -50%) `;
   }
 }
 // Main stage
