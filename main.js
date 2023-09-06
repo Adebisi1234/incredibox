@@ -51,6 +51,12 @@ class GlobalState {
     }
 }
 const global = new GlobalState();
+// Resize controller
+window.addEventListener("resize", (ev) => {
+    if (innerWidth < 768) {
+        // Change orientation
+    }
+});
 // Fetch all audio's and videos beforehand
 const allVideoLinks = {
     1: "./public/video1.webm",
@@ -106,7 +112,6 @@ function cacheFilesURL(allAudioLinks, allVideoLinks) {
                 allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
             }
             global.isLoading = false;
-            console.log(allCachedAudioURL, allCachedVideoURL, global.isReady);
         }
         catch (err) {
             throw new Error();
@@ -114,6 +119,67 @@ function cacheFilesURL(allAudioLinks, allVideoLinks) {
     });
 }
 // dragging songs
+const songs = document.querySelectorAll(".songs");
+songs.forEach((song) => {
+    song.addEventListener("pointerdown", handleSongPointerDown);
+    song.addEventListener("pointerup", handleSongPointerUp);
+});
+const singers = document.querySelectorAll(".singer");
+const stage = document.querySelector("main");
+stage.addEventListener("pointermove", handleStagePointerMove);
+// Event handlers
+// Buttons
+// Testing
+let currentMovingSong = undefined;
+function handleSongPointerDown(ev) {
+    // console.log("song pointer down");
+    currentMovingSong = ev.target;
+    document.body.addEventListener("pointermove", handleBodyPointerMove);
+    document.body.addEventListener("pointerup", handleSongPointerUp);
+    singers.forEach((singer) => {
+        singer.addEventListener("pointerenter", handleSingerPointerEnter);
+        singer.addEventListener("pointerleave", handleSingerPointerLeave);
+    });
+}
+function handleSongPointerUp(ev) {
+    // console.log("song pointer up");
+    currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
+    currentMovingSong = undefined;
+    document.body.removeEventListener("pointermove", handleBodyPointerMove);
+    document.body.removeEventListener("pointerup", handleSongPointerUp);
+    singers.forEach((singer) => {
+        singer.removeEventListener("pointerenter", handleSingerPointerEnter);
+        singer.removeEventListener("pointerleave", handleSingerPointerLeave);
+    });
+}
+function handleBodyPointerMove(ev) {
+    // console.log("song pointer move");
+    console.log(ev, "current target", ev.currentTarget, "target", ev.target);
+    if (currentMovingSong) {
+        currentMovingSong.style.opacity = "0.5";
+        currentMovingSong.style.transformOrigin = "bottom";
+        currentMovingSong.style.transform = `translate3d(${ev.clientX - currentMovingSong.offsetLeft}px, ${ev.clientY - currentMovingSong.offsetTop}px, 10px)`;
+    }
+}
+// Main stage
+function handleStagePointerMove(ev) {
+    ev.stopImmediatePropagation();
+    // console.log("enter stage");
+}
+// Singers
+function handleSingerPointerEnter(ev) {
+    // console.log("enter singer");
+    stage.removeEventListener("pointermove", handleStagePointerMove);
+}
+function handleSingerPointerLeave(ev) {
+    // console.log("singer pointer leave");
+}
+function handleSingerClick(ev) {
+    // console.log(ev);
+}
+function handleSingerPointerDown(ev) {
+    // console.log(ev);
+}
 // customizing the singers
 // Playing video
 // adding & Playing audio

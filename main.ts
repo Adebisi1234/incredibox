@@ -45,6 +45,14 @@ class GlobalState {
 
 const global = new GlobalState();
 
+// Resize controller
+
+window.addEventListener("resize", (ev: UIEvent) => {
+  if (innerWidth < 768) {
+    // Change orientation
+  }
+});
+
 // Fetch all audio's and videos beforehand
 const allVideoLinks: { [key: number]: string } = {
   1: "./public/video1.webm",
@@ -110,13 +118,80 @@ async function cacheFilesURL(
       allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
     }
     global.isLoading = false;
-    console.log(allCachedAudioURL, allCachedVideoURL, global.isReady);
   } catch (err) {
     throw new Error();
   }
 }
 
 // dragging songs
+const songs: NodeListOf<HTMLDivElement> = document.querySelectorAll(".songs");
+songs.forEach((song) => {
+  song.addEventListener("pointerdown", handleSongPointerDown);
+  song.addEventListener("pointerup", handleSongPointerUp);
+});
+
+const singers: NodeListOf<HTMLDivElement> =
+  document.querySelectorAll(".singer");
+
+const stage: HTMLElement = document.querySelector("main")!;
+stage.addEventListener("pointermove", handleStagePointerMove);
+
+// Event handlers
+// Buttons
+
+// Testing
+let currentMovingSong: HTMLDivElement | undefined = undefined;
+function handleSongPointerDown(ev: PointerEvent): void {
+  // console.log("song pointer down");
+  currentMovingSong = ev.target as HTMLDivElement;
+  document.body.addEventListener("pointermove", handleBodyPointerMove);
+  document.body.addEventListener("pointerup", handleSongPointerUp);
+  singers.forEach((singer) => {
+    singer.addEventListener("pointerenter", handleSingerPointerEnter);
+    singer.addEventListener("pointerleave", handleSingerPointerLeave);
+  });
+}
+function handleSongPointerUp(ev: PointerEvent): void {
+  // console.log("song pointer up");
+  currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
+  currentMovingSong = undefined;
+  document.body.removeEventListener("pointermove", handleBodyPointerMove);
+  document.body.removeEventListener("pointerup", handleSongPointerUp);
+  singers.forEach((singer) => {
+    singer.removeEventListener("pointerenter", handleSingerPointerEnter);
+    singer.removeEventListener("pointerleave", handleSingerPointerLeave);
+  });
+}
+function handleBodyPointerMove(ev: PointerEvent): void {
+  // console.log("song pointer move");
+  console.log(ev, "current target", ev.currentTarget, "target", ev.target);
+  if (currentMovingSong) {
+    currentMovingSong.style.opacity = "0.5";
+    currentMovingSong.style.transformOrigin = "bottom";
+    currentMovingSong.style.transform = `translate3d(${
+      ev.clientX - currentMovingSong.offsetLeft
+    }px, ${ev.clientY - currentMovingSong.offsetTop}px, 10px)`;
+  }
+}
+// Main stage
+function handleStagePointerMove(ev: PointerEvent): void {
+  ev.stopImmediatePropagation();
+  // console.log("enter stage");
+}
+// Singers
+function handleSingerPointerEnter(ev: PointerEvent): void {
+  // console.log("enter singer");
+  stage.removeEventListener("pointermove", handleStagePointerMove);
+}
+function handleSingerPointerLeave(ev: PointerEvent): void {
+  // console.log("singer pointer leave");
+}
+function handleSingerClick(ev: MouseEvent): void {
+  // console.log(ev);
+}
+function handleSingerPointerDown(ev: PointerEvent): void {
+  // console.log(ev);
+}
 
 // customizing the singers
 
