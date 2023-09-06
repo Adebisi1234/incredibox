@@ -126,42 +126,45 @@ songs.forEach((song) => {
 });
 const singers = document.querySelectorAll(".singer");
 const stage = document.querySelector("main");
-stage.addEventListener("pointermove", handleStagePointerMove);
 // Event handlers
 // Buttons
 // Testing
-const movedSongs = [];
-let currentMovingSong = undefined;
+const movedSongs = []; //May removed this and reference audiosInDom instead
+let currentMovingSong = undefined; // May make use of the data-song-id instead later
 function handleSongPointerDown(ev) {
     // console.log("song pointer down");
-    currentMovingSong = ev.target;
-    if (movedSongs.includes(currentMovingSong)) {
+    console.log(ev.target);
+    const container = ev.target.classList.contains("left") ||
+        ev.target.classList.contains("right");
+    currentMovingSong = container ? undefined : ev.target;
+    if (!currentMovingSong || movedSongs.includes(currentMovingSong)) {
         currentMovingSong = undefined;
     }
+    stage.addEventListener("pointerover", handleStagePointerMove);
     document.body.addEventListener("pointermove", handleBodyPointerMove);
     document.body.addEventListener("pointerup", handleSongPointerUp);
-    singers.forEach((singer) => {
-        singer.addEventListener("pointerenter", handleSingerPointerEnter);
-        singer.addEventListener("pointerleave", handleSingerPointerLeave);
-    });
+    document.body.addEventListener("pointercancel", handleSongPointerUp);
+    // singers.forEach((singer) => {
+    //   singer.addEventListener("pointerover", handleSingerPointerOver);
+    //   singer.addEventListener("pointerleave", handleSingerPointerLeave);
+    // });
 }
 function handleSongPointerUp(ev) {
-    // console.log("song pointer up");
+    console.log("song / body pointer up");
     if (currentMovingSong) {
         currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
         movedSongs.push(currentMovingSong);
         currentMovingSong = undefined;
     }
     document.body.removeEventListener("pointermove", handleBodyPointerMove);
-    document.body.removeEventListener("pointerup", handleSongPointerUp);
-    singers.forEach((singer) => {
-        singer.removeEventListener("pointerenter", handleSingerPointerEnter);
-        singer.removeEventListener("pointerleave", handleSingerPointerLeave);
-    });
+    document.body.removeEventListener("pointercancel", handleSongPointerUp);
+    stage.removeEventListener("pointerover", handleStagePointerMove);
+    // singers.forEach((singer) => {
+    //   // singer.removeEventListener("pointerover", handleSingerPointerOver);
+    //   singer.removeEventListener("pointerleave", handleSingerPointerLeave);
+    // });
 }
 function handleBodyPointerMove(ev) {
-    // console.log("song pointer move");
-    console.log(ev, "current target", ev.currentTarget, "target", ev.target);
     if (currentMovingSong) {
         currentMovingSong.style.opacity = "0.5";
         currentMovingSong.style.transformOrigin = "center";
@@ -170,17 +173,21 @@ function handleBodyPointerMove(ev) {
 }
 // Main stage
 function handleStagePointerMove(ev) {
-    ev.stopImmediatePropagation();
-    // console.log("enter stage");
+    console.log(ev);
+    if (currentMovingSong &&
+        (ev.target.classList.contains("frame") ||
+            ev.target.classList.contains("singers"))) {
+        console.log("enter singer");
+        ev.target.classList.add("entered");
+    }
 }
 // Singers
-function handleSingerPointerEnter(ev) {
-    // console.log("enter singer");
-    stage.removeEventListener("pointermove", handleStagePointerMove);
-}
-function handleSingerPointerLeave(ev) {
-    // console.log("singer pointer leave");
-}
+// function handleSingerPointerOver(ev: PointerEvent): void {
+//   //
+// }
+// function handleSingerPointerLeave(ev: PointerEvent): void {
+//   // console.log("singer pointer leave");
+// }
 function handleSingerClick(ev) {
     // console.log(ev);
 }
