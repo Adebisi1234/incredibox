@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+// Constants
 class GlobalState {
     constructor(beat, interval) {
         this.ready = false;
@@ -21,12 +22,6 @@ class GlobalState {
             this.beat = beat;
             this.interval = interval;
         }
-    }
-    get getCounter() {
-        return this.counter;
-    }
-    set setCounter(num) {
-        this.counter += num;
     }
     get getInterval() {
         return this.interval;
@@ -51,12 +46,14 @@ class GlobalState {
     }
 }
 const global = new GlobalState();
+const movedSongs = []; //May removed this and reference audiosInDom instead
+let currentMovingSong = undefined; // May make use of the data-song-id instead later
+const stage = document.querySelector("main");
+const songs = document.querySelectorAll(".songs");
+const singers = document.querySelectorAll(".singer");
 // Resize controller
-window.addEventListener("resize", (ev) => {
-    if (innerWidth < 768) {
-        // Change orientation
-    }
-});
+const singerObj = [];
+//
 // Fetch all audio's and videos beforehand
 const allVideoLinks = {
     1: "./public/video1.webm",
@@ -99,88 +96,140 @@ function fetchBlob(audioLink) {
         }
     });
 }
-// Fetch all audio and video files into memory
-function cacheFilesURL(allAudioLinks, allVideoLinks) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            for (const audioLink in allAudioLinks) {
-                const audioBlob = yield fetchBlob(allAudioLinks[audioLink]);
-                allCachedAudioURL[audioLink] = URL.createObjectURL(audioBlob);
-            }
-            for (const videoLink in allVideoLinks) {
-                const videoBlob = yield fetchBlob(allVideoLinks[videoLink]);
-                allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
-            }
-            global.isLoading = false;
-        }
-        catch (err) {
-            throw new Error();
-        }
-    });
-}
+singers.forEach((singer) => {
+    singer.addEventListener("click", handlePauseAudio);
+});
 // dragging songs
-const songs = document.querySelectorAll(".songs");
 songs.forEach((song) => {
     song.addEventListener("pointerdown", handleSongPointerDown);
-    song.addEventListener("pointerup", handleSongPointerUp);
+    song.addEventListener("pointerup", handleDropSong);
 });
-const singers = document.querySelectorAll(".singer");
-const stage = document.querySelector("main");
+for (let i = 0; i < singers.length; i++) {
+    singerObj[i] = {
+        left: singers[i].offsetLeft,
+        right: singers[i].offsetWidth + singers[i].offsetLeft,
+        top: singers[i].offsetTop,
+        bottom: singers[i].offsetTop + singers[i].offsetHeight,
+        element: singers[i],
+    };
+}
 // Event handlers
-// Buttons
-// Testing
-const movedSongs = []; //May removed this and reference audiosInDom instead
-let currentMovingSong = undefined; // May make use of the data-song-id instead later
+function handlePauseAudio(ev) {
+    const element = ev.target.classList.contains("frame")
+        ? ev.target.parentElement
+        : ev.target;
+    const audioId = element.getAttribute("data-song-id");
+    if (!audioId) {
+        return;
+    }
+    else {
+        console.log(audioId);
+        const audio = document.querySelector(`audio[data-song-id='${audioId}']`);
+        if (audio) {
+            if (!(audio === null || audio === void 0 ? void 0 : audio.muted)) {
+                audio.muted = true;
+                element.style.opacity = "0.6";
+            }
+            else {
+                audio.muted = false;
+                element.style.opacity = "1";
+            }
+        }
+    }
+}
 function handleSongPointerDown(ev) {
-    // console.log("song pointer down");
-    console.log(ev.target);
     const container = ev.target.classList.contains("left") ||
         ev.target.classList.contains("right");
     currentMovingSong = container ? undefined : ev.target;
     if (!currentMovingSong || movedSongs.includes(currentMovingSong)) {
         currentMovingSong = undefined;
     }
-    stage.addEventListener("pointerover", handleStagePointerMove);
-    document.body.addEventListener("pointermove", handleBodyPointerMove);
-    document.body.addEventListener("pointerup", handleSongPointerUp);
-    document.body.addEventListener("pointercancel", handleSongPointerUp);
+    // stage.addEventListener("pointerover", handleStagePointerMove);
+    document.body.addEventListener("pointermove", handleMovingSong);
+    document.body.addEventListener("pointerup", handleDropSong);
+    document.body.addEventListener("pointercancel", handleDropSong);
     // singers.forEach((singer) => {
     //   singer.addEventListener("pointerover", handleSingerPointerOver);
     //   singer.addEventListener("pointerleave", handleSingerPointerLeave);
     // });
 }
-function handleSongPointerUp(ev) {
-    console.log("song / body pointer up");
+function handleDropSong(ev) {
     if (currentMovingSong) {
-        currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
-        movedSongs.push(currentMovingSong);
-        currentMovingSong = undefined;
+        const x = ev.clientX - currentMovingSong.offsetLeft;
+        const y = ev.clientY - currentMovingSong.offsetTop;
+        const left = currentMovingSong.offsetLeft + x;
+        const right = left + currentMovingSong.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
+        const top = currentMovingSong.offsetTop + y;
+        const bottom = top + currentMovingSong.offsetHeight / 2; // taking Translate(-50%, -50%) above into account
+        singerObj.forEach((singer) => {
+            if (singer.left < left &&
+                right < singer.right &&
+                singer.top < top &&
+                bottom < singer.bottom) {
+                const id = currentMovingSong.getAttribute("data-song-id");
+                singer.element.style.opacity = "1";
+                singer.element.setAttribute("data-song-id", currentMovingSong.getAttribute("data-song-id"));
+                addAudio(id);
+                movedSongs.push(currentMovingSong);
+                currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
+                currentMovingSong = undefined;
+            }
+        });
+        if (currentMovingSong) {
+            currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
+            currentMovingSong.style.opacity = "1";
+            currentMovingSong = undefined;
+        }
+        singers.forEach((singer) => singer.classList.remove("active"));
     }
-    document.body.removeEventListener("pointermove", handleBodyPointerMove);
-    document.body.removeEventListener("pointercancel", handleSongPointerUp);
-    stage.removeEventListener("pointerover", handleStagePointerMove);
+    document.body.removeEventListener("pointermove", handleMovingSong);
+    document.body.removeEventListener("pointercancel", handleDropSong);
+    document.body.removeEventListener("pointerup", handleDropSong);
+    // stage.removeEventListener("pointerover", handleStagePointerMove);
     // singers.forEach((singer) => {
     //   // singer.removeEventListener("pointerover", handleSingerPointerOver);
     //   singer.removeEventListener("pointerleave", handleSingerPointerLeave);
     // });
 }
-function handleBodyPointerMove(ev) {
+function handleMovingSong(ev) {
     if (currentMovingSong) {
-        currentMovingSong.style.opacity = "0.5";
+        const x = ev.clientX - currentMovingSong.offsetLeft;
+        const y = ev.clientY - currentMovingSong.offsetTop;
+        currentMovingSong.style.opacity = "0.7";
         currentMovingSong.style.transformOrigin = "center";
-        currentMovingSong.style.transform = `translate3d(${ev.clientX - currentMovingSong.offsetLeft}px, ${ev.clientY - currentMovingSong.offsetTop}px, 10px) translate(-50%, -50%) `;
+        currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${y % innerHeight}px, 10px) translate(-50%, -50%) `;
+        const left = currentMovingSong.offsetLeft + x;
+        const right = left + currentMovingSong.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
+        const top = currentMovingSong.offsetTop + y;
+        const bottom = top + currentMovingSong.offsetHeight / 2;
+        // Highlighting the hovered singer
+        singers.forEach((singer) => singer.classList.add("active"));
+        singerObj.forEach((singer) => {
+            if (singer.left < left &&
+                right < singer.right &&
+                singer.top < top &&
+                bottom < singer.bottom) {
+                singer.element.style.opacity = "1";
+            }
+            else if (!singer.element.getAttribute("data-song-id")) {
+                singer.element.style.opacity = "0.6";
+            }
+        });
+        // Implement moving eyes
     }
 }
 // Main stage
-function handleStagePointerMove(ev) {
-    console.log(ev);
-    if (currentMovingSong &&
-        (ev.target.classList.contains("frame") ||
-            ev.target.classList.contains("singers"))) {
-        console.log("enter singer");
-        ev.target.classList.add("entered");
-    }
-}
+// function handleStagePointerMove(ev: PointerEvent): void {
+//   console.log(ev);
+//   if (
+//     currentMovingSong &&
+//     ((ev.target as HTMLDivElement).classList.contains("frame") ||
+//       (ev.target as HTMLDivElement).classList.contains("singers"))
+//   ) {
+//     console.log("enter singer");
+//     (ev.target as HTMLDivElement).classList.add("entered");
+//   }
+// }
 // Singers
 // function handleSingerPointerOver(ev: PointerEvent): void {
 //   //
@@ -213,20 +262,42 @@ function addAudio(id) {
         global.setAudiosInDom = { id: +id, audio: newAudio };
     }
 }
+// Beat
 function startBeatInterval() {
     global.beatIntervalId = setInterval(() => {
-        global.setCounter += 1;
-        if (global.getCounter % global.beat === 0) {
+        global.counter += 1;
+        if (global.counter % global.beat === 0) {
             global.getAudioQueue.forEach((audio, i) => {
                 audio.paused && audio.play();
                 global.getAudioQueue.splice(i, 1);
             });
+            console.log("played?");
         }
     }, global.getInterval);
 }
 // Muting audio
+// Loading indicator animation
 // Removing audio & clear interval
 // Animations
+// CacheFiles and start application function
+function cacheFilesURL(allAudioLinks, allVideoLinks) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            for (const audioLink in allAudioLinks) {
+                const audioBlob = yield fetchBlob(allAudioLinks[audioLink]);
+                allCachedAudioURL[audioLink] = URL.createObjectURL(audioBlob);
+            }
+            for (const videoLink in allVideoLinks) {
+                const videoBlob = yield fetchBlob(allVideoLinks[videoLink]);
+                allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
+            }
+            global.isLoading = false;
+        }
+        catch (err) {
+            throw new Error();
+        }
+    });
+}
 // Start application
 cacheFilesURL(allAudioLinks, allVideoLinks).then(() => {
     if (global.isReady) {
