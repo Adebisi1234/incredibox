@@ -155,9 +155,7 @@ function handlePauseAudio(ev: MouseEvent) {
     return;
   } else {
     console.log(audioId);
-    const audio: HTMLAudioElement | null = document.querySelector(
-      `audio[data-song-id='${audioId}']`
-    );
+    const audio: HTMLAudioElement = global.getAudiosInDom[+audioId];
     if (audio) {
       if (!audio?.muted) {
         audio.muted = true;
@@ -210,6 +208,12 @@ function handleDropSong(ev: PointerEvent): void {
           "data-song-id",
           currentMovingSong!.getAttribute("data-song-id")!
         );
+        const loader = singer.element.lastElementChild! as HTMLDivElement;
+        document.documentElement.style.setProperty(
+          "--transition-time",
+          `${global.counter % global.beat}s`
+        );
+        id !== "1" && loader.classList.add("loading");
         singer.element.classList.add("singing");
         document.documentElement.style.setProperty(
           `--background-${singerId}`,
@@ -306,26 +310,36 @@ function addAudio(id: string) {
   newAudio.loop = true;
   newAudio.src = allCachedAudioURL[Number(id)];
   if (Object.keys(global.getAudiosInDom).length === 0) {
-    document.body.append(newAudio);
     newAudio.play();
     startBeatInterval();
     global.setAudiosInDom = { id: +id, audio: newAudio };
+    isWinningCombination();
   } else {
     global.setAudioQueue = newAudio;
     global.setAudiosInDom = { id: +id, audio: newAudio };
+    isWinningCombination();
   }
+  console.log(global.getAudiosInDom);
 }
 
-// Beat
+const winningCombinations = [{}, {}, {}];
+
+function isWinningCombination() {}
+
+// Beat && loader
 function startBeatInterval() {
   global.beatIntervalId = setInterval(() => {
     global.counter += 1;
     if (global.counter % global.beat === 0) {
       global.getAudioQueue.forEach((audio, i) => {
         audio.paused && audio.play();
+        document
+          .querySelector(
+            `.singer[data-song-id="${audio.getAttribute("data-song-id")}"]`
+          )!
+          .lastElementChild!.classList.remove("loading");
         global.getAudioQueue.splice(i, 1);
       });
-      console.log("played?");
     }
   }, global.getInterval);
 }
