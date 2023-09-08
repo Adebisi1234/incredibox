@@ -7,6 +7,73 @@ class GlobalState {
   public counter: number = 0;
   public beatIntervalId: number = 0;
   private audiosInDom: { [key: number]: HTMLAudioElement } = {};
+  private allSingers: NodeListOf<HTMLDivElement> =
+    document.querySelectorAll(".singer");
+  private singersPosition: {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    element: HTMLDivElement;
+  }[] = [];
+  private allSongs: NodeListOf<HTMLDivElement> =
+    document.querySelectorAll(".song");
+
+  private _allVideoLinks: { [key: number]: string } = {
+    1: "./public/video1.webm",
+    2: "./public/video2.webm",
+    3: "./public/video3.webm",
+  };
+
+  private _allAudioLinks: { [key: number]: string } = {
+    1: "./public/1_atlanta.ogg",
+    2: "./public/2_tuctom.ogg",
+    3: "./public/3_foubreak.ogg",
+    4: "./public/4_koukaki.ogg",
+    5: "./public/5_koungou.ogg",
+    6: "./public/6_bass.ogg",
+    7: "./public/7_monk.ogg",
+    8: "./public/8_sonar.ogg",
+    9: "./public/9_souffle.ogg",
+    10: "./public/10_epifle.ogg",
+    11: "./public/11_arpeg.ogg",
+    12: "./public/12_tromp.ogg",
+    13: "./public/13_pizzi.ogg",
+    14: "./public/14_organ.ogg",
+    15: "./public/15_synth.ogg",
+    16: "./public/16_follow.ogg",
+    17: "./public/17_choir.ogg",
+    18: "./public/18_houhou.ogg",
+    19: "./public/19_reach.ogg",
+    20: "./public/20_believe.ogg",
+  };
+
+  private _allSpriteLinks = (function getAllSpriteLinks(allAudioLinks: {
+    [key: number]: string;
+  }) {
+    const spriteUrls: {
+      [key: number]: string;
+    } = {};
+    for (const id in allAudioLinks) {
+      if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
+        let url = allAudioLinks[id];
+        let baseUrl =
+          "/anime/" + url.split("/")[2].replace(".ogg", "-sprite-hd.png");
+        spriteUrls[id] = baseUrl;
+      }
+    }
+    return spriteUrls;
+  })(this._allAudioLinks);
+  // Objects for cached urls
+  public allCachedAudioURL: {
+    [key: number]: string;
+  } = {};
+  public allCachedVideoURL: {
+    [key: number]: string;
+  } = {};
+  public allCachedSpriteURL: {
+    [key: number]: string;
+  } = {};
 
   constructor(beat?: number, interval?: number) {
     if (beat && interval) {
@@ -14,18 +81,60 @@ class GlobalState {
       this.interval = interval;
     }
   }
+
+  get allVideoLinks() {
+    return this._allVideoLinks;
+  }
+  get allAudioLinks() {
+    return this._allAudioLinks;
+  }
+  get allSpriteLinks() {
+    return this._allSpriteLinks;
+  }
   get getInterval() {
     return this.interval;
   }
+  get songs() {
+    return this.allSongs;
+  }
+  get singers() {
+    return this.allSingers;
+  }
+
+  set setSingers(singers: NodeListOf<HTMLDivElement>) {
+    this.allSingers = singers;
+    this.singers.forEach((singer, i) => {
+      this.singersPosition[i] = {
+        left: singer.offsetLeft,
+        right: singer.offsetWidth + singer.offsetLeft,
+        top: singer.offsetTop,
+        bottom: singer.offsetTop + singer.offsetHeight,
+        element: singer,
+      };
+    });
+  }
+
+  get singersPost() {
+    return this.singersPosition;
+  }
+
   get getAudiosInDom() {
     return this.audiosInDom;
   }
   set setAudiosInDom({ id, audio }: { id: number; audio: HTMLAudioElement }) {
     this.audiosInDom[id] = audio;
   }
+  set removeAudioFromDom(id: number) {
+    const audio = this.audiosInDom[id];
+    audio.pause;
+    audio.src = "";
+    audio.remove();
+    delete this.audiosInDom[id];
+  }
   get isReady() {
     return this.ready;
   }
+
   set isLoading(loading: boolean) {
     this.ready = !loading;
   }
@@ -38,79 +147,12 @@ class GlobalState {
   }
 }
 const global = new GlobalState();
-const movedSongs: HTMLDivElement[] = []; //May removed this and reference audiosInDom instead
+window.addEventListener("DOMContentLoaded", () => {
+  global.setSingers = document.querySelectorAll(".singer");
+});
 let currentMovingSong: HTMLDivElement | undefined = undefined; // May make use of the data-song-id instead later
 const stage: HTMLElement = document.querySelector("main")!;
-const songs: NodeListOf<HTMLDivElement> = document.querySelectorAll(".songs");
-const singers: NodeListOf<HTMLDivElement> =
-  document.querySelectorAll(".singer");
-// Resize controller
-
-const singerObj: {
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-  element: HTMLDivElement;
-}[] = [];
-
-//
-// Fetch all audio's and videos beforehand
-const allVideoLinks: { [key: number]: string } = {
-  1: "./public/video1.webm",
-  2: "./public/video2.webm",
-  3: "./public/video3.webm",
-};
-
-const allAudioLinks: { [key: number]: string } = {
-  1: "./public/1_atlanta.ogg",
-  2: "./public/2_tuctom.ogg",
-  3: "./public/3_foubreak.ogg",
-  4: "./public/4_koukaki.ogg",
-  5: "./public/5_koungou.ogg",
-  6: "./public/6_bass.ogg",
-  7: "./public/7_monk.ogg",
-  8: "./public/8_sonar.ogg",
-  9: "./public/9_souffle.ogg",
-  10: "./public/10_epifle.ogg",
-  11: "./public/11_arpeg.ogg",
-  12: "./public/12_tromp.ogg",
-  13: "./public/13_pizzi.ogg",
-  14: "./public/14_organ.ogg",
-  15: "./public/15_synth.ogg",
-  16: "./public/16_follow.ogg",
-  17: "./public/17_choir.ogg",
-  18: "./public/18_houhou.ogg",
-  19: "./public/19_reach.ogg",
-  20: "./public/20_believe.ogg",
-};
-
-const allSpriteLinks = (function getAllSpriteLinks(allAudioLinks: {
-  [key: number]: string;
-}) {
-  const spriteUrls: {
-    [key: number]: string;
-  } = {};
-  for (const id in allAudioLinks) {
-    if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
-      let url = allAudioLinks[id];
-      let baseUrl =
-        "/anime/" + url.split("/")[2].replace(".ogg", "-sprite-hd.png");
-      spriteUrls[id] = baseUrl;
-    }
-  }
-  return spriteUrls;
-})(allAudioLinks);
-
-const allCachedAudioURL: {
-  [key: number]: string;
-} = {};
-const allCachedVideoURL: {
-  [key: number]: string;
-} = {};
-const allCachedSpriteURL: {
-  [key: number]: string;
-} = {};
+// const urls
 
 // fetch blog helper function
 async function fetchBlob(audioLink: string): Promise<Blob> {
@@ -122,39 +164,36 @@ async function fetchBlob(audioLink: string): Promise<Blob> {
   }
 }
 
-singers.forEach((singer) => {
+// Singers main events
+global.singers.forEach((singer) => {
   singer.addEventListener("click", handlePauseAudio);
+  singer.addEventListener("pointerdown", handleRemoveAudio);
+  singer.addEventListener("pointerup", handleRemoveAudio);
 });
 
 // dragging songs
-songs.forEach((song) => {
+global.songs.forEach((song) => {
   song.addEventListener("pointerdown", handleSongPointerDown);
   song.addEventListener("pointerup", handleDropSong);
 });
 
-for (let i = 0; i < singers.length; i++) {
-  singerObj[i] = {
-    left: singers[i].offsetLeft,
-    right: singers[i].offsetWidth + singers[i].offsetLeft,
-    top: singers[i].offsetTop,
-    bottom: singers[i].offsetTop + singers[i].offsetHeight,
-    element: singers[i],
-  };
-}
-
-// Event handlers
-function handlePauseAudio(ev: MouseEvent) {
-  const element: HTMLDivElement = (
-    ev.target as HTMLDivElement
-  ).classList.contains("frame")
+function getTarget(ev: Event) {
+  return (ev.target as HTMLDivElement).classList.contains("frame")
     ? ((ev.target as HTMLDivElement).parentElement as HTMLDivElement)
     : (ev.target as HTMLDivElement);
+}
+// Event handlers
+window.addEventListener("resize", () => {
+  global.setSingers = document.querySelectorAll(".singer");
+});
+
+function handlePauseAudio(ev: MouseEvent) {
+  const element: HTMLDivElement = getTarget(ev);
 
   const audioId = element.getAttribute("data-song-id");
   if (!audioId) {
     return;
   } else {
-    console.log(audioId);
     const audio: HTMLAudioElement = global.getAudiosInDom[+audioId];
     if (audio) {
       if (!audio?.muted) {
@@ -173,7 +212,12 @@ function handleSongPointerDown(ev: PointerEvent): void {
     (ev.target as HTMLDivElement).classList.contains("left") ||
     (ev.target as HTMLDivElement).classList.contains("right");
   currentMovingSong = container ? undefined : (ev.target as HTMLDivElement);
-  if (!currentMovingSong || movedSongs.includes(currentMovingSong)) {
+  if (
+    !currentMovingSong ||
+    Object.keys(global.getAudiosInDom).includes(
+      currentMovingSong.getAttribute("data-song-id")!
+    )
+  ) {
     currentMovingSong = undefined;
   }
   // stage.addEventListener("pointerover", handleStagePointerMove);
@@ -193,7 +237,7 @@ function handleDropSong(ev: PointerEvent): void {
     const right = left + currentMovingSong.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
     const top = currentMovingSong.offsetTop + y;
     const bottom = top + currentMovingSong.offsetHeight / 2; // taking Translate(-50%, -50%) above into account
-    singerObj.forEach((singer) => {
+    global.singersPost.forEach((singer) => {
       if (
         singer.left < left &&
         right < singer.right &&
@@ -201,8 +245,7 @@ function handleDropSong(ev: PointerEvent): void {
         bottom < singer.bottom
       ) {
         const id = currentMovingSong!.getAttribute("data-song-id")!;
-        const singerId =
-          singer.element.firstElementChild!.getAttribute("data-singer-id");
+        const singerId = singer.element.getAttribute("data-singer-id");
         singer.element.style.opacity = "1";
         singer.element.setAttribute(
           "data-song-id",
@@ -213,14 +256,14 @@ function handleDropSong(ev: PointerEvent): void {
           "--transition-time",
           `${global.counter % global.beat}s`
         );
-        id !== "1" && loader.classList.add("loading");
+        Object.keys(global.getAudiosInDom).length !== 0 &&
+          loader.classList.add("loading");
         singer.element.classList.add("singing");
         document.documentElement.style.setProperty(
           `--background-${singerId}`,
-          `url(${allCachedSpriteURL[+id]})`
+          `url(${global.allCachedSpriteURL[+id]})`
         );
         addAudio(id);
-        movedSongs.push(currentMovingSong!);
         currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
         currentMovingSong = undefined;
       }
@@ -230,7 +273,7 @@ function handleDropSong(ev: PointerEvent): void {
       currentMovingSong.style.opacity = "1";
       currentMovingSong = undefined;
     }
-    singers.forEach((singer) => singer.classList.remove("active"));
+    global.singers.forEach((singer) => singer.classList.remove("active"));
   }
   document.body.removeEventListener("pointermove", handleMovingSong);
   document.body.removeEventListener("pointercancel", handleDropSong);
@@ -251,13 +294,13 @@ function handleMovingSong(ev: PointerEvent): void {
     currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${
       y % innerHeight
     }px, 10px) translate(-50%, -50%) `;
-    const left = currentMovingSong.offsetLeft + x;
+    const left = currentMovingSong.offsetLeft + x; // = clientX you dumbass :) leaving it for now
     const right = left + currentMovingSong.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
     const top = currentMovingSong.offsetTop + y;
     const bottom = top + currentMovingSong.offsetHeight / 2;
     // Highlighting the hovered singer
-    singers.forEach((singer) => singer.classList.add("active"));
-    singerObj.forEach((singer) => {
+    global.singers.forEach((singer) => singer.classList.add("active"));
+    global.singersPost.forEach((singer) => {
       if (
         singer.left < left &&
         right < singer.right &&
@@ -291,11 +334,45 @@ function handleMovingSong(ev: PointerEvent): void {
 // function handleSingerPointerLeave(ev: PointerEvent): void {
 //   // console.log("singer pointer leave");
 // }
-function handleSingerClick(ev: MouseEvent): void {
-  // console.log(ev);
+let pointerDownTop: number = 0;
+let pointerUpTop: number = 0;
+function handleRemoveAudio(ev: PointerEvent): void {
+  const target = getTarget(ev);
+  const id = target.getAttribute("data-song-id");
+  const singerId = target.getAttribute("data-singer-id");
+  if (!id || !singerId) {
+    return;
+  }
+
+  if (ev.type === "pointerdown") {
+    pointerDownTop = ev.clientY;
+  } else if (ev.type === "pointerup") {
+    pointerUpTop = ev.clientY;
+  }
+  if (
+    pointerDownTop !== 0 &&
+    pointerUpTop !== 0 &&
+    pointerUpTop > pointerDownTop
+  ) {
+    dropSong(id, target, singerId);
+    pointerUpTop = 0;
+    pointerDownTop = 0;
+  }
 }
-function handleSingerPointerDown(ev: PointerEvent): void {
-  // console.log(ev);
+
+function dropSong(id: string, target: HTMLDivElement, singerId: string) {
+  target.classList.remove("singing");
+  target.style.opacity = "0.6";
+  target.removeAttribute("data-song-id");
+  target.lastElementChild!.classList.remove("loading");
+  (
+    document.querySelector(`.song[data-song-id='${id}']`) as HTMLDivElement
+  ).style.opacity = "1";
+  global.removeAudioFromDom = +id;
+  document.documentElement.style.setProperty(
+    `--background-${singerId}`,
+    `url('/singer.png')`
+  );
 }
 
 // customizing the singers
@@ -308,7 +385,7 @@ function addAudio(id: string) {
   const newAudio = document.createElement("audio");
   newAudio.setAttribute("data-song-id", id);
   newAudio.loop = true;
-  newAudio.src = allCachedAudioURL[Number(id)];
+  newAudio.src = global.allCachedAudioURL[+id];
   if (Object.keys(global.getAudiosInDom).length === 0) {
     newAudio.play();
     startBeatInterval();
@@ -319,7 +396,6 @@ function addAudio(id: string) {
     global.setAudiosInDom = { id: +id, audio: newAudio };
     isWinningCombination();
   }
-  console.log(global.getAudiosInDom);
 }
 
 const winningCombinations = [{}, {}, {}];
@@ -367,15 +443,15 @@ async function cacheFilesURL(
   try {
     for (const audioLink in allAudioLinks) {
       const audioBlob = await fetchBlob(allAudioLinks[audioLink]);
-      allCachedAudioURL[audioLink] = URL.createObjectURL(audioBlob);
+      global.allCachedAudioURL[audioLink] = URL.createObjectURL(audioBlob);
     }
     for (const videoLink in allVideoLinks) {
       const videoBlob = await fetchBlob(allVideoLinks[videoLink]);
-      allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
+      global.allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
     }
     for (const spriteLink in allSpriteLinks) {
       const spriteBlob = await fetchBlob(allSpriteLinks[spriteLink]);
-      allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
+      global.allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
     }
     global.isLoading = false;
   } catch (err) {
@@ -384,7 +460,11 @@ async function cacheFilesURL(
 }
 
 // Start application
-cacheFilesURL(allAudioLinks, allVideoLinks, allSpriteLinks).then(() => {
+cacheFilesURL(
+  global.allAudioLinks,
+  global.allVideoLinks,
+  global.allSpriteLinks
+).then(() => {
   if (global.isReady) {
     (
       document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
