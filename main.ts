@@ -84,10 +84,31 @@ const allAudioLinks: { [key: number]: string } = {
   19: "./public/19_reach.ogg",
   20: "./public/20_believe.ogg",
 };
+
+const allSpriteLinks = (function getAllSpriteLinks(allAudioLinks: {
+  [key: number]: string;
+}) {
+  const spriteUrls: {
+    [key: number]: string;
+  } = {};
+  for (const id in allAudioLinks) {
+    if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
+      let url = allAudioLinks[id];
+      let baseUrl =
+        "/anime/" + url.split("/")[2].replace(".ogg", "-sprite-hd.png");
+      spriteUrls[id] = baseUrl;
+    }
+  }
+  return spriteUrls;
+})(allAudioLinks);
+
 const allCachedAudioURL: {
   [key: number]: string;
 } = {};
 const allCachedVideoURL: {
+  [key: number]: string;
+} = {};
+const allCachedSpriteURL: {
   [key: number]: string;
 } = {};
 
@@ -182,10 +203,17 @@ function handleDropSong(ev: PointerEvent): void {
         bottom < singer.bottom
       ) {
         const id = currentMovingSong!.getAttribute("data-song-id")!;
+        const singerId =
+          singer.element.firstElementChild!.getAttribute("data-singer-id");
         singer.element.style.opacity = "1";
         singer.element.setAttribute(
           "data-song-id",
           currentMovingSong!.getAttribute("data-song-id")!
+        );
+        singer.element.classList.add("singing");
+        document.documentElement.style.setProperty(
+          `--background-${singerId}`,
+          `url(${allCachedSpriteURL[+id]})`
         );
         addAudio(id);
         movedSongs.push(currentMovingSong!);
@@ -317,6 +345,9 @@ async function cacheFilesURL(
   },
   allVideoLinks: {
     [key: number]: string;
+  },
+  allSpriteLinks: {
+    [key: number]: string;
   }
 ) {
   try {
@@ -328,6 +359,10 @@ async function cacheFilesURL(
       const videoBlob = await fetchBlob(allVideoLinks[videoLink]);
       allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
     }
+    for (const spriteLink in allSpriteLinks) {
+      const spriteBlob = await fetchBlob(allSpriteLinks[spriteLink]);
+      allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
+    }
     global.isLoading = false;
   } catch (err) {
     throw new Error();
@@ -335,7 +370,7 @@ async function cacheFilesURL(
 }
 
 // Start application
-cacheFilesURL(allAudioLinks, allVideoLinks).then(() => {
+cacheFilesURL(allAudioLinks, allVideoLinks, allSpriteLinks).then(() => {
   if (global.isReady) {
     (
       document.getElementsByClassName("splashscreen")[0] as HTMLDivElement

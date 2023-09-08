@@ -7,6 +7,14 @@
 html {
     user-select: none;
     --transition-time: 5s;
+    --background-1: url("/singer.png");
+    --background-2: url("/singer.png");
+    --background-3: url("/singer.png");
+    --background-4: url("/singer.png");
+    --background-5: url("/singer.png");
+    --background-6: url("/singer.png");
+    --background-7: url("/singer.png");
+    --background-8: url("/singer.png");
 }
 
 body {
@@ -17,6 +25,7 @@ body {
 h2 {
     font-weight: 900;
     position: absolute;
+    color: grey;
     width: 100%;
     bottom: 20%;
     text-align: center;
@@ -54,7 +63,7 @@ main {
     gap: 4px;
     height: 100%;
     width: 100%;
-    padding: 0 10%;
+    margin: 0 10%;
     overflow: hidden;
 }
 
@@ -64,19 +73,67 @@ main {
     height: 100%;
     border: 1px solid green;
     opacity: 0.6;
+    transition: all 250ms;
+}
+
+.singing {
+    animation: jump 250ms ease forwards;
 }
 
 
+
+@keyframes jump {
+
+    0%,
+    100% {
+        margin: 0;
+    }
+
+    25%,
+    75% {
+        margin-top: -15px;
+    }
+}
 
 .frame {
     margin-top: 20px;
     height: 100%;
     position: relative;
-    background-image: url("/singer.png");
-    background-size: contain;
     background-repeat: no-repeat;
+    background-size: contain;
     background-position: bottom;
+}
 
+.frame[data-singer-id="1"] {
+    background-image: var(--background-1);
+}
+
+.frame[data-singer-id="2"] {
+    background-image: var(--background-2);
+}
+
+.frame[data-singer-id="3"] {
+    background-image: var(--background-3);
+}
+
+.frame[data-singer-id="4"] {
+    background-image: var(--background-4);
+}
+
+.frame[data-singer-id="5"] {
+    background-image: var(--background-5);
+}
+
+.frame[data-singer-id="6"] {
+    background-image: var(--background-6);
+}
+
+.frame[data-singer-id="7"] {
+    background-image: var(--background-7);
+}
+
+.frame[data-singer-id="8"] {
+    background-image: var(--background-8);
 }
 
 .splashscreen {

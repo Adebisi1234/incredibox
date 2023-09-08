@@ -82,8 +82,20 @@ const allAudioLinks = {
     19: "./public/19_reach.ogg",
     20: "./public/20_believe.ogg",
 };
+const allSpriteLinks = (function getAllSpriteLinks(allAudioLinks) {
+    const spriteUrls = {};
+    for (const id in allAudioLinks) {
+        if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
+            let url = allAudioLinks[id];
+            let baseUrl = "/anime/" + url.split("/")[2].replace(".ogg", "-sprite-hd.png");
+            spriteUrls[id] = baseUrl;
+        }
+    }
+    return spriteUrls;
+})(allAudioLinks);
 const allCachedAudioURL = {};
 const allCachedVideoURL = {};
+const allCachedSpriteURL = {};
 // fetch blog helper function
 function fetchBlob(audioLink) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -167,8 +179,11 @@ function handleDropSong(ev) {
                 singer.top < top &&
                 bottom < singer.bottom) {
                 const id = currentMovingSong.getAttribute("data-song-id");
+                const singerId = singer.element.firstElementChild.getAttribute("data-singer-id");
                 singer.element.style.opacity = "1";
                 singer.element.setAttribute("data-song-id", currentMovingSong.getAttribute("data-song-id"));
+                singer.element.classList.add("singing");
+                document.documentElement.style.setProperty(`--background-${singerId}`, `url(${allCachedSpriteURL[+id]})`);
                 addAudio(id);
                 movedSongs.push(currentMovingSong);
                 currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
@@ -280,7 +295,7 @@ function startBeatInterval() {
 // Removing audio & clear interval
 // Animations
 // CacheFiles and start application function
-function cacheFilesURL(allAudioLinks, allVideoLinks) {
+function cacheFilesURL(allAudioLinks, allVideoLinks, allSpriteLinks) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             for (const audioLink in allAudioLinks) {
@@ -291,6 +306,10 @@ function cacheFilesURL(allAudioLinks, allVideoLinks) {
                 const videoBlob = yield fetchBlob(allVideoLinks[videoLink]);
                 allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
             }
+            for (const spriteLink in allSpriteLinks) {
+                const spriteBlob = yield fetchBlob(allSpriteLinks[spriteLink]);
+                allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
+            }
             global.isLoading = false;
         }
         catch (err) {
@@ -299,7 +318,7 @@ function cacheFilesURL(allAudioLinks, allVideoLinks) {
     });
 }
 // Start application
-cacheFilesURL(allAudioLinks, allVideoLinks).then(() => {
+cacheFilesURL(allAudioLinks, allVideoLinks, allSpriteLinks).then(() => {
     if (global.isReady) {
         document.getElementsByClassName("splashscreen")[0].style.display = "none";
     }
