@@ -352,7 +352,7 @@ function handleRemoveAudio(ev: PointerEvent): void {
   if (
     pointerDownTop !== 0 &&
     pointerUpTop !== 0 &&
-    pointerUpTop > pointerDownTop
+    pointerUpTop - pointerDownTop > 20
   ) {
     dropSong(id, target, singerId);
     pointerUpTop = 0;
