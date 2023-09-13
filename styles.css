@@ -25,6 +25,7 @@ body {
 header {
     display: flex;
     justify-content: space-between;
+    height: 15%;
 }
 
 .header {
@@ -78,9 +79,9 @@ header {
 main {
     aspect-ratio: 16/9;
     display: flex;
-    height: 80%;
+    height: 52%;
     align-items: flex-end;
-    max-height: 329px;
+    /* max-height: 329px; */
     justify-content: center;
     background-image: url("./mainbg.jpg");
     background-size: cover;
@@ -99,7 +100,7 @@ main {
 
 .singer {
     width: 100%;
-    max-width: 120px;
+    max-width: 164px;
     height: 100%;
     opacity: 0.6;
     transition: all 250ms;
@@ -231,14 +232,13 @@ footer {
 
 .song {
     aspect-ratio: 1;
-    flex-grow: 1;
-    flex-shrink: 1;
-    width: 0%;
+    width: 100%;
     background-size: contain;
     background-repeat: no-repeat;
     margin: 0 4px;
     cursor: grab;
     border-radius: 8px;
+    background-image: url(/public/songs.png);
 }
 
 .left {
@@ -251,85 +251,102 @@ footer {
 
 /* Will replace with sprites */
 .song[data-song-id="1"] {
-    background-image: url(/one.png);
+
+    background-position: calc((100% / 19) * 0) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="2"] {
-    background-image: url(/two.png);
+    background-position: calc((100% / 19) * 1) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="3"] {
-    background-image: url(/three.png);
+    background-position: calc((100% / 19) * 2) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="4"] {
-    background-image: url(/four.png);
+    background-position: calc((100% / 19) * 3) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="5"] {
-    background-image: url(/five.png);
+    background-position: calc((100% / 19) * 4) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="6"] {
-    background-image: url(/six.png);
+    background-position: calc((100% / 19) * 5) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="7"] {
-    background-image: url(/seven.png);
+    background-position: calc((100% / 19) * 6) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="8"] {
-    background-image: url(/eight.png);
+    background-position: calc((100% / 19) * 7) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="9"] {
-    background-image: url(/nine.png);
+    background-position: calc((100% / 19) * 8) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="10"] {
-    background-image: url(/ten.png);
+    background-position: calc((100% / 19) * 9) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="11"] {
-    background-image: url(/eleven.png);
+    background-position: calc((100% / 19) * 10) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="12"] {
-    background-image: url(/twelve.png);
+    background-position: calc((100% / 19) * 11) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="13"] {
-    background-image: url(/thirteen.png);
+    background-position: calc((100% / 19) * 12) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="14"] {
-    background-image: url(/fourteen.png);
+    background-position: calc((100% / 19) * 13) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="15"] {
-    background-image: url(/fifteen.png);
+    background-position: calc((100% / 19) * 14) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="16"] {
-    background-image: url(/sixteen.png);
+    background-position: calc((100% / 19) * 15) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="17"] {
-    background-image: url(/seventeen.png);
+    background-position: calc((100% / 19) * 16) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="18"] {
-    background-image: url(/eighteen.png);
+    background-position: calc((100% / 19) * 17) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="19"] {
-    background-image: url(/nineteen.png);
+    background-position: calc((100% / 19) * 18) 0;
+    background-size: auto 200%;
 }
 
 .song[data-song-id="20"] {
-    background-image: url(/twenty.png);
-}
-
-.song[data-song-id="1"] {
-    background-image: url(/one.png);
+    background-position: calc((100% / 19) * 19) 0;
+    background-size: auto 200%
 }

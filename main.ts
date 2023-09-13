@@ -2,6 +2,11 @@ import { GlobalState, Audios } from "./classes.js";
 // Constants
 const audioCtx = new AudioContext();
 const global = new GlobalState();
+// For Stoping Songs
+let pointerDownTop: number = 0;
+let pointerUpTop: number = 0;
+let pointerDownLeft: number = 0;
+let pointerUpLeft: number = 0;
 
 // Updating the singers size on DOM load
 window.addEventListener("DOMContentLoaded", () => {
@@ -17,17 +22,6 @@ let currentMovingSong: HTMLDivElement | undefined = undefined;
 // fetch blog helper function
 
 // Singers main events
-global.singers.forEach((singer) => {
-  singer.addEventListener("click", handlePauseAudio);
-  singer.addEventListener("pointerdown", handleRemoveAudio);
-  singer.addEventListener("pointerup", handleRemoveAudio);
-});
-
-// dragging songs
-global.songs.forEach((song) => {
-  song.addEventListener("pointerdown", handleSongPointerDown);
-  song.addEventListener("pointerup", handleDropSong);
-});
 
 // Event handlers
 
@@ -45,7 +39,7 @@ function handlePauseAudio(ev: MouseEvent) {
   }
 }
 
-function handleSongPointerDown(ev: PointerEvent): void {
+function startSongDrag(ev: PointerEvent): void {
   const container =
     (ev.target as HTMLDivElement).classList.contains("left") ||
     (ev.target as HTMLDivElement).classList.contains("right");
@@ -59,100 +53,41 @@ function handleSongPointerDown(ev: PointerEvent): void {
     currentMovingSong = undefined;
   }
   // stage.addEventListener("pointerover", handleStagePointerMove);
-  document.body.addEventListener("pointermove", handleMovingSong);
-  document.body.addEventListener("pointerup", handleDropSong);
-  document.body.addEventListener("pointercancel", handleDropSong);
+  modifyBodyEvents("add");
   // singers.forEach((singer) => {
   //   singer.addEventListener("pointerover", handleSingerPointerOver);
   //   singer.addEventListener("pointerleave", handleSingerPointerLeave);
   // });
 }
-function handleDropSong(ev: PointerEvent): void {
+
+function startSinging(ev: PointerEvent): void {
   if (currentMovingSong) {
-    const x = ev.clientX - currentMovingSong.offsetLeft;
-    const y = ev.clientY - currentMovingSong.offsetTop;
-    const left = currentMovingSong.offsetLeft + x;
-    const right = left + currentMovingSong.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
-    const top = currentMovingSong.offsetTop + y;
-    const bottom = top + currentMovingSong.offsetHeight / 2; // taking Translate(-50%, -50%) above into account
+    const { left, right, top, bottom } = getMovingSongPosition(ev);
     global.singersPost.forEach((singer) => {
-      if (
+      const isInsideSinger =
         singer.left < left &&
         right < singer.right &&
         singer.top < top &&
-        bottom < singer.bottom
-      ) {
+        bottom < singer.bottom;
+      if (isInsideSinger) {
         const id = currentMovingSong!.getAttribute("data-song-id")!;
-        const singerId = singer.element.getAttribute("data-singer-id");
-        singer.element.style.opacity = "1";
-        singer.element.setAttribute(
-          "data-song-id",
-          currentMovingSong!.getAttribute("data-song-id")!
-        );
-        const loader = singer.element.lastElementChild! as HTMLDivElement;
-        document.documentElement.style.setProperty(
-          "--transition-time",
-          `${global.counter % global.beat}s`
-        );
-        Object.keys(global.getAudiosInDom).length !== 0 &&
-          loader.classList.add("loading");
-        singer.element.classList.add("singing");
-        document.documentElement.style.setProperty(
-          `--background-${singerId}`,
-          `url(${global.allCachedSpriteURL[+id]})`
-        );
+        isSingerSinging(true, singer.element, id);
+
         addAudio(id);
         currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
         currentMovingSong = undefined;
       }
     });
-    if (currentMovingSong) {
-      currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
-      currentMovingSong.style.opacity = "1";
-      currentMovingSong = undefined;
-    }
-    global.singers.forEach((singer) => singer.classList.remove("active"));
+    removeMovingSongStyles(currentMovingSong);
   }
-  document.body.removeEventListener("pointermove", handleMovingSong);
-  document.body.removeEventListener("pointercancel", handleDropSong);
-  document.body.removeEventListener("pointerup", handleDropSong);
+  modifyBodyEvents("remove");
   // stage.removeEventListener("pointerover", handleStagePointerMove);
   // singers.forEach((singer) => {
   //   // singer.removeEventListener("pointerover", handleSingerPointerOver);
   //   singer.removeEventListener("pointerleave", handleSingerPointerLeave);
   // });
 }
-function handleMovingSong(ev: PointerEvent): void {
-  if (currentMovingSong) {
-    const x = ev.clientX - currentMovingSong.offsetLeft;
-    const y = ev.clientY - currentMovingSong.offsetTop;
 
-    currentMovingSong.style.opacity = "0.7";
-    currentMovingSong.style.transformOrigin = "center";
-    currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${
-      y % innerHeight
-    }px, 10px) translate(-50%, -50%) `;
-    const left = currentMovingSong.offsetLeft + x; // = clientX you dumbass :) leaving it for now
-    const right = left + currentMovingSong.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
-    const top = currentMovingSong.offsetTop + y;
-    const bottom = top + currentMovingSong.offsetHeight / 2;
-    // Highlighting the hovered singer
-    global.singers.forEach((singer) => singer.classList.add("active"));
-    global.singersPost.forEach((singer) => {
-      if (
-        singer.left < left &&
-        right < singer.right &&
-        singer.top < top &&
-        bottom < singer.bottom
-      ) {
-        singer.element.style.opacity = "1";
-      } else if (!singer.element.getAttribute("data-song-id")) {
-        singer.element.style.opacity = "0.6";
-      }
-    });
-    // Implement moving eyes
-  }
-}
 // Main stage
 // function handleStagePointerMove(ev: PointerEvent): void {
 //   console.log(ev);
@@ -172,8 +107,7 @@ function handleMovingSong(ev: PointerEvent): void {
 // function handleSingerPointerLeave(ev: PointerEvent): void {
 //   // console.log("singer pointer leave");
 // }
-let pointerDownTop: number = 0;
-let pointerUpTop: number = 0;
+
 function handleRemoveAudio(ev: PointerEvent): void {
   const target = getTarget(ev);
   const id = target.getAttribute("data-song-id");
@@ -184,33 +118,25 @@ function handleRemoveAudio(ev: PointerEvent): void {
 
   if (ev.type === "pointerdown") {
     pointerDownTop = ev.clientY;
+    pointerDownLeft = ev.clientX;
   } else if (ev.type === "pointerup") {
     pointerUpTop = ev.clientY;
+    pointerUpLeft = ev.clientX;
   }
   if (
     pointerDownTop !== 0 &&
     pointerUpTop !== 0 &&
-    pointerUpTop - pointerDownTop > 20
+    pointerDownLeft !== 0 &&
+    pointerUpLeft !== 0 &&
+    pointerUpTop - pointerDownTop > 20 &&
+    pointerUpLeft - pointerDownLeft < 20
   ) {
-    dropSong(id, target, singerId);
+    stopSong(id, target);
     pointerUpTop = 0;
     pointerDownTop = 0;
+    pointerUpLeft = 0;
+    pointerDownLeft = 0;
   }
-}
-
-function dropSong(id: string, target: HTMLDivElement, singerId: string) {
-  target.classList.remove("singing");
-  target.style.opacity = "0.6";
-  target.removeAttribute("data-song-id");
-  target.lastElementChild!.classList.remove("loading");
-  (
-    document.querySelector(`.song[data-song-id='${id}']`) as HTMLDivElement
-  ).style.opacity = "1";
-  global.removeAudioFromDom = +id;
-  document.documentElement.style.setProperty(
-    `--background-${singerId}`,
-    `url('/singer.png')`
-  );
 }
 
 // customizing the singers
@@ -228,14 +154,9 @@ function addAudio(id: string) {
     isWinningCombination();
   } else {
     global.setAudioQueue = newAudio;
-    global.setAudiosInDom = { id: +id, audio: newAudio };
     isWinningCombination();
   }
 }
-
-const winningCombinations = [{}, {}, {}];
-
-function isWinningCombination() {}
 
 // Beat && loader
 function startBeatInterval() {
@@ -243,6 +164,7 @@ function startBeatInterval() {
     global.counter += 1;
     if (global.counter % global.beat === 0) {
       global.getAudioQueue.forEach((audio, i) => {
+        global.setAudiosInDom = { id: +audio.id, audio };
         audio.play();
         document
           .querySelector(`.singer[data-song-id="${audio.id}"]`)!
@@ -262,6 +184,41 @@ function startBeatInterval() {
 // Animations
 
 // CacheFiles and start application function
+
+// Start application
+cacheFiles(
+  global.allAudioLinks,
+  global.allVideoLinks,
+  global.allSpriteLinks
+).then(() => {
+  if (global.isReady) {
+    (
+      document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
+    ).style.display = "none";
+    global.singers.forEach((singer) => {
+      singer.addEventListener("click", handlePauseAudio);
+      singer.addEventListener("pointerdown", handleRemoveAudio);
+      singer.addEventListener("pointerup", handleRemoveAudio);
+    });
+
+    // dragging songs
+    global.songs.forEach((song) => {
+      song.addEventListener("pointerdown", startSongDrag);
+      song.addEventListener("pointerup", startSinging);
+    });
+  }
+});
+
+function handleMovingSong(ev: PointerEvent): void {
+  if (currentMovingSong) {
+    movingSongStyles(ev, currentMovingSong);
+    highlightHoveredSinger(ev);
+
+    // Implement moving eyes
+  }
+}
+
+// Helper functions
 
 async function cacheFiles(
   allAudioLinks: {
@@ -295,18 +252,93 @@ async function cacheFiles(
   }
 }
 
-// Start application
-cacheFiles(
-  global.allAudioLinks,
-  global.allVideoLinks,
-  global.allSpriteLinks
-).then(() => {
-  if (global.isReady) {
+function getMovingSongPosition(ev: PointerEvent) {
+  const position: { left: number; top: number; right: number; bottom: number } =
+    { left: 0, top: 0, right: 0, bottom: 0 };
+  position.left = ev.clientX;
+  position.right = position.left + currentMovingSong!.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
+  position.top = ev.clientY;
+  position.bottom = position.top + currentMovingSong!.offsetHeight / 2; // taking Translate(-50%, -50%) above into account
+  return position;
+}
+function isSingerSinging(
+  isSinging: boolean,
+  singer: HTMLDivElement,
+  id: string
+) {
+  const singerId = singer.getAttribute("data-singer-id");
+  const loader = singer.lastElementChild! as HTMLDivElement;
+  if (isSinging) {
+    Object.keys(global.getAudiosInDom).length !== 0 &&
+      loader.classList.add("loading");
+    singer.style.opacity = "1";
+    singer.setAttribute(
+      "data-song-id",
+      currentMovingSong!.getAttribute("data-song-id")!
+    );
+    singer.classList.add("singing");
+    document.documentElement.style.setProperty(
+      `--background-${singerId}`,
+      `url(${global.allCachedSpriteURL[+id]})`
+    );
+    document.documentElement.style.setProperty(
+      "--transition-time",
+      `${global.counter % global.beat}s`
+    );
+  } else {
+    singer.classList.remove("singing");
+    singer.style.opacity = "0.6";
+    singer.removeAttribute("data-song-id");
+    loader.classList.remove("loading");
     (
-      document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
-    ).style.display = "none";
+      document.querySelector(`.song[data-song-id='${id}']`) as HTMLDivElement
+    ).style.opacity = "1";
+    (
+      document.querySelector(`.song[data-song-id='${id}']`) as HTMLDivElement
+    ).style.backgroundPositionY = `0`;
+    document.documentElement.style.setProperty(
+      `--background-${singerId}`,
+      `url('/singer.png')`
+    );
   }
-});
+}
+function modifyBodyEvents(type: "add" | "remove") {
+  if (type === "add") {
+    document.body.addEventListener("pointermove", handleMovingSong);
+    document.body.addEventListener("pointercancel", startSinging);
+    document.body.addEventListener("pointerup", startSinging);
+  } else if (type === "remove") {
+    document.body.removeEventListener("pointermove", handleMovingSong);
+    document.body.removeEventListener("pointercancel", startSinging);
+    document.body.removeEventListener("pointerup", startSinging);
+  }
+}
+
+function movingSongStyles(ev: PointerEvent, currentMovingSong: HTMLDivElement) {
+  const x = ev.clientX - currentMovingSong.offsetLeft;
+  const y = ev.clientY - currentMovingSong.offsetTop;
+  currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${
+    y % innerHeight
+  }px, 10px) translate(-50%, -50%) `;
+  currentMovingSong.style.backgroundPositionY = "100%";
+}
+function removeMovingSongStyles(currentMovingSong: HTMLDivElement | undefined) {
+  if (currentMovingSong) {
+    currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
+    currentMovingSong.style.backgroundPositionY = "0";
+    currentMovingSong = undefined;
+    global.singers.forEach((singer) => singer.classList.remove("active"));
+  }
+}
+function stopSong(id: string, target: HTMLDivElement) {
+  isSingerSinging(false, target, id);
+  global.removeAudioFromQueue = id;
+  if (global.getAudiosInDom[+id]) {
+    global.removeAudioFromDom = +id;
+  }
+}
+
+function isWinningCombination() {}
 
 async function fetchBlob(link: string): Promise<Blob> {
   try {
@@ -326,4 +358,22 @@ function getTarget(ev: Event) {
 async function decodeAudio(audioLink: string, id: string) {
   const buffer = (await fetch(audioLink)).arrayBuffer();
   return new Audios(await audioCtx.decodeAudioData(await buffer), id);
+}
+
+function highlightHoveredSinger(ev: PointerEvent) {
+  const { left, right, top, bottom } = getMovingSongPosition(ev);
+  // Highlighting the hovered singer
+  global.singers.forEach((singer) => singer.classList.add("active"));
+  global.singersPost.forEach((singer) => {
+    const isInsideSinger =
+      singer.left < left &&
+      right < singer.right &&
+      singer.top < top &&
+      bottom < singer.bottom;
+    if (isInsideSinger) {
+      singer.element.style.opacity = "1";
+    } else if (!singer.element.getAttribute("data-song-id")) {
+      singer.element.style.opacity = "0.6";
+    }
+  });
 }
