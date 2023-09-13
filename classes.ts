@@ -1,5 +1,6 @@
 export class GlobalState {
   private ready = false;
+  public winningCombinations = [{}, {}, {}];
   private audioQueue: Audios[] = [];
   readonly beat: number = 7;
   private interval: number = 1000;
@@ -142,6 +143,12 @@ export class GlobalState {
   set setAudioQueue(newAudio: Audios) {
     this.audioQueue.push(newAudio);
   }
+  set removeAudioFromQueue(audioId: string) {
+    const id = this.audioQueue.findIndex((audio) => audio.id === audioId);
+    if (id !== -1) {
+      this.audioQueue.splice(id, 1);
+    }
+  }
 }
 
 // Web Audio API
@@ -178,7 +185,12 @@ export class Audios {
     }
   }
   play() {
-    this.audioSource.start();
+    try {
+      this.audioSource.start();
+    } catch (error: unknown) {
+      this.playSound();
+      this.audioSource.start();
+    }
   }
   stop() {
     this.audioSource.stop();

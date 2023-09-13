@@ -1,6 +1,7 @@
 export class GlobalState {
     constructor(beat, interval) {
         this.ready = false;
+        this.winningCombinations = [{}, {}, {}];
         this.audioQueue = [];
         this.beat = 7;
         this.interval = 1000;
@@ -113,6 +114,12 @@ export class GlobalState {
     set setAudioQueue(newAudio) {
         this.audioQueue.push(newAudio);
     }
+    set removeAudioFromQueue(audioId) {
+        const id = this.audioQueue.findIndex((audio) => audio.id === audioId);
+        if (id !== -1) {
+            this.audioQueue.splice(id, 1);
+        }
+    }
 }
 // Web Audio API
 export class Audios {
@@ -144,7 +151,13 @@ export class Audios {
         }
     }
     play() {
-        this.audioSource.start();
+        try {
+            this.audioSource.start();
+        }
+        catch (error) {
+            this.playSound();
+            this.audioSource.start();
+        }
     }
     stop() {
         this.audioSource.stop();
