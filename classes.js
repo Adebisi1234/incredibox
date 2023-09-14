@@ -1,14 +1,16 @@
 export class GlobalState {
     constructor(beat, interval) {
         this.ready = false;
-        this.winningCombinations = [{}, {}, {}];
         this.audioQueue = [];
         this.beat = 7;
         this.interval = 1000;
         this.counter = 0;
         this.beatIntervalId = 0;
+        this.coolCombination = { 1: [1, 10, 19], 2: [2, 10, 5], 3: [5, 15, 2] }; // For auto-play feature. placeholder for now
+        this.winningCombination = { 1: [1, 10, 19], 2: [2, 10, 5], 3: [5, 15, 2] };
         this.audiosInDom = {};
         this.allSingers = document.querySelectorAll(".singer");
+        this.videoPlayer = document.querySelectorAll(".video-player");
         this.singersPosition = [];
         this.allSongs = document.querySelectorAll(".song");
         this._allVideoLinks = {

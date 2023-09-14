@@ -44,6 +44,18 @@ header {
     border-radius: 50%;
 }
 
+.video-player {
+    position: relative;
+}
+
+.video-player .loader {
+    bottom: -8px;
+}
+
+.playable {
+    background-color: green;
+}
+
 .middle {
     flex-grow: 2;
     justify-content: space-evenly;

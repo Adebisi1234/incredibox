@@ -137,11 +137,34 @@ function addAudio(id) {
         newAudio.play();
         startBeatInterval();
         global.setAudiosInDom = { id: +id, audio: newAudio };
-        isWinningCombination();
     }
     else {
         global.setAudioQueue = newAudio;
-        isWinningCombination();
+    }
+}
+function handlePlayVideo(ev) {
+    // This can also be better
+    const videoId = ev.target.getAttribute("data-player-id");
+    console.log(videoId);
+    for (const audio in global.getAudiosInDom) {
+        if (Object.prototype.hasOwnProperty.call(global.getAudiosInDom, audio)) {
+            const element = document.querySelector(`.singer[data-song-id="${global.getAudiosInDom[audio].id}"]`);
+            global.getAudiosInDom[audio].muteSound(element);
+        }
+    }
+    const video = document.querySelector("video");
+    if (video) {
+        video.src = global.allCachedVideoURL[+videoId];
+        video.addEventListener("ended", handleVideoPlayer);
+        video.classList.add("video-playing");
+        video.play();
+    }
+    function handleVideoPlayer() {
+        if (video) {
+            video.classList.remove("video-playing");
+            video.src = "";
+            video.removeEventListener("ended", handleVideoPlayer);
+        }
     }
 }
 // Beat && loader
@@ -157,6 +180,12 @@ function startBeatInterval() {
                     .lastElementChild.classList.remove("loading");
                 global.getAudioQueue.splice(i, 1);
             });
+            if (Object.keys(global.getAudiosInDom).length >= 2) {
+                isWinningCombination();
+            }
+            else {
+                global.videoPlayer.forEach((video) => video.classList.remove("playable"));
+            }
         }
     }, global.getInterval);
 }
@@ -223,6 +252,7 @@ function isSingerSinging(isSinging, singer, id) {
     const loader = singer.lastElementChild;
     if (isSinging) {
         Object.keys(global.getAudiosInDom).length !== 0 &&
+            global.counter % global.beat !== 0 &&
             loader.classList.add("loading");
         singer.style.opacity = "1";
         singer.setAttribute("data-song-id", currentMovingSong.getAttribute("data-song-id"));
@@ -273,7 +303,36 @@ function stopSong(id, target) {
         global.removeAudioFromDom = +id;
     }
 }
-function isWinningCombination() { }
+function isWinningCombination() {
+    // There has to be a better way than this
+    for (const combination in global.winningCombination) {
+        if (Object.prototype.hasOwnProperty.call(global.winningCombination, combination)) {
+            const win = global.winningCombination[combination].every((songId) => {
+                return global.getAudiosInDom[songId];
+            });
+            if (win) {
+                global.videoPlayer.forEach((player) => {
+                    var _a;
+                    if (player.getAttribute("data-player-id") === combination) {
+                        player.classList.add("playable");
+                        (_a = player.nextElementSibling) === null || _a === void 0 ? void 0 : _a.classList.add("loading");
+                        player.addEventListener("click", handlePlayVideo);
+                    }
+                });
+            }
+            else {
+                global.videoPlayer.forEach((player) => {
+                    var _a;
+                    if (player.getAttribute("data-player-id") === combination) {
+                        player.classList.remove("playable");
+                        (_a = player.nextElementSibling) === null || _a === void 0 ? void 0 : _a.classList.add("loading");
+                        player.removeEventListener("click", handlePlayVideo);
+                    }
+                });
+            }
+        }
+    }
+}
 function fetchBlob(link) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

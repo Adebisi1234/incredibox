@@ -1,14 +1,17 @@
 export class GlobalState {
   private ready = false;
-  public winningCombinations = [{}, {}, {}];
   private audioQueue: Audios[] = [];
   readonly beat: number = 7;
   private interval: number = 1000;
   public counter: number = 0;
   public beatIntervalId: number = 0;
+  public coolCombination: {[key: number]: number[]} = {1: [1, 10, 19], 2: [2,10,5], 3: [5, 15, 2]} // For auto-play feature. placeholder for now
+  public winningCombination: {[key: number]: number[]} = {1: [1, 10, 19], 2: [2,10,5], 3: [5, 15, 2]}
   private audiosInDom: { [key: number]: Audios } = {};
   private allSingers: NodeListOf<HTMLDivElement> =
     document.querySelectorAll(".singer");
+  public videoPlayer: NodeListOf<HTMLDivElement> =
+    document.querySelectorAll(".video-player");
   private singersPosition: {
     left: number;
     right: number;
