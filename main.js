@@ -24,6 +24,24 @@ window.addEventListener("resize", () => {
     global.setSingers = document.querySelectorAll(".singer");
 });
 let currentMovingSong = undefined;
+// CacheFiles and start application function
+// Start application
+cacheFiles(global.allAudioLinks, global.allVideoLinks, global.allSpriteLinks).then(() => {
+    if (global.isReady) {
+        document.getElementsByClassName("splashscreen")[0].style.display = "none";
+        // global.animate(global.allCachedAudios[5]);
+        global.singers.forEach((singer) => {
+            singer.addEventListener("click", handlePauseAudio);
+            singer.addEventListener("pointerdown", handleRemoveAudio);
+            singer.addEventListener("pointerup", handleRemoveAudio);
+        });
+        // dragging songs
+        global.songs.forEach((song) => {
+            song.addEventListener("pointerdown", startSongDrag);
+            song.addEventListener("pointerup", startSinging);
+        });
+    }
+});
 // const stage: HTMLElement = document.querySelector("main")!;
 // fetch blog helper function
 // Singers main events
@@ -140,6 +158,12 @@ function addAudio(id) {
     }
     else {
         global.setAudioQueue = newAudio;
+        if (Object.keys(global.getAudiosInDom).length >= 2) {
+            isWinningCombination();
+        }
+        else {
+            global.videoPlayer.forEach((video) => video.classList.remove("playable"));
+        }
     }
 }
 function handlePlayVideo(ev) {
@@ -180,12 +204,6 @@ function startBeatInterval() {
                     .lastElementChild.classList.remove("loading");
                 global.getAudioQueue.splice(i, 1);
             });
-            if (Object.keys(global.getAudiosInDom).length >= 2) {
-                isWinningCombination();
-            }
-            else {
-                global.videoPlayer.forEach((video) => video.classList.remove("playable"));
-            }
         }
     }, global.getInterval);
 }
@@ -193,23 +211,6 @@ function startBeatInterval() {
 // Loading indicator animation
 // Removing audio & clear interval
 // Animations
-// CacheFiles and start application function
-// Start application
-cacheFiles(global.allAudioLinks, global.allVideoLinks, global.allSpriteLinks).then(() => {
-    if (global.isReady) {
-        document.getElementsByClassName("splashscreen")[0].style.display = "none";
-        global.singers.forEach((singer) => {
-            singer.addEventListener("click", handlePauseAudio);
-            singer.addEventListener("pointerdown", handleRemoveAudio);
-            singer.addEventListener("pointerup", handleRemoveAudio);
-        });
-        // dragging songs
-        global.songs.forEach((song) => {
-            song.addEventListener("pointerdown", startSongDrag);
-            song.addEventListener("pointerup", startSinging);
-        });
-    }
-});
 function handleMovingSong(ev) {
     if (currentMovingSong) {
         movingSongStyles(ev, currentMovingSong);
@@ -308,7 +309,7 @@ function isWinningCombination() {
     for (const combination in global.winningCombination) {
         if (Object.prototype.hasOwnProperty.call(global.winningCombination, combination)) {
             const win = global.winningCombination[combination].every((songId) => {
-                return global.getAudiosInDom[songId];
+                return global.getAudiosInDom[songId] || global.getAudioQueue[songId];
             });
             if (win) {
                 global.videoPlayer.forEach((player) => {

@@ -5,8 +5,16 @@ export class GlobalState {
   private interval: number = 1000;
   public counter: number = 0;
   public beatIntervalId: number = 0;
-  public coolCombination: {[key: number]: number[]} = {1: [1, 10, 19], 2: [2,10,5], 3: [5, 15, 2]} // For auto-play feature. placeholder for now
-  public winningCombination: {[key: number]: number[]} = {1: [1, 10, 19], 2: [2,10,5], 3: [5, 15, 2]}
+  public coolCombination: { [key: number]: number[] } = {
+    1: [1, 10, 19],
+    2: [2, 10, 5],
+    3: [5, 15, 2],
+  }; // For auto-play feature. placeholder for now
+  public winningCombination: { [key: number]: number[] } = {
+    1: [1, 10, 19],
+    2: [2, 10, 5],
+    3: [5, 15, 2],
+  };
   private audiosInDom: { [key: number]: Audios } = {};
   private allSingers: NodeListOf<HTMLDivElement> =
     document.querySelectorAll(".singer");
@@ -17,6 +25,8 @@ export class GlobalState {
     right: number;
     top: number;
     bottom: number;
+    height: number;
+    width: number;
     element: HTMLDivElement;
   }[] = [];
   private allSongs: NodeListOf<HTMLDivElement> =
@@ -85,6 +95,41 @@ export class GlobalState {
     }
   }
 
+  async animate(audio: Audios, singer: HTMLDivElement = this.singers[0]) {
+    //seems to work
+    console.log(audio.buffer.duration);
+    const animeJson: {
+      animeName: "1_atlanta";
+      // bkgpX, bckpY, translateX, top
+      arrayFrame: { prop: "0,380,-3.5,7" }[];
+      headHeight: "234";
+      height: "380";
+      percentageMax: "0.2";
+      totalFrame: "328";
+      width: "164";
+    } = await (await fetch("./anime/1_atlanta.json")).json();
+    const interval = Math.floor(
+      (audio.buffer.duration * 1000) / animeJson.arrayFrame.length
+    );
+    let i = 0;
+    const intervalId = setInterval(() => {
+      console.log("intervaling");
+      const styles = {
+        backgroundX: animeJson.arrayFrame[i].prop.split(",")[0],
+        backgroundY: animeJson.arrayFrame[i].prop.split(",")[1],
+        translateX: animeJson.arrayFrame[i].prop.split(",")[2],
+        top: animeJson.arrayFrame[i].prop.split(",")[3],
+      };
+      (singer.querySelector(".head")! as HTMLDivElement).style.backgroundPositionX = styles.backgroundX + "px";
+      (singer.querySelector(".head")! as HTMLDivElement).style.backgroundPositionY = styles.backgroundY + "px";
+      (singer.querySelector(".head")! as HTMLDivElement).style.transform = `translateX(${styles.translateX}px)`;
+      (singer.querySelector(".head")! as HTMLDivElement).style.top = styles.top + "px";
+      i++;
+      if (i === animeJson.arrayFrame.length) {
+        clearInterval(intervalId);
+      }
+    }, interval);
+  }
   get allVideoLinks() {
     return this._allVideoLinks;
   }
@@ -113,6 +158,8 @@ export class GlobalState {
         top: singer.offsetTop,
         bottom: singer.offsetTop + singer.offsetHeight,
         element: singer,
+        height: singer.offsetHeight,
+        width: singer.offsetWidth
       };
     });
   }

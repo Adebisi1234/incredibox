@@ -5,7 +5,20 @@
 }
 
 html {
+    /* Rename all this mf */
     user-select: none;
+    /* inbuilt */
+    --frameHeight: 328;
+    --bgHeight: 380;
+    --headHeight: 234;
+    --bgWidth: 164;
+    /* Calc. ed */
+    --percentageY: (291px / var(--bgHeight));
+    /* --percentageX: calc(100% / var(--bgWidth));  leave alone for now*/
+    --realHeadHeight: calc(var(--headHeight) * var(--percentageY));
+    --realFrameHeight: calc(var(--frameHeight) * var(--percentageY));
+    --headBottom: calc((var(--bgHeight) - var(--headHeight)) * var(--percentageY));
+    --FrameMargin: calc((var(--bgHeight) - var(--frameHeight)) * var(--percentageY));
     --transition-time: 5s;
     --background-1: url("/singer.png");
     --background-2: url("/singer.png");
@@ -44,9 +57,6 @@ header {
     border-radius: 50%;
 }
 
-.video-player {
-    position: relative;
-}
 
 .video-player .loader {
     bottom: -8px;
@@ -116,7 +126,6 @@ main {
     height: 100%;
     opacity: 0.6;
     transition: all 250ms;
-    position: relative;
 }
 
 .singing {
@@ -138,18 +147,44 @@ main {
     }
 }
 
+.absolute {
+    position: absolute;
+}
+
+.relative {
+    position: relative;
+}
+
 .frame {
-    margin-top: 20px;
     transition: background 200ms ease-in;
     height: 100%;
-    position: relative;
     background-repeat: no-repeat;
     background-size: contain;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
     background-position: bottom;
 }
 
+/* Background size = x: 164px y: frameHeight/imageHeight * 100 */
+.frame .body {
+    height: var(--realFrameHeight);
+    width: 100%;
+    bottom: 0;
+    border: 1px solid rebeccapurple;
+    background-color: red;
+}
+
+
+.frame .head {
+    bottom: var(--headBottom);
+    height: var(--realHeadHeight);
+    width: 100%;
+    border: 1px solid pink;
+}
+
 .singer[data-singer-id="1"]>.frame {
-    background-image: var(--background-1);
+    background-image: url("./anime/1_atlanta-sprite-hd.png");
 }
 
 .singer[data-singer-id="2"]>.frame {

@@ -1,0 +1,5 @@
+Check the animation out use the empty body and first head as starters
+Use the remaining heads position as anime (background position)
+
+
+Create your own animation json for each singer

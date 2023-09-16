@@ -17,6 +17,58 @@ window.addEventListener("resize", () => {
 });
 
 let currentMovingSong: HTMLDivElement | undefined = undefined;
+
+function getBackgroundSize() {
+  const demo = {
+      headHeight: "234",
+      height: "380",
+      totalFrame: "328",
+      width: "164",
+  }
+  // ---
+  // Frame total: ie body = 328
+  // total height = 380
+  // headHeight = 209
+  // therefore headTop = 380 - headHeight
+  // then when animation headTop = headTop + animeJsonTop
+  // Getting percentages for rendered sizes
+  // percentage = offsetHeight/380
+  // backgroundSizeY = percentage * 100
+  // backgroundSizeX = 100%
+  // headHeight = percentage * 209
+  // 
+
+  // total height = percentage * 380 = offsetHeight
+  // frame marginTop = percentage * (380 - 328)
+
+}
+
+// CacheFiles and start application function
+
+// Start application
+cacheFiles(
+  global.allAudioLinks,
+  global.allVideoLinks,
+  global.allSpriteLinks
+).then(() => {
+  if (global.isReady) {
+    (
+      document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
+    ).style.display = "none";
+    // global.animate(global.allCachedAudios[5]);
+    global.singers.forEach((singer) => {
+      singer.addEventListener("click", handlePauseAudio);
+      singer.addEventListener("pointerdown", handleRemoveAudio);
+      singer.addEventListener("pointerup", handleRemoveAudio);
+    });
+
+    // dragging songs
+    global.songs.forEach((song) => {
+      song.addEventListener("pointerdown", startSongDrag);
+      song.addEventListener("pointerup", startSinging);
+    });
+  }
+});
 // const stage: HTMLElement = document.querySelector("main")!;
 
 // fetch blog helper function
@@ -153,13 +205,18 @@ function addAudio(id: string) {
     global.setAudiosInDom = { id: +id, audio: newAudio };
   } else {
     global.setAudioQueue = newAudio;
+    if (Object.keys(global.getAudiosInDom).length >= 2) {
+      isWinningCombination();
+    } else {
+      global.videoPlayer.forEach((video) => video.classList.remove("playable"));
+    }
   }
 }
 
 function handlePlayVideo(ev: MouseEvent) {
   // This can also be better
   const videoId = (ev.target as HTMLDivElement).getAttribute("data-player-id")!;
-  console.log(videoId)
+  console.log(videoId);
   for (const audio in global.getAudiosInDom) {
     if (Object.prototype.hasOwnProperty.call(global.getAudiosInDom, audio)) {
       const element: HTMLDivElement = document.querySelector(
@@ -197,13 +254,6 @@ function startBeatInterval() {
           .lastElementChild!.classList.remove("loading");
         global.getAudioQueue.splice(i, 1);
       });
-      if (Object.keys(global.getAudiosInDom).length >= 2) {
-        isWinningCombination();
-      } else {
-        global.videoPlayer.forEach((video) =>
-          video.classList.remove("playable")
-        );
-      }
     }
   }, global.getInterval);
 }
@@ -215,32 +265,6 @@ function startBeatInterval() {
 // Removing audio & clear interval
 
 // Animations
-
-// CacheFiles and start application function
-
-// Start application
-cacheFiles(
-  global.allAudioLinks,
-  global.allVideoLinks,
-  global.allSpriteLinks
-).then(() => {
-  if (global.isReady) {
-    (
-      document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
-    ).style.display = "none";
-    global.singers.forEach((singer) => {
-      singer.addEventListener("click", handlePauseAudio);
-      singer.addEventListener("pointerdown", handleRemoveAudio);
-      singer.addEventListener("pointerup", handleRemoveAudio);
-    });
-
-    // dragging songs
-    global.songs.forEach((song) => {
-      song.addEventListener("pointerdown", startSongDrag);
-      song.addEventListener("pointerup", startSinging);
-    });
-  }
-});
 
 function handleMovingSong(ev: PointerEvent): void {
   if (currentMovingSong) {
@@ -383,7 +407,7 @@ function isWinningCombination() {
     ) {
       const win: boolean = global.winningCombination[combination].every(
         (songId) => {
-          return global.getAudiosInDom[songId];
+          return global.getAudiosInDom[songId] || global.getAudioQueue[songId];
         }
       );
       if (win) {

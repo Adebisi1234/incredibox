@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 export class GlobalState {
     constructor(beat, interval) {
         this.ready = false;
@@ -6,8 +15,16 @@ export class GlobalState {
         this.interval = 1000;
         this.counter = 0;
         this.beatIntervalId = 0;
-        this.coolCombination = { 1: [1, 10, 19], 2: [2, 10, 5], 3: [5, 15, 2] }; // For auto-play feature. placeholder for now
-        this.winningCombination = { 1: [1, 10, 19], 2: [2, 10, 5], 3: [5, 15, 2] };
+        this.coolCombination = {
+            1: [1, 10, 19],
+            2: [2, 10, 5],
+            3: [5, 15, 2],
+        }; // For auto-play feature. placeholder for now
+        this.winningCombination = {
+            1: [1, 10, 19],
+            2: [2, 10, 5],
+            3: [5, 15, 2],
+        };
         this.audiosInDom = {};
         this.allSingers = document.querySelectorAll(".singer");
         this.videoPlayer = document.querySelectorAll(".video-player");
@@ -59,6 +76,32 @@ export class GlobalState {
             this.beat = beat;
             this.interval = interval;
         }
+    }
+    animate(audio, singer = this.singers[0]) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //seems to work
+            console.log(audio.buffer.duration);
+            const animeJson = yield (yield fetch("./anime/1_atlanta.json")).json();
+            const interval = Math.floor((audio.buffer.duration * 1000) / animeJson.arrayFrame.length);
+            let i = 0;
+            const intervalId = setInterval(() => {
+                console.log("intervaling");
+                const styles = {
+                    backgroundX: animeJson.arrayFrame[i].prop.split(",")[0],
+                    backgroundY: animeJson.arrayFrame[i].prop.split(",")[1],
+                    translateX: animeJson.arrayFrame[i].prop.split(",")[2],
+                    top: animeJson.arrayFrame[i].prop.split(",")[3],
+                };
+                singer.querySelector(".head").style.backgroundPositionX = styles.backgroundX + "px";
+                singer.querySelector(".head").style.backgroundPositionY = styles.backgroundY + "px";
+                singer.querySelector(".head").style.transform = `translateX(${styles.translateX}px)`;
+                singer.querySelector(".head").style.top = styles.top + "px";
+                i++;
+                if (i === animeJson.arrayFrame.length) {
+                    clearInterval(intervalId);
+                }
+            }, interval);
+        });
     }
     get allVideoLinks() {
         return this._allVideoLinks;
