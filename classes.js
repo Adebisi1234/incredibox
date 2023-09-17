@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 export class GlobalState {
     constructor(beat, interval) {
         this.ready = false;
@@ -14,6 +5,7 @@ export class GlobalState {
         this.beat = 7;
         this.interval = 1000;
         this.counter = 0;
+        this.anime = {};
         this.beatIntervalId = 0;
         this.coolCombination = {
             1: [1, 10, 19],
@@ -35,6 +27,7 @@ export class GlobalState {
             2: "./public/video2.webm",
             3: "./public/video3.webm",
         };
+        this.animeIntervalIds = {};
         this._allAudioLinks = {
             1: "./public/1_atlanta.ogg",
             2: "./public/2_tuctom.ogg",
@@ -62,12 +55,23 @@ export class GlobalState {
             for (const id in allAudioLinks) {
                 if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
                     let url = allAudioLinks[id];
-                    let baseUrl = "/anime/" + url.split("/")[2].replace(".ogg", "-sprite-hd.png");
+                    let baseUrl = "/anime/" + url.split("/")[2].replace(".ogg", "-sprite.png");
                     spriteUrls[id] = baseUrl;
                 }
             }
             return spriteUrls;
         })(this._allAudioLinks);
+        this.allAnimeURl = (function (allSpriteLinks) {
+            const animeJson = {};
+            for (const id in allSpriteLinks) {
+                if (Object.prototype.hasOwnProperty.call(allSpriteLinks, id)) {
+                    let url = allSpriteLinks[id];
+                    let baseUrl = url.replace("-sprite.png", ".json");
+                    animeJson[id] = baseUrl;
+                }
+            }
+            return animeJson;
+        })(this._allSpriteLinks);
         // Objects for cached urls
         this.allCachedAudios = {};
         this.allCachedVideoURL = {};
@@ -76,32 +80,6 @@ export class GlobalState {
             this.beat = beat;
             this.interval = interval;
         }
-    }
-    animate(audio, singer = this.singers[0]) {
-        return __awaiter(this, void 0, void 0, function* () {
-            //seems to work
-            console.log(audio.buffer.duration);
-            const animeJson = yield (yield fetch("./anime/1_atlanta.json")).json();
-            const interval = Math.floor((audio.buffer.duration * 1000) / animeJson.arrayFrame.length);
-            let i = 0;
-            const intervalId = setInterval(() => {
-                console.log("intervaling");
-                const styles = {
-                    backgroundX: animeJson.arrayFrame[i].prop.split(",")[0],
-                    backgroundY: animeJson.arrayFrame[i].prop.split(",")[1],
-                    translateX: animeJson.arrayFrame[i].prop.split(",")[2],
-                    top: animeJson.arrayFrame[i].prop.split(",")[3],
-                };
-                singer.querySelector(".head").style.backgroundPositionX = styles.backgroundX + "px";
-                singer.querySelector(".head").style.backgroundPositionY = styles.backgroundY + "px";
-                singer.querySelector(".head").style.transform = `translateX(${styles.translateX}px)`;
-                singer.querySelector(".head").style.top = styles.top + "px";
-                i++;
-                if (i === animeJson.arrayFrame.length) {
-                    clearInterval(intervalId);
-                }
-            }, interval);
-        });
     }
     get allVideoLinks() {
         return this._allVideoLinks;
@@ -130,6 +108,8 @@ export class GlobalState {
                 top: singer.offsetTop,
                 bottom: singer.offsetTop + singer.offsetHeight,
                 element: singer,
+                height: singer.offsetHeight,
+                width: singer.offsetWidth,
             };
         });
     }

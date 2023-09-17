@@ -1,4 +1,5 @@
-import { GlobalState, Audios } from "./classes.js";
+import { GlobalState, Audios, json } from "./classes.js";
+import cropImage from "./anime/croppingImage/crop.js";
 // Constants
 const audioCtx = new AudioContext();
 const global = new GlobalState();
@@ -7,55 +8,19 @@ let pointerDownTop: number = 0;
 let pointerUpTop: number = 0;
 let pointerDownLeft: number = 0;
 let pointerUpLeft: number = 0;
-
 // Updating the singers size on DOM load
 window.addEventListener("DOMContentLoaded", () => {
   global.setSingers = document.querySelectorAll(".singer");
-});
-window.addEventListener("resize", () => {
-  global.setSingers = document.querySelectorAll(".singer");
-});
-
-let currentMovingSong: HTMLDivElement | undefined = undefined;
-
-function getBackgroundSize() {
-  const demo = {
-      headHeight: "234",
-      height: "380",
-      totalFrame: "328",
-      width: "164",
-  }
-  // ---
-  // Frame total: ie body = 328
-  // total height = 380
-  // headHeight = 209
-  // therefore headTop = 380 - headHeight
-  // then when animation headTop = headTop + animeJsonTop
-  // Getting percentages for rendered sizes
-  // percentage = offsetHeight/380
-  // backgroundSizeY = percentage * 100
-  // backgroundSizeX = 100%
-  // headHeight = percentage * 209
-  // 
-
-  // total height = percentage * 380 = offsetHeight
-  // frame marginTop = percentage * (380 - 328)
-
-}
-
-// CacheFiles and start application function
-
-// Start application
-cacheFiles(
+  cacheFiles(
   global.allAudioLinks,
   global.allVideoLinks,
-  global.allSpriteLinks
+  global.allSpriteLinks,
+  global.allAnimeURl
 ).then(() => {
   if (global.isReady) {
     (
       document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
     ).style.display = "none";
-    // global.animate(global.allCachedAudios[5]);
     global.singers.forEach((singer) => {
       singer.addEventListener("click", handlePauseAudio);
       singer.addEventListener("pointerdown", handleRemoveAudio);
@@ -69,6 +34,17 @@ cacheFiles(
     });
   }
 });
+});
+window.addEventListener("resize", () => {
+  global.setSingers = document.querySelectorAll(".singer");
+});
+
+let currentMovingSong: HTMLDivElement | undefined = undefined;
+
+// CacheFiles and start application function
+
+// Start application
+
 // const stage: HTMLElement = document.querySelector("main")!;
 
 // fetch blog helper function
@@ -86,6 +62,8 @@ function handlePauseAudio(ev: MouseEvent) {
   } else {
     const audio: Audios = global.getAudiosInDom[+audioId];
     if (audio) {
+      const headCanvas = element.querySelector(".head-canvas") as HTMLCanvasElement;
+      const bodyCanvas = element.querySelector(".body-canvas") as HTMLCanvasElement;
       audio.muteSound(element);
     }
   }
@@ -124,8 +102,10 @@ function startSinging(ev: PointerEvent): void {
       if (isInsideSinger) {
         const id = currentMovingSong!.getAttribute("data-song-id")!;
         isSingerSinging(true, singer.element, id);
+        const headCanvas: HTMLCanvasElement = singer.element.querySelector(".head-canvas")!
+        const bodyCanvas: HTMLCanvasElement = singer.element.querySelector(".body-canvas")!
 
-        addAudio(id);
+        addAudio(id, headCanvas, bodyCanvas);
         currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
         currentMovingSong = undefined;
       }
@@ -142,7 +122,7 @@ function startSinging(ev: PointerEvent): void {
 
 // Main stage
 // function handleStagePointerMove(ev: PointerEvent): void {
-//   console.log(ev);
+//
 //   if (
 //     currentMovingSong &&
 //     ((ev.target as HTMLDivElement).classList.contains("frame") ||
@@ -197,12 +177,14 @@ function handleRemoveAudio(ev: PointerEvent): void {
 
 // adding & Playing audio
 
-function addAudio(id: string) {
+function addAudio(id: string, headCanvas: HTMLCanvasElement, bodyCanvas: HTMLCanvasElement) {
   const newAudio = global.allCachedAudios[+id];
   if (Object.keys(global.getAudiosInDom).length === 0) {
-    newAudio.play();
-    startBeatInterval();
     global.setAudiosInDom = { id: +id, audio: newAudio };
+    newAudio.play();
+    
+    
+    startBeatInterval();
   } else {
     global.setAudioQueue = newAudio;
     if (Object.keys(global.getAudiosInDom).length >= 2) {
@@ -219,9 +201,11 @@ function handlePlayVideo(ev: MouseEvent) {
   console.log(videoId);
   for (const audio in global.getAudiosInDom) {
     if (Object.prototype.hasOwnProperty.call(global.getAudiosInDom, audio)) {
+      const audioId = global.getAudiosInDom[audio].id;
       const element: HTMLDivElement = document.querySelector(
-        `.singer[data-song-id="${global.getAudiosInDom[audio].id}"]`
+        `.singer[data-song-id="${audioId}"]`
       )!;
+      
       global.getAudiosInDom[audio].muteSound(element);
     }
   }
@@ -286,7 +270,10 @@ async function cacheFiles(
   },
   allSpriteLinks: {
     [key: number]: string;
-  }
+  },
+  allAnimeLinks: {
+    [key: number]: string;
+  },
 ) {
   try {
     for (const audioLink in allAudioLinks) {
@@ -303,9 +290,13 @@ async function cacheFiles(
       const spriteBlob = await fetchBlob(allSpriteLinks[spriteLink]);
       global.allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
     }
+    for (const animeLink in allAnimeLinks) {
+      const animeJSON = await fetchJson(allAnimeLinks[animeLink]);
+      global.anime[animeLink] = animeJSON;
+    }
     global.isLoading = false;
   } catch (err) {
-    throw new Error();
+    console.log(err)
   }
 }
 
@@ -335,10 +326,11 @@ function isSingerSinging(
       currentMovingSong!.getAttribute("data-song-id")!
     );
     singer.classList.add("singing");
-    document.documentElement.style.setProperty(
-      `--background-${singerId}`,
-      `url(${global.allCachedSpriteURL[+id]})`
-    );
+    // Create hd version for stand by
+    // document.documentElement.style.setProperty(
+    //   `--background-${singerId}`,
+    //   `url("${global.allCachedStaticSpriteURL[+id]}")`
+    // );
     document.documentElement.style.setProperty(
       "--transition-time",
       `${global.counter % global.beat}s`
@@ -375,9 +367,8 @@ function modifyBodyEvents(type: "add" | "remove") {
 function movingSongStyles(ev: PointerEvent, currentMovingSong: HTMLDivElement) {
   const x = ev.clientX - currentMovingSong.offsetLeft;
   const y = ev.clientY - currentMovingSong.offsetTop;
-  currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${
-    y % innerHeight
-  }px, 10px) translate(-50%, -50%) `;
+  currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${y % innerHeight
+    }px, 10px) translate(-50%, -50%) `;
   currentMovingSong.style.backgroundPositionY = "100%";
 }
 function removeMovingSongStyles(currentMovingSong: HTMLDivElement | undefined) {
@@ -393,6 +384,9 @@ function stopSong(id: string, target: HTMLDivElement) {
   global.removeAudioFromQueue = id;
   if (global.getAudiosInDom[+id]) {
     global.removeAudioFromDom = +id;
+  }
+  if (Object.keys(global.getAudiosInDom).length === 0) {
+    document.documentElement.style.setProperty("--transition-time", "0s")
   }
 }
 
@@ -439,11 +433,33 @@ async function fetchBlob(link: string): Promise<Blob> {
     throw new Error("Invalid URL");
   }
 }
+async function fetchJson(link: string): Promise<json> {
+  try {
+    const response = await (await fetch(link)).json();
+    return response;
+  } catch (err) {
+    throw new Error("Invalid URL");
+  }
+}
 
+// Gotta make this better
 function getTarget(ev: Event) {
-  return (ev.target as HTMLDivElement).classList.contains("frame")
-    ? ((ev.target as HTMLDivElement).parentElement as HTMLDivElement)
-    : (ev.target as HTMLDivElement);
+  if ((ev.target as HTMLDivElement).classList.contains("frame")) {
+    return (ev.target as HTMLDivElement).parentElement as HTMLDivElement;
+  } else if ((ev.target as HTMLDivElement).classList.contains("body")) {
+    return (ev.target as HTMLDivElement).parentElement!
+      .parentElement as HTMLDivElement;
+  } else if ((ev.target as HTMLDivElement).classList.contains("body-canvas")) {
+    return (ev.target as HTMLDivElement).parentElement!.parentElement!
+      .parentElement as HTMLDivElement;
+  } else if ((ev.target as HTMLDivElement).classList.contains("head")) {
+    return (ev.target as HTMLDivElement).parentElement!.parentElement!
+      .parentElement as HTMLDivElement;
+  } else if ((ev.target as HTMLDivElement).classList.contains("head-canvas")) {
+    return (ev.target as HTMLDivElement).parentElement!.parentElement!
+      .parentElement!.parentElement as HTMLDivElement;
+  }
+  return ev.target as HTMLDivElement;
 }
 
 async function decodeAudio(audioLink: string, id: string) {

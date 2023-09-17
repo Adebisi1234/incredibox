@@ -1,9 +1,20 @@
+import cropImage from "./anime/croppingImage/crop.js";
+export interface json {
+  animeName: string;
+  arrayFrame: { prop: string }[];
+  headHeight: string;
+  height: string;
+  percentageMax: string;
+  totalFrame: string;
+  width: string;
+}
 export class GlobalState {
   private ready = false;
   private audioQueue: Audios[] = [];
   readonly beat: number = 7;
   private interval: number = 1000;
   public counter: number = 0;
+  public anime: { [key: number]: json } = {};
   public beatIntervalId: number = 0;
   public coolCombination: { [key: number]: number[] } = {
     1: [1, 10, 19],
@@ -61,9 +72,7 @@ export class GlobalState {
     20: "./public/20_believe.ogg",
   };
 
-  private _allSpriteLinks = (function getAllSpriteLinks(allAudioLinks: {
-    [key: number]: string;
-  }) {
+  private _allSpriteLinks = (function getAllSpriteLinks(allAudioLinks) {
     const spriteUrls: {
       [key: number]: string;
     } = {};
@@ -71,12 +80,25 @@ export class GlobalState {
       if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
         let url = allAudioLinks[id];
         let baseUrl =
-          "/anime/" + url.split("/")[2].replace(".ogg", "-sprite-hd.png");
+          "/anime/" + url.split("/")[2].replace(".ogg", "-sprite.png");
         spriteUrls[id] = baseUrl;
       }
     }
     return spriteUrls;
   })(this._allAudioLinks);
+  public allAnimeURl = (function (allSpriteLinks) {
+    const animeJson: {
+      [key: number]: string;
+    } = {};
+    for (const id in allSpriteLinks) {
+      if (Object.prototype.hasOwnProperty.call(allSpriteLinks, id)) {
+        let url = allSpriteLinks[id];
+        let baseUrl = url.replace("-sprite.png", ".json");
+        animeJson[id] = baseUrl;
+      }
+    }
+    return animeJson;
+  })(this._allSpriteLinks);
   // Objects for cached urls
   public allCachedAudios: {
     [key: number]: Audios;
@@ -95,41 +117,6 @@ export class GlobalState {
     }
   }
 
-  async animate(audio: Audios, singer: HTMLDivElement = this.singers[0]) {
-    //seems to work
-    console.log(audio.buffer.duration);
-    const animeJson: {
-      animeName: "1_atlanta";
-      // bkgpX, bckpY, translateX, top
-      arrayFrame: { prop: "0,380,-3.5,7" }[];
-      headHeight: "234";
-      height: "380";
-      percentageMax: "0.2";
-      totalFrame: "328";
-      width: "164";
-    } = await (await fetch("./anime/1_atlanta.json")).json();
-    const interval = Math.floor(
-      (audio.buffer.duration * 1000) / animeJson.arrayFrame.length
-    );
-    let i = 0;
-    const intervalId = setInterval(() => {
-      console.log("intervaling");
-      const styles = {
-        backgroundX: animeJson.arrayFrame[i].prop.split(",")[0],
-        backgroundY: animeJson.arrayFrame[i].prop.split(",")[1],
-        translateX: animeJson.arrayFrame[i].prop.split(",")[2],
-        top: animeJson.arrayFrame[i].prop.split(",")[3],
-      };
-      (singer.querySelector(".head")! as HTMLDivElement).style.backgroundPositionX = styles.backgroundX + "px";
-      (singer.querySelector(".head")! as HTMLDivElement).style.backgroundPositionY = styles.backgroundY + "px";
-      (singer.querySelector(".head")! as HTMLDivElement).style.transform = `translateX(${styles.translateX}px)`;
-      (singer.querySelector(".head")! as HTMLDivElement).style.top = styles.top + "px";
-      i++;
-      if (i === animeJson.arrayFrame.length) {
-        clearInterval(intervalId);
-      }
-    }, interval);
-  }
   get allVideoLinks() {
     return this._allVideoLinks;
   }
@@ -159,7 +146,7 @@ export class GlobalState {
         bottom: singer.offsetTop + singer.offsetHeight,
         element: singer,
         height: singer.offsetHeight,
-        width: singer.offsetWidth
+        width: singer.offsetWidth,
       };
     });
   }

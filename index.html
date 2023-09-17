@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
     <title>Incredibox (unofficial)</title>
+    <script type="module" src="./anime/croppingImage/crop.js" defer></script>
     <script type="module" src="classes.js" defer></script>
     <script type="module" src="main.js" defer></script>
 </head>
@@ -46,7 +47,10 @@
                 <div class="singer relative" data-singer-id="1">
                     <div class="frame relative">
                         <div class="body relative">
-                            <div class="head absolute"></div>
+                            <canvas class="body-canvas"></canvas>
+                            <div class="head absolute">
+                                <canvas class="head-canvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -54,7 +58,10 @@
                 <div class="singer relative" data-singer-id="2">
                     <div class="frame relative">
                         <div class="body relative">
-                            <div class="head absolute"></div>
+                            <canvas class="body-canvas"></canvas>
+                            <div class="head absolute">
+                                <canvas class="head-canvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -62,7 +69,10 @@
                 <div class="singer relative" data-singer-id="3">
                     <div class="frame relative">
                         <div class="body relative">
-                            <div class="head absolute"></div>
+                            <canvas class="body-canvas"></canvas>
+                            <div class="head absolute">
+                                <canvas class="head-canvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -70,7 +80,10 @@
                 <div class="singer relative" data-singer-id="4">
                     <div class="frame relative">
                         <div class="body relative">
-                            <div class="head absolute"></div>
+                            <canvas class="body-canvas"></canvas>
+                            <div class="head absolute">
+                                <canvas class="head-canvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -78,7 +91,10 @@
                 <div class="singer relative" data-singer-id="5">
                     <div class="frame relative">
                         <div class="body relative">
-                            <div class="head absolute"></div>
+                            <canvas class="body-canvas"></canvas>
+                            <div class="head absolute">
+                                <canvas class="head-canvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -86,7 +102,10 @@
                 <div class="singer relative" data-singer-id="6">
                     <div class="frame relative">
                         <div class="body relative">
-                            <div class="head absolute"></div>
+                            <canvas class="body-canvas"></canvas>
+                            <div class="head absolute">
+                                <canvas class="head-canvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -94,7 +113,10 @@
                 <div class="singer relative" data-singer-id="7">
                     <div class="frame relative">
                         <div class="body relative">
-                            <div class="head absolute"></div>
+                            <canvas class="body-canvas"></canvas>
+                            <div class="head absolute">
+                                <canvas class="head-canvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -102,7 +124,10 @@
                 <div class="singer relative" data-singer-id="8">
                     <div class="frame relative">
                         <div class="body relative">
-                            <div class="head absolute"></div>
+                            <canvas class="body-canvas"></canvas>
+                            <div class="head absolute">
+                                <canvas class="head-canvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -139,8 +164,6 @@
             </div>
         </footer>
     </div>
-
-
 </body>
 
 </html>

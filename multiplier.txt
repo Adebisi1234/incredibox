@@ -1,0 +1,3 @@
+hd
+width = 2x
+height = 4x

@@ -5,20 +5,11 @@
 }
 
 html {
-    /* Rename all this mf */
     user-select: none;
-    /* inbuilt */
-    --frameHeight: 328;
-    --bgHeight: 380;
-    --headHeight: 234;
-    --bgWidth: 164;
-    /* Calc. ed */
-    --percentageY: (291px / var(--bgHeight));
-    /* --percentageX: calc(100% / var(--bgWidth));  leave alone for now*/
-    --realHeadHeight: calc(var(--headHeight) * var(--percentageY));
-    --realFrameHeight: calc(var(--frameHeight) * var(--percentageY));
-    --headBottom: calc((var(--bgHeight) - var(--headHeight)) * var(--percentageY));
-    --FrameMargin: calc((var(--bgHeight) - var(--frameHeight)) * var(--percentageY));
+    --headHeight: calc((100% / 380) * 234);
+    --frameHeight: calc((100% / 380) * 328);
+    --marginTop: calc((380 - 328) * (100% / 380));
+    --headBottom: calc(((380 - 234) * (100% / 380)));
     --transition-time: 5s;
     --background-1: url("/singer.png");
     --background-2: url("/singer.png");
@@ -40,7 +31,10 @@ header {
     justify-content: space-between;
     height: 15%;
 }
-
+canvas {
+    width: 100%;
+    height: 100%;
+}
 .header {
     flex-grow: 1;
     border: 1px solid black;
@@ -125,7 +119,6 @@ main {
     max-width: 164px;
     height: 100%;
     opacity: 0.6;
-    transition: all 250ms;
 }
 
 .singing {
@@ -156,7 +149,6 @@ main {
 }
 
 .frame {
-    transition: background 200ms ease-in;
     height: 100%;
     background-repeat: no-repeat;
     background-size: contain;
@@ -166,25 +158,27 @@ main {
     background-position: bottom;
 }
 
-/* Background size = x: 164px y: frameHeight/imageHeight * 100 */
+* {
+    background-repeat: no-repeat;
+}
+
 .frame .body {
-    height: var(--realFrameHeight);
+    height: var(--frameHeight);
+    margin-top: var(--marginTop);
     width: 100%;
     bottom: 0;
-    border: 1px solid rebeccapurple;
-    background-color: red;
 }
 
 
 .frame .head {
     bottom: var(--headBottom);
-    height: var(--realHeadHeight);
+    height: var(--headHeight);
     width: 100%;
-    border: 1px solid pink;
+
 }
 
 .singer[data-singer-id="1"]>.frame {
-    background-image: url("./anime/1_atlanta-sprite-hd.png");
+        background-image: var(--background-1);
 }
 
 .singer[data-singer-id="2"]>.frame {
