@@ -1,4 +1,4 @@
-import { GlobalState, Audios, json } from "./classes.js";
+import { GlobalState, Audios, json, oldJson } from "./classes.js";
 import cropImage from "./anime/croppingImage/crop.js";
 // Constants
 const audioCtx = new AudioContext();
@@ -12,28 +12,30 @@ let pointerUpLeft: number = 0;
 window.addEventListener("DOMContentLoaded", () => {
   global.setSingers = document.querySelectorAll(".singer");
   cacheFiles(
-  global.allAudioLinks,
-  global.allVideoLinks,
-  global.allSpriteLinks,
-  global.allAnimeURl
-).then(() => {
-  if (global.isReady) {
-    (
-      document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
-    ).style.display = "none";
-    global.singers.forEach((singer) => {
-      singer.addEventListener("click", handlePauseAudio);
-      singer.addEventListener("pointerdown", handleRemoveAudio);
-      singer.addEventListener("pointerup", handleRemoveAudio);
-    });
+    global.allAudioLinks,
+    global.allVideoLinks,
+    global.allSpriteLinks,
+    global.allStaticSpriteLinks,
+    global.allAnimeURl
+  ).then(() => {
+    if (global.isReady) {
+      (
+        document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
+      ).style.display = "none";
+      global.singers.forEach((singer) => {
+        singer.addEventListener("click", handlePauseAudio);
+        singer.addEventListener("pointerdown", handleRemoveAudio);
+        singer.addEventListener("pointerup", handleRemoveAudio);
+      });
 
-    // dragging songs
-    global.songs.forEach((song) => {
-      song.addEventListener("pointerdown", startSongDrag);
-      song.addEventListener("pointerup", startSinging);
-    });
-  }
-});
+      // dragging songs
+      global.songs.forEach((song) => {
+        song.addEventListener("pointerdown", startSongDrag);
+        song.addEventListener("pointerup", startSinging);
+      });
+      console.log(requestAnimationFrame((time) => time))
+    }
+  });
 });
 window.addEventListener("resize", () => {
   global.setSingers = document.querySelectorAll(".singer");
@@ -54,7 +56,7 @@ let currentMovingSong: HTMLDivElement | undefined = undefined;
 // Event handlers
 
 function handlePauseAudio(ev: MouseEvent) {
-  const element: HTMLDivElement = getTarget(ev);
+  const element: HTMLDivElement = getSinger(ev);
 
   const audioId = element.getAttribute("data-song-id");
   if (!audioId) {
@@ -62,8 +64,21 @@ function handlePauseAudio(ev: MouseEvent) {
   } else {
     const audio: Audios = global.getAudiosInDom[+audioId];
     if (audio) {
-      const headCanvas = element.querySelector(".head-canvas") as HTMLCanvasElement;
-      const bodyCanvas = element.querySelector(".body-canvas") as HTMLCanvasElement;
+      const headCanvas = element.querySelector(
+        ".head-canvas"
+      ) as HTMLCanvasElement;
+      const bodyCanvas = element.querySelector(
+        ".body-canvas"
+      ) as HTMLCanvasElement;
+      if (element.style.opacity === "1") {
+        document.documentElement.style.setProperty(
+          `--background-${element.getAttribute("data-singer-id")}`,
+          `url("${global.allCachedStaticSpriteURL[+audioId]}")`
+        );
+        global.pauseAnimation(audioId, headCanvas, bodyCanvas);
+      } else {
+        global.animate(audioId, headCanvas, bodyCanvas);
+      }
       audio.muteSound(element);
     }
   }
@@ -102,9 +117,10 @@ function startSinging(ev: PointerEvent): void {
       if (isInsideSinger) {
         const id = currentMovingSong!.getAttribute("data-song-id")!;
         isSingerSinging(true, singer.element, id);
-        const headCanvas: HTMLCanvasElement = singer.element.querySelector(".head-canvas")!
-        const bodyCanvas: HTMLCanvasElement = singer.element.querySelector(".body-canvas")!
-
+        const headCanvas: HTMLCanvasElement =
+          singer.element.querySelector(".head-canvas")!;
+        const bodyCanvas: HTMLCanvasElement =
+          singer.element.querySelector(".body-canvas")!;
         addAudio(id, headCanvas, bodyCanvas);
         currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
         currentMovingSong = undefined;
@@ -141,7 +157,7 @@ function startSinging(ev: PointerEvent): void {
 // }
 
 function handleRemoveAudio(ev: PointerEvent): void {
-  const target = getTarget(ev);
+  const target = getSinger(ev);
   const id = target.getAttribute("data-song-id");
   const singerId = target.getAttribute("data-singer-id");
   if (!id || !singerId) {
@@ -177,16 +193,16 @@ function handleRemoveAudio(ev: PointerEvent): void {
 
 // adding & Playing audio
 
-function addAudio(id: string, headCanvas: HTMLCanvasElement, bodyCanvas: HTMLCanvasElement) {
+function addAudio(
+  id: string,
+  headCanvas: HTMLCanvasElement,
+  bodyCanvas: HTMLCanvasElement
+) {
   const newAudio = global.allCachedAudios[+id];
+  global.setAudioQueue = { audio: newAudio, headCanvas, bodyCanvas };
   if (Object.keys(global.getAudiosInDom).length === 0) {
-    global.setAudiosInDom = { id: +id, audio: newAudio };
-    newAudio.play();
-    
-    
     startBeatInterval();
   } else {
-    global.setAudioQueue = newAudio;
     if (Object.keys(global.getAudiosInDom).length >= 2) {
       isWinningCombination();
     } else {
@@ -205,7 +221,7 @@ function handlePlayVideo(ev: MouseEvent) {
       const element: HTMLDivElement = document.querySelector(
         `.singer[data-song-id="${audioId}"]`
       )!;
-      
+
       global.getAudiosInDom[audio].muteSound(element);
     }
   }
@@ -227,14 +243,29 @@ function handlePlayVideo(ev: MouseEvent) {
 
 // Beat && loader
 function startBeatInterval() {
+  if (global.getAudioQueue.length === 1) {
+    const audioObj = global.getAudioQueue[0];
+    audioObj.audio.play();
+    global.setAudiosInDom = { id: +audioObj.audio.id, audio: audioObj.audio };
+    global.animate(audioObj.audio.id, audioObj.headCanvas, audioObj.bodyCanvas);
+    global.removeAudioFromQueue = audioObj.audio.id;
+  }
   global.beatIntervalId = setInterval(() => {
     global.counter += 1;
     if (global.counter % global.beat === 0) {
-      global.getAudioQueue.forEach((audio, i) => {
-        global.setAudiosInDom = { id: +audio.id, audio };
-        audio.play();
+      global.getAudioQueue.forEach((audioObj, i) => {
+        global.setAudiosInDom = {
+          id: +audioObj.audio.id,
+          audio: audioObj.audio,
+        };
+        global.animate(
+          audioObj.audio.id,
+          audioObj.headCanvas,
+          audioObj.bodyCanvas
+        );
+        audioObj.audio.play();
         document
-          .querySelector(`.singer[data-song-id="${audio.id}"]`)!
+          .querySelector(`.singer[data-song-id="${audioObj.audio.id}"]`)!
           .lastElementChild!.classList.remove("loading");
         global.getAudioQueue.splice(i, 1);
       });
@@ -271,9 +302,12 @@ async function cacheFiles(
   allSpriteLinks: {
     [key: number]: string;
   },
-  allAnimeLinks: {
+  allStaticSpriteLinks: {
     [key: number]: string;
   },
+  allAnimeLinks: {
+    [key: number]: string;
+  }
 ) {
   try {
     for (const audioLink in allAudioLinks) {
@@ -290,13 +324,20 @@ async function cacheFiles(
       const spriteBlob = await fetchBlob(allSpriteLinks[spriteLink]);
       global.allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
     }
+    for (const staticSpriteLink in allStaticSpriteLinks) {
+      const staticSpriteBlob = await fetchBlob(
+        allStaticSpriteLinks[staticSpriteLink]
+      );
+      global.allCachedStaticSpriteURL[staticSpriteLink] =
+        URL.createObjectURL(staticSpriteBlob);
+    }
     for (const animeLink in allAnimeLinks) {
       const animeJSON = await fetchJson(allAnimeLinks[animeLink]);
       global.anime[animeLink] = animeJSON;
     }
     global.isLoading = false;
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 }
 
@@ -323,14 +364,13 @@ function isSingerSinging(
     singer.style.opacity = "1";
     singer.setAttribute(
       "data-song-id",
-      currentMovingSong!.getAttribute("data-song-id")!
+      id
     );
     singer.classList.add("singing");
-    // Create hd version for stand by
-    // document.documentElement.style.setProperty(
-    //   `--background-${singerId}`,
-    //   `url("${global.allCachedStaticSpriteURL[+id]}")`
-    // );
+            document.documentElement.style.setProperty(
+              `--background-${singerId}`,
+              `url("${global.allCachedStaticSpriteURL[+id]}")`
+            );
     document.documentElement.style.setProperty(
       "--transition-time",
       `${global.counter % global.beat}s`
@@ -348,7 +388,7 @@ function isSingerSinging(
     ).style.backgroundPositionY = `0`;
     document.documentElement.style.setProperty(
       `--background-${singerId}`,
-      `url('/singer.png')`
+      `url("/singer.png")`
     );
   }
 }
@@ -367,8 +407,9 @@ function modifyBodyEvents(type: "add" | "remove") {
 function movingSongStyles(ev: PointerEvent, currentMovingSong: HTMLDivElement) {
   const x = ev.clientX - currentMovingSong.offsetLeft;
   const y = ev.clientY - currentMovingSong.offsetTop;
-  currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${y % innerHeight
-    }px, 10px) translate(-50%, -50%) `;
+  currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${
+    y % innerHeight
+  }px, 10px) translate(-50%, -50%) `;
   currentMovingSong.style.backgroundPositionY = "100%";
 }
 function removeMovingSongStyles(currentMovingSong: HTMLDivElement | undefined) {
@@ -380,13 +421,17 @@ function removeMovingSongStyles(currentMovingSong: HTMLDivElement | undefined) {
   }
 }
 function stopSong(id: string, target: HTMLDivElement) {
+  const headCanvas = target.querySelector(".head-canvas") as HTMLCanvasElement;
+  const bodyCanvas = target.querySelector(".body-canvas") as HTMLCanvasElement;
+  document.documentElement.style.setProperty(`background-${id}`, "/singer.png");
+  global.clearAnimation(id, headCanvas, bodyCanvas);
   isSingerSinging(false, target, id);
   global.removeAudioFromQueue = id;
   if (global.getAudiosInDom[+id]) {
     global.removeAudioFromDom = +id;
   }
   if (Object.keys(global.getAudiosInDom).length === 0) {
-    document.documentElement.style.setProperty("--transition-time", "0s")
+    document.documentElement.style.setProperty("--transition-time", "0s");
   }
 }
 
@@ -435,15 +480,29 @@ async function fetchBlob(link: string): Promise<Blob> {
 }
 async function fetchJson(link: string): Promise<json> {
   try {
-    const response = await (await fetch(link)).json();
-    return response;
+    const response: oldJson = await (await fetch(link)).json();
+    const edit: json = {
+      ...response,
+      arrayFrame: response.arrayFrame.map(({ prop }) => {
+        let x: string | number = prop.split(",")[0];
+        x = +x;
+        let y: string | number = prop.split(",")[1];
+        y = +y;
+        let translateX: string | number = prop.split(",")[2];
+        translateX = +translateX;
+        let translateY: string | number = prop.split(",")[3];
+        translateY = +translateY;
+        return { prop: [x, y, translateX, translateY] };
+      }),
+    };
+    return edit;
   } catch (err) {
     throw new Error("Invalid URL");
   }
 }
 
 // Gotta make this better
-function getTarget(ev: Event) {
+function getSinger(ev: Event) {
   if ((ev.target as HTMLDivElement).classList.contains("frame")) {
     return (ev.target as HTMLDivElement).parentElement as HTMLDivElement;
   } else if ((ev.target as HTMLDivElement).classList.contains("body")) {

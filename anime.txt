@@ -1,5 +1,13 @@
-Check the animation out use the empty body and first head as starters
-Use the remaining heads position as anime (background position)
+onPlay
+ - call animation it takes id, headCanvas and bodyCanvas
+ if the interval doesn't exist it set it up and calls the cropImage function for both canvases
+ on pause : don't stop the interval but do call clearRect and change the frame-bg to the high res version
+ on play: call cropImage and remove frame-bg high res version
+ on stop: call clearRect and replace frame-bg with singer.png and set interval = undefined
 
 
-Create your own animation json for each singer
+// To find out why the animation is slow
+run the function  separated from all other functions and check it's speed
+If it's still slow figure whatever is causing it out
+ - Check cropImage function
+ 

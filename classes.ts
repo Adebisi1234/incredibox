@@ -1,5 +1,14 @@
-import cropImage from "./anime/croppingImage/crop.js";
+import cropImage, { clearRect } from "./anime/croppingImage/crop.js";
 export interface json {
+  animeName: string;
+  arrayFrame: { prop: [number, number, number, number] }[];
+  headHeight: string;
+  height: string;
+  percentageMax: string;
+  totalFrame: string;
+  width: string;
+}
+export interface oldJson {
   animeName: string;
   arrayFrame: { prop: string }[];
   headHeight: string;
@@ -10,23 +19,27 @@ export interface json {
 }
 export class GlobalState {
   private ready = false;
-  private audioQueue: Audios[] = [];
+  private audioQueue: {
+    audio: Audios;
+    headCanvas: HTMLCanvasElement;
+    bodyCanvas: HTMLCanvasElement;
+  }[] = [];
   readonly beat: number = 7;
   private interval: number = 1000;
   public counter: number = 0;
-  public anime: { [key: number]: json } = {};
+  public anime: { [key: string]: json } = {};
   public beatIntervalId: number = 0;
-  public coolCombination: { [key: number]: number[] } = {
+  public coolCombination: { [key: string]: number[] } = {
     1: [1, 10, 19],
     2: [2, 10, 5],
     3: [5, 15, 2],
   }; // For auto-play feature. placeholder for now
-  public winningCombination: { [key: number]: number[] } = {
+  public winningCombination: { [key: string]: number[] } = {
     1: [1, 10, 19],
     2: [2, 10, 5],
     3: [5, 15, 2],
   };
-  private audiosInDom: { [key: number]: Audios } = {};
+  private audiosInDom: { [key: string]: Audios } = {};
   private allSingers: NodeListOf<HTMLDivElement> =
     document.querySelectorAll(".singer");
   public videoPlayer: NodeListOf<HTMLDivElement> =
@@ -43,13 +56,13 @@ export class GlobalState {
   private allSongs: NodeListOf<HTMLDivElement> =
     document.querySelectorAll(".song");
 
-  private _allVideoLinks: { [key: number]: string } = {
+  private _allVideoLinks: { [key: string]: string } = {
     1: "./public/video1.webm",
     2: "./public/video2.webm",
     3: "./public/video3.webm",
   };
 
-  private _allAudioLinks: { [key: number]: string } = {
+  private _allAudioLinks: { [key: string]: string } = {
     1: "./public/1_atlanta.ogg",
     2: "./public/2_tuctom.ogg",
     3: "./public/3_foubreak.ogg",
@@ -74,7 +87,7 @@ export class GlobalState {
 
   private _allSpriteLinks = (function getAllSpriteLinks(allAudioLinks) {
     const spriteUrls: {
-      [key: number]: string;
+      [key: string]: string;
     } = {};
     for (const id in allAudioLinks) {
       if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
@@ -88,7 +101,7 @@ export class GlobalState {
   })(this._allAudioLinks);
   public allAnimeURl = (function (allSpriteLinks) {
     const animeJson: {
-      [key: number]: string;
+      [key: string]: string;
     } = {};
     for (const id in allSpriteLinks) {
       if (Object.prototype.hasOwnProperty.call(allSpriteLinks, id)) {
@@ -99,15 +112,34 @@ export class GlobalState {
     }
     return animeJson;
   })(this._allSpriteLinks);
+  public allStaticSpriteLinks = (function (allSpriteLinks) {
+    const staticURls: {
+      [key: string]: string;
+    } = {};
+    for (const id in allSpriteLinks) {
+      if (Object.prototype.hasOwnProperty.call(allSpriteLinks, id)) {
+        let url = allSpriteLinks[id];
+        let baseUrl = url.replace("-sprite.png", "-sprite-hd.png");
+        staticURls[id] = baseUrl;
+      }
+    }
+    return staticURls;
+  })(this._allSpriteLinks);
   // Objects for cached urls
   public allCachedAudios: {
-    [key: number]: Audios;
+    [key: string]: Audios;
   } = {};
   public allCachedVideoURL: {
-    [key: number]: string;
+    [key: string]: string;
   } = {};
   public allCachedSpriteURL: {
-    [key: number]: string;
+    [key: string]: string;
+  } = {};
+  public allCachedStaticSpriteURL: {
+    [key: string]: string;
+  } = {};
+  private allAnimeIntervalId: {
+    [key: string]: { intervalId: void; i: number; clear: boolean };
   } = {};
 
   constructor(beat?: number, interval?: number) {
@@ -115,6 +147,92 @@ export class GlobalState {
       this.beat = beat;
       this.interval = interval;
     }
+  }
+
+  animate(
+    audioId: string,
+    headCanvas: HTMLCanvasElement,
+    bodyCanvas: HTMLCanvasElement
+  ) {
+    const audio = this.audiosInDom[audioId];
+    const singerId = document
+      .querySelector(`.singer[data-song-id="${audioId}"]`)!
+      .getAttribute("data-singer-id");
+    document.documentElement.style.setProperty(
+      `--background-${singerId}`,
+      `url("")`
+    );
+    const animeJson = this.anime[audioId];
+    const src = this.allCachedSpriteURL[audioId];
+    const image = new Image()
+    image.src = src
+    image.loading = "eager"
+    const timeout = Math.floor(
+      (audio.buffer.duration * 1000) / animeJson.arrayFrame.length
+    ); //to ms
+    image.onload = ()=> {
+    cropImage(bodyCanvas, image, 164, 0, +animeJson.width, +animeJson.height);
+    if (
+      !this.allAnimeIntervalId[audioId] ||
+      Object.keys(this.allAnimeIntervalId[audioId]).length === 0
+    ) {
+      this.allAnimeIntervalId[audioId] = {
+        i: 0,
+        intervalId: (() => {
+          const frame = () =>{
+            let i = this.allAnimeIntervalId[audioId].i ?? 0;
+            const [x, y, translateX, translateY] = animeJson.arrayFrame[i].prop;
+            if (!this.allAnimeIntervalId[audioId].clear) {
+              cropImage(
+                headCanvas,
+                image,
+                x,
+                y,
+                +animeJson.width,
+                +animeJson.headHeight
+              );
+              headCanvas.parentElement!.style.transform = `translateX(${translateX}px) translateY(${translateY}px)`;
+            }
+             this.allAnimeIntervalId[audioId].i
+               ? this.allAnimeIntervalId[audioId].i++
+               : (this.allAnimeIntervalId[audioId].i = 1);
+             if (
+               this.allAnimeIntervalId[audioId].i ===
+               animeJson.arrayFrame.length
+             ) {
+               this.allAnimeIntervalId[audioId].i = 0;
+             }
+            setTimeout(() => {
+              requestAnimationFrame(frame)
+            }, timeout)
+            
+          }
+          requestAnimationFrame(frame);
+         
+        })(),
+        clear: false,
+      };
+    } else {
+      this.allAnimeIntervalId[audioId].clear = false;
+    }}
+  }
+  pauseAnimation(
+    audioId: string,
+    headCanvas: HTMLCanvasElement,
+    bodyCanvas: HTMLCanvasElement
+  ) {
+    this.allAnimeIntervalId[audioId].clear = true;
+    clearRect(headCanvas);
+    clearRect(bodyCanvas);
+  }
+  clearAnimation(
+    audioId: string,
+    headCanvas: HTMLCanvasElement,
+    bodyCanvas: HTMLCanvasElement
+  ) {
+    delete this.allAnimeIntervalId[audioId];
+    clearRect(headCanvas);
+    clearRect(bodyCanvas);
   }
 
   get allVideoLinks() {
@@ -177,11 +295,15 @@ export class GlobalState {
   get getAudioQueue() {
     return this.audioQueue;
   }
-  set setAudioQueue(newAudio: Audios) {
+  set setAudioQueue(newAudio: {
+    audio: Audios;
+    headCanvas: HTMLCanvasElement;
+    bodyCanvas: HTMLCanvasElement;
+  }) {
     this.audioQueue.push(newAudio);
   }
   set removeAudioFromQueue(audioId: string) {
-    const id = this.audioQueue.findIndex((audio) => audio.id === audioId);
+    const id = this.audioQueue.findIndex((audio) => audio.audio.id === audioId);
     if (id !== -1) {
       this.audioQueue.splice(id, 1);
     }

@@ -1,3 +1,4 @@
+import cropImage, { clearRect } from "./anime/croppingImage/crop.js";
 export class GlobalState {
     constructor(beat, interval) {
         this.ready = false;
@@ -27,7 +28,6 @@ export class GlobalState {
             2: "./public/video2.webm",
             3: "./public/video3.webm",
         };
-        this.animeIntervalIds = {};
         this._allAudioLinks = {
             1: "./public/1_atlanta.ogg",
             2: "./public/2_tuctom.ogg",
@@ -72,14 +72,85 @@ export class GlobalState {
             }
             return animeJson;
         })(this._allSpriteLinks);
+        this.allStaticSpriteLinks = (function (allSpriteLinks) {
+            const staticURls = {};
+            for (const id in allSpriteLinks) {
+                if (Object.prototype.hasOwnProperty.call(allSpriteLinks, id)) {
+                    let url = allSpriteLinks[id];
+                    let baseUrl = url.replace("-sprite.png", "-sprite-hd.png");
+                    staticURls[id] = baseUrl;
+                }
+            }
+            return staticURls;
+        })(this._allSpriteLinks);
         // Objects for cached urls
         this.allCachedAudios = {};
         this.allCachedVideoURL = {};
         this.allCachedSpriteURL = {};
+        this.allCachedStaticSpriteURL = {};
+        this.allAnimeIntervalId = {};
         if (beat && interval) {
             this.beat = beat;
             this.interval = interval;
         }
+    }
+    animate(audioId, headCanvas, bodyCanvas) {
+        const audio = this.audiosInDom[audioId];
+        const singerId = document
+            .querySelector(`.singer[data-song-id="${audioId}"]`)
+            .getAttribute("data-singer-id");
+        document.documentElement.style.setProperty(`--background-${singerId}`, `url("")`);
+        const animeJson = this.anime[audioId];
+        const src = this.allCachedSpriteURL[audioId];
+        const image = new Image();
+        image.src = src;
+        image.loading = "eager";
+        const timeout = Math.floor((audio.buffer.duration * 1000) / animeJson.arrayFrame.length); //to ms
+        image.onload = () => {
+            cropImage(bodyCanvas, image, 164, 0, +animeJson.width, +animeJson.height);
+            if (!this.allAnimeIntervalId[audioId] ||
+                Object.keys(this.allAnimeIntervalId[audioId]).length === 0) {
+                this.allAnimeIntervalId[audioId] = {
+                    i: 0,
+                    intervalId: (() => {
+                        const frame = () => {
+                            var _a;
+                            let i = (_a = this.allAnimeIntervalId[audioId].i) !== null && _a !== void 0 ? _a : 0;
+                            const [x, y, translateX, translateY] = animeJson.arrayFrame[i].prop;
+                            if (!this.allAnimeIntervalId[audioId].clear) {
+                                cropImage(headCanvas, image, x, y, +animeJson.width, +animeJson.headHeight);
+                                headCanvas.parentElement.style.transform = `translateX(${translateX}px) translateY(${translateY}px)`;
+                            }
+                            this.allAnimeIntervalId[audioId].i
+                                ? this.allAnimeIntervalId[audioId].i++
+                                : (this.allAnimeIntervalId[audioId].i = 1);
+                            if (this.allAnimeIntervalId[audioId].i ===
+                                animeJson.arrayFrame.length) {
+                                this.allAnimeIntervalId[audioId].i = 0;
+                            }
+                            setTimeout(() => {
+                                requestAnimationFrame(frame);
+                            }, timeout);
+                        };
+                        requestAnimationFrame(frame);
+                    })(),
+                    clear: false,
+                };
+            }
+            else {
+                this.allAnimeIntervalId[audioId].clear = false;
+            }
+        };
+    }
+    pauseAnimation(audioId, headCanvas, bodyCanvas) {
+        this.allAnimeIntervalId[audioId].clear = true;
+        clearRect(headCanvas);
+        clearRect(bodyCanvas);
+    }
+    clearAnimation(audioId, headCanvas, bodyCanvas) {
+        delete this.allAnimeIntervalId[audioId];
+        clearRect(headCanvas);
+        clearRect(bodyCanvas);
     }
     get allVideoLinks() {
         return this._allVideoLinks;
@@ -140,7 +211,7 @@ export class GlobalState {
         this.audioQueue.push(newAudio);
     }
     set removeAudioFromQueue(audioId) {
-        const id = this.audioQueue.findIndex((audio) => audio.id === audioId);
+        const id = this.audioQueue.findIndex((audio) => audio.audio.id === audioId);
         if (id !== -1) {
             this.audioQueue.splice(id, 1);
         }

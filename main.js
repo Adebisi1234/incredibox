@@ -19,7 +19,7 @@ let pointerUpLeft = 0;
 // Updating the singers size on DOM load
 window.addEventListener("DOMContentLoaded", () => {
     global.setSingers = document.querySelectorAll(".singer");
-    cacheFiles(global.allAudioLinks, global.allVideoLinks, global.allSpriteLinks, global.allAnimeURl).then(() => {
+    cacheFiles(global.allAudioLinks, global.allVideoLinks, global.allSpriteLinks, global.allStaticSpriteLinks, global.allAnimeURl).then(() => {
         if (global.isReady) {
             document.getElementsByClassName("splashscreen")[0].style.display = "none";
             global.singers.forEach((singer) => {
@@ -32,6 +32,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 song.addEventListener("pointerdown", startSongDrag);
                 song.addEventListener("pointerup", startSinging);
             });
+            console.log(requestAnimationFrame((time) => time));
         }
     });
 });
@@ -46,7 +47,7 @@ let currentMovingSong = undefined;
 // Singers main events
 // Event handlers
 function handlePauseAudio(ev) {
-    const element = getTarget(ev);
+    const element = getSinger(ev);
     const audioId = element.getAttribute("data-song-id");
     if (!audioId) {
         return;
@@ -56,6 +57,13 @@ function handlePauseAudio(ev) {
         if (audio) {
             const headCanvas = element.querySelector(".head-canvas");
             const bodyCanvas = element.querySelector(".body-canvas");
+            if (element.style.opacity === "1") {
+                document.documentElement.style.setProperty(`--background-${element.getAttribute("data-singer-id")}`, `url("${global.allCachedStaticSpriteURL[+audioId]}")`);
+                global.pauseAnimation(audioId, headCanvas, bodyCanvas);
+            }
+            else {
+                global.animate(audioId, headCanvas, bodyCanvas);
+            }
             audio.muteSound(element);
         }
     }
@@ -122,7 +130,7 @@ function startSinging(ev) {
 //   // console.log("singer pointer leave");
 // }
 function handleRemoveAudio(ev) {
-    const target = getTarget(ev);
+    const target = getSinger(ev);
     const id = target.getAttribute("data-song-id");
     const singerId = target.getAttribute("data-singer-id");
     if (!id || !singerId) {
@@ -154,13 +162,11 @@ function handleRemoveAudio(ev) {
 // adding & Playing audio
 function addAudio(id, headCanvas, bodyCanvas) {
     const newAudio = global.allCachedAudios[+id];
+    global.setAudioQueue = { audio: newAudio, headCanvas, bodyCanvas };
     if (Object.keys(global.getAudiosInDom).length === 0) {
-        global.setAudiosInDom = { id: +id, audio: newAudio };
-        newAudio.play();
         startBeatInterval();
     }
     else {
-        global.setAudioQueue = newAudio;
         if (Object.keys(global.getAudiosInDom).length >= 2) {
             isWinningCombination();
         }
@@ -197,14 +203,25 @@ function handlePlayVideo(ev) {
 }
 // Beat && loader
 function startBeatInterval() {
+    if (global.getAudioQueue.length === 1) {
+        const audioObj = global.getAudioQueue[0];
+        audioObj.audio.play();
+        global.setAudiosInDom = { id: +audioObj.audio.id, audio: audioObj.audio };
+        global.animate(audioObj.audio.id, audioObj.headCanvas, audioObj.bodyCanvas);
+        global.removeAudioFromQueue = audioObj.audio.id;
+    }
     global.beatIntervalId = setInterval(() => {
         global.counter += 1;
         if (global.counter % global.beat === 0) {
-            global.getAudioQueue.forEach((audio, i) => {
-                global.setAudiosInDom = { id: +audio.id, audio };
-                audio.play();
+            global.getAudioQueue.forEach((audioObj, i) => {
+                global.setAudiosInDom = {
+                    id: +audioObj.audio.id,
+                    audio: audioObj.audio,
+                };
+                global.animate(audioObj.audio.id, audioObj.headCanvas, audioObj.bodyCanvas);
+                audioObj.audio.play();
                 document
-                    .querySelector(`.singer[data-song-id="${audio.id}"]`)
+                    .querySelector(`.singer[data-song-id="${audioObj.audio.id}"]`)
                     .lastElementChild.classList.remove("loading");
                 global.getAudioQueue.splice(i, 1);
             });
@@ -223,7 +240,7 @@ function handleMovingSong(ev) {
     }
 }
 // Helper functions
-function cacheFiles(allAudioLinks, allVideoLinks, allSpriteLinks, allAnimeLinks) {
+function cacheFiles(allAudioLinks, allVideoLinks, allSpriteLinks, allStaticSpriteLinks, allAnimeLinks) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             for (const audioLink in allAudioLinks) {
@@ -236,6 +253,11 @@ function cacheFiles(allAudioLinks, allVideoLinks, allSpriteLinks, allAnimeLinks)
             for (const spriteLink in allSpriteLinks) {
                 const spriteBlob = yield fetchBlob(allSpriteLinks[spriteLink]);
                 global.allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
+            }
+            for (const staticSpriteLink in allStaticSpriteLinks) {
+                const staticSpriteBlob = yield fetchBlob(allStaticSpriteLinks[staticSpriteLink]);
+                global.allCachedStaticSpriteURL[staticSpriteLink] =
+                    URL.createObjectURL(staticSpriteBlob);
             }
             for (const animeLink in allAnimeLinks) {
                 const animeJSON = yield fetchJson(allAnimeLinks[animeLink]);
@@ -264,13 +286,9 @@ function isSingerSinging(isSinging, singer, id) {
             global.counter % global.beat !== 0 &&
             loader.classList.add("loading");
         singer.style.opacity = "1";
-        singer.setAttribute("data-song-id", currentMovingSong.getAttribute("data-song-id"));
+        singer.setAttribute("data-song-id", id);
         singer.classList.add("singing");
-        // Create hd version for stand by
-        // document.documentElement.style.setProperty(
-        //   `--background-${singerId}`,
-        //   `url("${global.allCachedStaticSpriteURL[+id]}")`
-        // );
+        document.documentElement.style.setProperty(`--background-${singerId}`, `url("${global.allCachedStaticSpriteURL[+id]}")`);
         document.documentElement.style.setProperty("--transition-time", `${global.counter % global.beat}s`);
     }
     else {
@@ -280,7 +298,7 @@ function isSingerSinging(isSinging, singer, id) {
         loader.classList.remove("loading");
         document.querySelector(`.song[data-song-id='${id}']`).style.opacity = "1";
         document.querySelector(`.song[data-song-id='${id}']`).style.backgroundPositionY = `0`;
-        document.documentElement.style.setProperty(`--background-${singerId}`, `url('/singer.png')`);
+        document.documentElement.style.setProperty(`--background-${singerId}`, `url("/singer.png")`);
     }
 }
 function modifyBodyEvents(type) {
@@ -310,6 +328,10 @@ function removeMovingSongStyles(currentMovingSong) {
     }
 }
 function stopSong(id, target) {
+    const headCanvas = target.querySelector(".head-canvas");
+    const bodyCanvas = target.querySelector(".body-canvas");
+    document.documentElement.style.setProperty(`background-${id}`, "/singer.png");
+    global.clearAnimation(id, headCanvas, bodyCanvas);
     isSingerSinging(false, target, id);
     global.removeAudioFromQueue = id;
     if (global.getAudiosInDom[+id]) {
@@ -364,7 +386,18 @@ function fetchJson(link) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield (yield fetch(link)).json();
-            return response;
+            const edit = Object.assign(Object.assign({}, response), { arrayFrame: response.arrayFrame.map(({ prop }) => {
+                    let x = prop.split(",")[0];
+                    x = +x;
+                    let y = prop.split(",")[1];
+                    y = +y;
+                    let translateX = prop.split(",")[2];
+                    translateX = +translateX;
+                    let translateY = prop.split(",")[3];
+                    translateY = +translateY;
+                    return { prop: [x, y, translateX, translateY] };
+                }) });
+            return edit;
         }
         catch (err) {
             throw new Error("Invalid URL");
@@ -372,7 +405,7 @@ function fetchJson(link) {
     });
 }
 // Gotta make this better
-function getTarget(ev) {
+function getSinger(ev) {
     if (ev.target.classList.contains("frame")) {
         return ev.target.parentElement;
     }
