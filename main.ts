@@ -3,7 +3,7 @@ import cropImage from "./anime/croppingImage/crop.js";
 // Constants
 const audioCtx = new AudioContext();
 const global = new GlobalState();
-// For Stoping Songs
+// For Stopping Songs
 let pointerDownTop: number = 0;
 let pointerUpTop: number = 0;
 let pointerDownLeft: number = 0;
@@ -321,8 +321,9 @@ async function cacheFiles(
       global.allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
     }
     for (const spriteLink in allSpriteLinks) {
-      const spriteBlob = await fetchBlob(allSpriteLinks[spriteLink]);
-      global.allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
+      global.allCachedSpriteURL[spriteLink] = await fetchBlob(
+        allSpriteLinks[spriteLink]
+      );
     }
     for (const staticSpriteLink in allStaticSpriteLinks) {
       const staticSpriteBlob = await fetchBlob(

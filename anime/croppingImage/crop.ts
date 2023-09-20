@@ -1,34 +1,32 @@
 export default function cropImage(
   canvas: HTMLCanvasElement,
-  image: HTMLImageElement,
+  image: ImageBitmap,
   x: number,
   y: number,
   width: number,
-  height: number,
+  height: number
 ) {
-
-  canvas.style.opacity = "1"
+  canvas.style.opacity = "1";
   const context = canvas.getContext("2d");
-    context?.clearRect(0, 0, canvas.width, canvas.height);
-    context?.drawImage(
-      image,
-      x,
-      y,
-      width,
-      height,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+  context?.clearRect(0, 0, canvas.width, canvas.height);
+  context?.drawImage(
+    image,
+    x,
+    y,
+    width,
+    height,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
 }
 
 export function clearRect(canvas: HTMLCanvasElement) {
-  
   const context = canvas.getContext("2d");
-  context!.fillStyle = "rgba(0,0,0,0)"
-  context?.fillRect(0, 0, canvas.width, canvas.height)
-  context?.clearRect(0,0,canvas.width, canvas.height)
+  context!.fillStyle = "rgba(0,0,0,0)";
+  context?.fillRect(0, 0, canvas.width, canvas.height);
+  context?.clearRect(0, 0, canvas.width, canvas.height);
   canvas.style.opacity = "0";
 }
 // context?.drawImage(image, sx: Number, sy: Number, sw: Number, sh: Number, dx: Number, dy: Number, dw: Number, dh: Number)

@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import cropImage, { clearRect } from "./anime/croppingImage/crop.js";
 export class GlobalState {
     constructor(beat, interval) {
@@ -95,18 +104,15 @@ export class GlobalState {
         }
     }
     animate(audioId, headCanvas, bodyCanvas) {
-        const audio = this.audiosInDom[audioId];
-        const singerId = document
-            .querySelector(`.singer[data-song-id="${audioId}"]`)
-            .getAttribute("data-singer-id");
-        document.documentElement.style.setProperty(`--background-${singerId}`, `url("")`);
-        const animeJson = this.anime[audioId];
-        const src = this.allCachedSpriteURL[audioId];
-        const image = new Image();
-        image.src = src;
-        image.loading = "eager";
-        const timeout = Math.floor((audio.buffer.duration * 1000) / animeJson.arrayFrame.length); //to ms
-        image.onload = () => {
+        return __awaiter(this, void 0, void 0, function* () {
+            const audio = this.audiosInDom[audioId];
+            const singerId = document
+                .querySelector(`.singer[data-song-id="${audioId}"]`)
+                .getAttribute("data-singer-id");
+            document.documentElement.style.setProperty(`--background-${singerId}`, `url("")`);
+            const animeJson = this.anime[audioId];
+            const image = yield createImageBitmap(this.allCachedSpriteURL[audioId]);
+            const timeout = (audio.buffer.duration * 1000) / animeJson.arrayFrame.length;
             cropImage(bodyCanvas, image, 164, 0, +animeJson.width, +animeJson.height);
             if (!this.allAnimeIntervalId[audioId] ||
                 Object.keys(this.allAnimeIntervalId[audioId]).length === 0) {
@@ -124,8 +130,7 @@ export class GlobalState {
                             this.allAnimeIntervalId[audioId].i
                                 ? this.allAnimeIntervalId[audioId].i++
                                 : (this.allAnimeIntervalId[audioId].i = 1);
-                            if (this.allAnimeIntervalId[audioId].i ===
-                                animeJson.arrayFrame.length) {
+                            if (this.allAnimeIntervalId[audioId].i === animeJson.arrayFrame.length) {
                                 this.allAnimeIntervalId[audioId].i = 0;
                             }
                             setTimeout(() => {
@@ -140,7 +145,7 @@ export class GlobalState {
             else {
                 this.allAnimeIntervalId[audioId].clear = false;
             }
-        };
+        });
     }
     pauseAnimation(audioId, headCanvas, bodyCanvas) {
         this.allAnimeIntervalId[audioId].clear = true;

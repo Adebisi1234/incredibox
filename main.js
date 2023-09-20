@@ -11,7 +11,7 @@ import { GlobalState, Audios } from "./classes.js";
 // Constants
 const audioCtx = new AudioContext();
 const global = new GlobalState();
-// For Stoping Songs
+// For Stopping Songs
 let pointerDownTop = 0;
 let pointerUpTop = 0;
 let pointerDownLeft = 0;
@@ -251,8 +251,7 @@ function cacheFiles(allAudioLinks, allVideoLinks, allSpriteLinks, allStaticSprit
                 global.allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
             }
             for (const spriteLink in allSpriteLinks) {
-                const spriteBlob = yield fetchBlob(allSpriteLinks[spriteLink]);
-                global.allCachedSpriteURL[spriteLink] = URL.createObjectURL(spriteBlob);
+                global.allCachedSpriteURL[spriteLink] = yield fetchBlob(allSpriteLinks[spriteLink]);
             }
             for (const staticSpriteLink in allStaticSpriteLinks) {
                 const staticSpriteBlob = yield fetchBlob(allStaticSpriteLinks[staticSpriteLink]);

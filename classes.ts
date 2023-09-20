@@ -133,7 +133,7 @@ export class GlobalState {
     [key: string]: string;
   } = {};
   public allCachedSpriteURL: {
-    [key: string]: string;
+    [key: string]: Blob;
   } = {};
   public allCachedStaticSpriteURL: {
     [key: string]: string;
@@ -149,7 +149,7 @@ export class GlobalState {
     }
   }
 
-  animate(
+  async animate(
     audioId: string,
     headCanvas: HTMLCanvasElement,
     bodyCanvas: HTMLCanvasElement
@@ -163,14 +163,11 @@ export class GlobalState {
       `url("")`
     );
     const animeJson = this.anime[audioId];
-    const src = this.allCachedSpriteURL[audioId];
-    const image = new Image()
-    image.src = src
-    image.loading = "eager"
-    const timeout = Math.floor(
-      (audio.buffer.duration * 1000) / animeJson.arrayFrame.length
-    ); //to ms
-    image.onload = ()=> {
+
+    const image = await createImageBitmap(this.allCachedSpriteURL[audioId]);
+    const timeout =
+      (audio.buffer.duration * 1000) / animeJson.arrayFrame.length;
+
     cropImage(bodyCanvas, image, 164, 0, +animeJson.width, +animeJson.height);
     if (
       !this.allAnimeIntervalId[audioId] ||
@@ -179,7 +176,7 @@ export class GlobalState {
       this.allAnimeIntervalId[audioId] = {
         i: 0,
         intervalId: (() => {
-          const frame = () =>{
+          const frame = () => {
             let i = this.allAnimeIntervalId[audioId].i ?? 0;
             const [x, y, translateX, translateY] = animeJson.arrayFrame[i].prop;
             if (!this.allAnimeIntervalId[audioId].clear) {
@@ -193,28 +190,25 @@ export class GlobalState {
               );
               headCanvas.parentElement!.style.transform = `translateX(${translateX}px) translateY(${translateY}px)`;
             }
-             this.allAnimeIntervalId[audioId].i
-               ? this.allAnimeIntervalId[audioId].i++
-               : (this.allAnimeIntervalId[audioId].i = 1);
-             if (
-               this.allAnimeIntervalId[audioId].i ===
-               animeJson.arrayFrame.length
-             ) {
-               this.allAnimeIntervalId[audioId].i = 0;
-             }
+            this.allAnimeIntervalId[audioId].i
+              ? this.allAnimeIntervalId[audioId].i++
+              : (this.allAnimeIntervalId[audioId].i = 1);
+            if (
+              this.allAnimeIntervalId[audioId].i === animeJson.arrayFrame.length
+            ) {
+              this.allAnimeIntervalId[audioId].i = 0;
+            }
             setTimeout(() => {
-              requestAnimationFrame(frame)
-            }, timeout)
-            
-          }
+              requestAnimationFrame(frame);
+            }, timeout);
+          };
           requestAnimationFrame(frame);
-         
         })(),
         clear: false,
       };
     } else {
       this.allAnimeIntervalId[audioId].clear = false;
-    }}
+    }
   }
   pauseAnimation(
     audioId: string,
