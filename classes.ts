@@ -1,4 +1,4 @@
-import cropImage, { clearRect } from "./anime/croppingImage/crop.js";
+import cropImage, { clearRect } from "./crop.js";
 export interface json {
   animeName: string;
   arrayFrame: { prop: [number, number, number, number] }[];
@@ -93,7 +93,7 @@ export class GlobalState {
       if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
         let url = allAudioLinks[id];
         let baseUrl =
-          "/anime/" + url.split("/")[2].replace(".ogg", "-sprite.png");
+          "/public/anime/" + url.split("/")[2].replace(".ogg", "-sprite.png");
         spriteUrls[id] = baseUrl;
       }
     }

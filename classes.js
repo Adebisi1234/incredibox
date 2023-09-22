@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import cropImage, { clearRect } from "./anime/croppingImage/crop.js";
+import cropImage, { clearRect } from "./crop.js";
 export class GlobalState {
     constructor(beat, interval) {
         this.ready = false;
@@ -64,7 +64,7 @@ export class GlobalState {
             for (const id in allAudioLinks) {
                 if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
                     let url = allAudioLinks[id];
-                    let baseUrl = "/anime/" + url.split("/")[2].replace(".ogg", "-sprite.png");
+                    let baseUrl = "/public/anime/" + url.split("/")[2].replace(".ogg", "-sprite.png");
                     spriteUrls[id] = baseUrl;
                 }
             }

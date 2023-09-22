@@ -1,5 +1,5 @@
 import { GlobalState, Audios, json, oldJson } from "./classes.js";
-import cropImage from "./anime/croppingImage/crop.js";
+import cropImage from "./crop.js";
 // Constants
 const audioCtx = new AudioContext();
 const global = new GlobalState();
