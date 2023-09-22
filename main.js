@@ -233,10 +233,17 @@ function startBeatInterval() {
 // Removing audio & clear interval
 // Animations
 function handleMovingSong(ev) {
+    console.log(ev);
     if (currentMovingSong) {
         movingSongStyles(ev, currentMovingSong);
         highlightHoveredSinger(ev);
         // Implement moving eyes
+        document.querySelectorAll(".singer .eye").forEach((eye) => {
+            const x = eye.offsetLeft + eye.offsetWidth / 2;
+            const y = eye.offsetTop + eye.offsetHeight / 2;
+            const rotate = Math.atan2(ev.clientY + y, ev.clientX + x);
+            eye.style.transform = `rotate(${rotate}deg)`;
+        });
     }
 }
 // Helper functions

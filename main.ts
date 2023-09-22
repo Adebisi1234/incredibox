@@ -33,7 +33,7 @@ window.addEventListener("DOMContentLoaded", () => {
         song.addEventListener("pointerdown", startSongDrag);
         song.addEventListener("pointerup", startSinging);
       });
-      console.log(requestAnimationFrame((time) => time))
+      console.log(requestAnimationFrame((time) => time));
     }
   });
 });
@@ -282,11 +282,21 @@ function startBeatInterval() {
 // Animations
 
 function handleMovingSong(ev: PointerEvent): void {
+  console.log(ev);
   if (currentMovingSong) {
     movingSongStyles(ev, currentMovingSong);
     highlightHoveredSinger(ev);
 
     // Implement moving eyes
+    (
+      document.querySelectorAll(".singer .eye") as NodeListOf<HTMLDivElement>
+    ).forEach((eye: HTMLDivElement) => {
+      const x = eye.offsetLeft + eye.offsetWidth / 2;
+      const y = eye.offsetTop + eye.offsetHeight / 2;
+
+      const rotate = Math.atan2(ev.clientY + y, ev.clientX + x);
+      eye.style.transform = `rotate(${rotate}deg)`;
+    });
   }
 }
 
@@ -363,15 +373,12 @@ function isSingerSinging(
       global.counter % global.beat !== 0 &&
       loader.classList.add("loading");
     singer.style.opacity = "1";
-    singer.setAttribute(
-      "data-song-id",
-      id
-    );
+    singer.setAttribute("data-song-id", id);
     singer.classList.add("singing");
-            document.documentElement.style.setProperty(
-              `--background-${singerId}`,
-              `url("${global.allCachedStaticSpriteURL[+id]}")`
-            );
+    document.documentElement.style.setProperty(
+      `--background-${singerId}`,
+      `url("${global.allCachedStaticSpriteURL[+id]}")`
+    );
     document.documentElement.style.setProperty(
       "--transition-time",
       `${global.counter % global.beat}s`
