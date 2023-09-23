@@ -14,14 +14,14 @@ html {
     --marginTop: calc((380 - 328) * (100% / 380));
     --headBottom: calc(((380 - 234) * (100% / 380)));
     --transition-time: 5s;
-    --background-1: url("/singer.png");
-    --background-2: url("/singer.png");
-    --background-3: url("/singer.png");
-    --background-4: url("/singer.png");
-    --background-5: url("/singer.png");
-    --background-6: url("/singer.png");
-    --background-7: url("/singer.png");
-    --background-8: url("/singer.png");
+    --background-1: url("/public/singer.png");
+    --background-2: url("/public/singer.png");
+    --background-3: url("/public/singer.png");
+    --background-4: url("/public/singer.png");
+    --background-5: url("/public/singer.png");
+    --background-6: url("/public/singer.png");
+    --background-7: url("/public/singer.png");
+    --background-8: url("/public/singer.png");
 }
 
 body {
@@ -104,7 +104,7 @@ main {
     align-items: flex-end;
     /* max-height: 329px; */
     justify-content: center;
-    background-image: url("./mainbg.jpg");
+    background-image: url("/public/mainbg.jpg");
     background-size: cover;
     background-repeat: no-repeat;
 }
@@ -209,7 +209,7 @@ main {
 .eye {
     flex: 1;
     height: 100%;
-    background-image: url(/eyes.png);
+    background-image: url(/public/eyes.png);
     background-size: 200% 900%;
     background-position: calc(100% / 9) 0;
 }
@@ -250,7 +250,7 @@ main {
     position: fixed;
     inset: 0;
     z-index: 100;
-    background-image: url(/home.jpg);
+    background-image: url(/public/home.jpg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
