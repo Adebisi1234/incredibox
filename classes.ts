@@ -30,12 +30,12 @@ export class GlobalState {
   public anime: { [key: string]: json } = {};
   public beatIntervalId: number = 0;
   public coolCombination: { [key: string]: number[] } = {
-    1: [1, 10, 19],
+    1: [1, 10, 19], //make this a string faarr better
     2: [2, 10, 5],
     3: [5, 15, 2],
   }; // For auto-play feature. placeholder for now
   public winningCombination: { [key: string]: number[] } = {
-    1: [1, 10, 19],
+    1: [1, 10, 19], //make this a string faarr better
     2: [2, 10, 5],
     3: [5, 15, 2],
   };
@@ -83,17 +83,23 @@ export class GlobalState {
     18: "./public/18_houhou.ogg",
     19: "./public/19_reach.ogg",
     20: "./public/20_believe.ogg",
+    21: "./public/1_bonus.ogg",
+    22: "./public/2_bonus.ogg",
+    23: "./public/3_bonus.ogg",
   };
-
+  private videoInQueue: HTMLVideoElement | undefined = undefined;
   private _allSpriteLinks = (function getAllSpriteLinks(allAudioLinks) {
     const spriteUrls: {
       [key: string]: string;
     } = {};
     for (const id in allAudioLinks) {
-      if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
+      if (
+        Object.prototype.hasOwnProperty.call(allAudioLinks, id) &&
+        !allAudioLinks[id].includes("bonus")
+      ) {
         let url = allAudioLinks[id];
         let baseUrl =
-          "/public/anime/" + url.split("/")[2].replace(".ogg", "-sprite.png");
+          "/public/" + url.split("/")[2].replace(".ogg", "-sprite.png");
         spriteUrls[id] = baseUrl;
       }
     }
@@ -229,6 +235,12 @@ export class GlobalState {
     clearRect(bodyCanvas);
   }
 
+  get videoQueue() {
+    return this.videoInQueue;
+  }
+  set setVideoInQueue(video: HTMLVideoElement | undefined) {
+    this.videoInQueue = video;
+  }
   get allVideoLinks() {
     return this._allVideoLinks;
   }
@@ -328,7 +340,12 @@ export class Audios {
     this.audioSource.loop = true;
     this.audioSource.connect(this.gainNode);
   }
-  muteSound(element: HTMLDivElement) {
+  muteSound(element: HTMLDivElement, abs?: boolean) {
+    if (abs) {
+      element.style.opacity = "0.6";
+      this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
+      return;
+    }
     if (this.gainNode.gain.value === 1) {
       element.style.opacity = "0.6";
       this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);

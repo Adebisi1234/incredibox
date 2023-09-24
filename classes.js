@@ -58,13 +58,18 @@ export class GlobalState {
             18: "./public/18_houhou.ogg",
             19: "./public/19_reach.ogg",
             20: "./public/20_believe.ogg",
+            21: "./public/1_bonus.ogg",
+            22: "./public/2_bonus.ogg",
+            23: "./public/3_bonus.ogg",
         };
+        this.videoInQueue = undefined;
         this._allSpriteLinks = (function getAllSpriteLinks(allAudioLinks) {
             const spriteUrls = {};
             for (const id in allAudioLinks) {
-                if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
+                if (Object.prototype.hasOwnProperty.call(allAudioLinks, id) &&
+                    !allAudioLinks[id].includes("bonus")) {
                     let url = allAudioLinks[id];
-                    let baseUrl = "/public/anime/" + url.split("/")[2].replace(".ogg", "-sprite.png");
+                    let baseUrl = "/public/" + url.split("/")[2].replace(".ogg", "-sprite.png");
                     spriteUrls[id] = baseUrl;
                 }
             }
@@ -157,6 +162,12 @@ export class GlobalState {
         clearRect(headCanvas);
         clearRect(bodyCanvas);
     }
+    get videoQueue() {
+        return this.videoInQueue;
+    }
+    set setVideoInQueue(video) {
+        this.videoInQueue = video;
+    }
     get allVideoLinks() {
         return this._allVideoLinks;
     }
@@ -241,7 +252,12 @@ export class Audios {
         this.audioSource.loop = true;
         this.audioSource.connect(this.gainNode);
     }
-    muteSound(element) {
+    muteSound(element, abs) {
+        if (abs) {
+            element.style.opacity = "0.6";
+            this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
+            return;
+        }
         if (this.gainNode.gain.value === 1) {
             element.style.opacity = "0.6";
             this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);

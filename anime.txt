@@ -11,3 +11,8 @@ run the function  separated from all other functions and check it's speed
 If it's still slow figure whatever is causing it out
  - Check cropImage function
  
+
+
+
+ video
+ on song drop removeEventListener from videoPlayer

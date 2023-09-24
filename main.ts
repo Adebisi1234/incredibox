@@ -1,5 +1,5 @@
+// I PITY WHOEVER GOES THROUGH THIS CODE
 import { GlobalState, Audios, json, oldJson } from "./classes.js";
-import cropImage from "./crop.js";
 // Constants
 const audioCtx = new AudioContext();
 const global = new GlobalState();
@@ -17,25 +17,26 @@ window.addEventListener("DOMContentLoaded", () => {
     global.allSpriteLinks,
     global.allStaticSpriteLinks,
     global.allAnimeURl
-  ).then(() => {
-    if (global.isReady) {
-      (
-        document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
-      ).style.display = "none";
-      global.singers.forEach((singer) => {
-        singer.addEventListener("click", handlePauseAudio);
-        singer.addEventListener("pointerdown", handleRemoveAudio);
-        singer.addEventListener("pointerup", handleRemoveAudio);
-      });
+  )
+    .then(() => {
+      if (global.isReady) {
+        (
+          document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
+        ).style.display = "none";
+        global.singers.forEach((singer) => {
+          singer.addEventListener("click", handlePauseAudio);
+          singer.addEventListener("pointerdown", handleRemoveAudio);
+          singer.addEventListener("pointerup", handleRemoveAudio);
+        });
 
-      // dragging songs
-      global.songs.forEach((song) => {
-        song.addEventListener("pointerdown", startSongDrag);
-        song.addEventListener("pointerup", startSinging);
-      });
-      console.log(requestAnimationFrame((time) => time));
-    }
-  });
+        // dragging songs
+        global.songs.forEach((song) => {
+          song.addEventListener("pointerdown", startSongDrag);
+          song.addEventListener("pointerup", startSinging);
+        });
+      }
+    })
+    .catch((err) => (document.body.textContent = `An error occurred ${err}`));
 });
 window.addEventListener("resize", () => {
   global.setSingers = document.querySelectorAll(".singer");
@@ -202,19 +203,28 @@ function addAudio(
   global.setAudioQueue = { audio: newAudio, headCanvas, bodyCanvas };
   if (Object.keys(global.getAudiosInDom).length === 0) {
     startBeatInterval();
-  } else {
-    if (Object.keys(global.getAudiosInDom).length >= 2) {
-      isWinningCombination();
-    } else {
-      global.videoPlayer.forEach((video) => video.classList.remove("playable"));
-    }
   }
+  isWinningCombination();
 }
 
-function handlePlayVideo(ev: MouseEvent) {
+function handlePlayVideo(target: HTMLVideoElement) {
   // This can also be better
-  const videoId = (ev.target as HTMLDivElement).getAttribute("data-player-id")!;
-  console.log(videoId);
+  const video = target;
+  const audioId = `2${video.id}`;
+  if (video) {
+    video.src = global.allCachedVideoURL[+video.id];
+    video.addEventListener("ended", handleStopVideo);
+    video.parentElement!.style.height = "100vh";
+    video.parentElement!.style.width = "100vw";
+    
+    document
+      .querySelector(`.video-player[data-player-id="${video.id}"]`)!
+      .lastElementChild!.classList.remove("loading");
+    setTimeout(() => {
+      video.play();
+      global.allCachedAudios[audioId].play();
+    }, 200);
+  }
   for (const audio in global.getAudiosInDom) {
     if (Object.prototype.hasOwnProperty.call(global.getAudiosInDom, audio)) {
       const audioId = global.getAudiosInDom[audio].id;
@@ -222,51 +232,61 @@ function handlePlayVideo(ev: MouseEvent) {
         `.singer[data-song-id="${audioId}"]`
       )!;
 
-      global.getAudiosInDom[audio].muteSound(element);
+      global.getAudiosInDom[audio].muteSound(element, true);
     }
   }
-  const video = document.querySelector("video");
-  if (video) {
-    video.src = global.allCachedVideoURL[+videoId];
-    video.addEventListener("ended", handleVideoPlayer);
-    video.classList.add("video-playing");
-    video.play();
-  }
-  function handleVideoPlayer() {
+  function handleStopVideo() {
     if (video) {
-      video.classList.remove("video-playing");
-      video.src = "";
-      video.removeEventListener("ended", handleVideoPlayer);
+      video.parentElement!.style.height = "0vh";
+      global.allCachedAudios[audioId].stop();
+      global.setVideoInQueue = undefined;
+      for (const audio in global.getAudiosInDom) {
+        if (
+          Object.prototype.hasOwnProperty.call(global.getAudiosInDom, audio)
+        ) {
+          const audioId = global.getAudiosInDom[audio].id;
+          const element: HTMLDivElement = document.querySelector(
+            `.singer[data-song-id="${audioId}"]`
+          )!;
+
+          global.getAudiosInDom[audio].muteSound(element);
+        }
+      }
     }
   }
 }
 
 // Beat && loader
 function startBeatInterval() {
+  document.documentElement.style.setProperty(
+    "--transition-time",
+    `${global.counter % global.beat}s`
+  );
   if (global.getAudioQueue.length === 1) {
     const audioObj = global.getAudioQueue[0];
     audioObj.audio.play();
     global.setAudiosInDom = { id: +audioObj.audio.id, audio: audioObj.audio };
     global.animate(audioObj.audio.id, audioObj.headCanvas, audioObj.bodyCanvas);
-    global.removeAudioFromQueue = audioObj.audio.id;
   }
   global.beatIntervalId = setInterval(() => {
     global.counter += 1;
     if (global.counter % global.beat === 0) {
       global.getAudioQueue.forEach((audioObj, i) => {
-        global.setAudiosInDom = {
-          id: +audioObj.audio.id,
-          audio: audioObj.audio,
-        };
-        global.animate(
-          audioObj.audio.id,
-          audioObj.headCanvas,
-          audioObj.bodyCanvas
-        );
-        audioObj.audio.play();
-        document
-          .querySelector(`.singer[data-song-id="${audioObj.audio.id}"]`)!
-          .lastElementChild!.classList.remove("loading");
+        if (!global.getAudiosInDom[audioObj.audio.id]) {
+          global.setAudiosInDom = {
+            id: +audioObj.audio.id,
+            audio: audioObj.audio,
+          };
+          global.animate(
+            audioObj.audio.id,
+            audioObj.headCanvas,
+            audioObj.bodyCanvas
+          );
+          audioObj.audio.play();
+          document
+            .querySelector(`.singer[data-song-id="${audioObj.audio.id}"]`)!
+            .lastElementChild!.classList.remove("loading");
+        }
         global.getAudioQueue.splice(i, 1);
       });
     }
@@ -282,7 +302,6 @@ function startBeatInterval() {
 // Animations
 
 function handleMovingSong(ev: PointerEvent): void {
-  console.log(ev);
   if (currentMovingSong) {
     movingSongStyles(ev, currentMovingSong);
     highlightHoveredSinger(ev);
@@ -379,10 +398,6 @@ function isSingerSinging(
       `--background-${singerId}`,
       `url("${global.allCachedStaticSpriteURL[+id]}")`
     );
-    document.documentElement.style.setProperty(
-      "--transition-time",
-      `${global.counter % global.beat}s`
-    );
   } else {
     singer.classList.remove("singing");
     singer.style.opacity = "0.6";
@@ -396,7 +411,7 @@ function isSingerSinging(
     ).style.backgroundPositionY = `0`;
     document.documentElement.style.setProperty(
       `--background-${singerId}`,
-      `url("/singer.png")`
+      `url("/public/singer.png")`
     );
   }
 }
@@ -431,7 +446,10 @@ function removeMovingSongStyles(currentMovingSong: HTMLDivElement | undefined) {
 function stopSong(id: string, target: HTMLDivElement) {
   const headCanvas = target.querySelector(".head-canvas") as HTMLCanvasElement;
   const bodyCanvas = target.querySelector(".body-canvas") as HTMLCanvasElement;
-  document.documentElement.style.setProperty(`background-${id}`, "/singer.png");
+  document.documentElement.style.setProperty(
+    `background-${id}`,
+    "/public/singer.png"
+  );
   global.clearAnimation(id, headCanvas, bodyCanvas);
   isSingerSinging(false, target, id);
   global.removeAudioFromQueue = id;
@@ -441,6 +459,7 @@ function stopSong(id: string, target: HTMLDivElement) {
   if (Object.keys(global.getAudiosInDom).length === 0) {
     document.documentElement.style.setProperty("--transition-time", "0s");
   }
+  isWinningCombination();
 }
 
 function isWinningCombination() {
@@ -452,29 +471,82 @@ function isWinningCombination() {
         combination
       )
     ) {
-      const win: boolean = global.winningCombination[combination].every(
+      let win: boolean = global.winningCombination[combination].every(
         (songId) => {
-          return global.getAudiosInDom[songId] || global.getAudioQueue[songId];
+          if (
+            global.getAudioQueue[global.getAudioQueue.length - 1]?.audio.id ===
+            String(songId)
+          ) {
+            gettingHot(combination, songId, true);
+          }
+          if (
+            global.getAudiosInDom[songId] ||
+            global.getAudioQueue[global.getAudioQueue.length - 1]?.audio.id ===
+              String(songId)
+          ) {
+            return true;
+          } else {
+            return false;
+          }
         }
       );
+
       if (win) {
-        global.videoPlayer.forEach((player) => {
-          if (player.getAttribute("data-player-id") === combination) {
-            player.classList.add("playable");
-            player.nextElementSibling?.classList.add("loading");
-            player.addEventListener("click", handlePlayVideo);
-          }
-        });
-      } else {
-        global.videoPlayer.forEach((player) => {
-          if (player.getAttribute("data-player-id") === combination) {
-            player.classList.remove("playable");
-            player.nextElementSibling?.classList.add("loading");
-            player.removeEventListener("click", handlePlayVideo);
-          }
+        const player = document.querySelector(
+          `.video-player[data-player-id="${combination}"]`
+        ) as HTMLDivElement;
+        player.classList.add("playable");
+        player.addEventListener("click", () => {
+          const video = document.getElementsByTagName(
+            "video"
+          )[0] as HTMLVideoElement;
+          video.id = player.id;
+          player.lastElementChild!.classList.add("loading");
+          console.log("are we here");
+          setTimeout(() => {
+            handlePlayVideo(video);
+          }, (global.counter % global.beat) * 1000);
+          global.setVideoInQueue = video;
+          player.nextElementSibling?.classList.add("loading");
         });
       }
     }
+  }
+}
+
+function gettingHot(videoPlayerId: string, songId: number, add: boolean) {
+  console.log(songId);
+  const videoPlayer = document.querySelector(
+    `.video-player[data-player-id="${videoPlayerId}"]`
+  );
+
+  if (add) {
+    switch (true) {
+      case videoPlayer?.classList.contains("combo2"):
+        videoPlayer?.classList.add("combo3");
+        return;
+
+      case videoPlayer?.classList.contains("combo1"):
+        videoPlayer?.classList.add("combo2");
+        return;
+
+      default:
+        videoPlayer!.classList.add("combo1");
+        return;
+    }
+  } else {
+    // Use another function entirely
+    //  switch (true) {
+    //    case videoPlayer?.classList.contains("combo1"):
+    //      videoPlayer?.classList.remove("combo1");
+    //      return;
+    //    case videoPlayer?.classList.contains("combo2"):
+    //      videoPlayer?.classList.remove("combo2");
+    //      return;
+    //    default:
+    //      videoPlayer?.classList.remove("combo3");
+    //      return;
+    //  }
   }
 }
 

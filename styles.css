@@ -6,11 +6,10 @@
 
 html {
     user-select: none;
+    --colV8: #5f7e7b;
+    --col: var(--colV8);
     --headHeight: calc((100% / 380) * 234);
-    --eyesTop: calc((100% / 759) * 170);
-    --eyesHeight: calc((100% / 759) * 50);
-    --eyesWidth: calc((100% / 274) * 158);
-    --frameHeight: calc((100% / 380) * 328);
+    --frameHeight: calc((100% / 380) * 380);
     --marginTop: calc((380 - 328) * (100% / 380));
     --headBottom: calc(((380 - 234) * (100% / 380)));
     --transition-time: 5s;
@@ -56,13 +55,71 @@ canvas {
     border-radius: 50%;
 }
 
+.video {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    background-color: black;
+    z-index: 1;
+    transition: all ease-in 200ms;
+}
+
+.video.playing {
+    height: 100vh;
+    height: 100dvh;
+    width: 100vw;
+    width: 100dvw;
+}
+
+video {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: contain;
+    min-height: 72%;
+}
+
+.header .video-player {
+    border: 4px solid transparent;
+    background-image: url(/public/v8.png);
+    background-color: var(--col);
+    background-size: 300% 100%;
+}
+
+.video-player[data-player-id="1"] {
+    background-position: 0%;
+}
+
+.video-player[data-player-id="2"] {
+    background-position: 50%;
+}
+
+.video-player[data-player-id="3"] {
+    background-position: 100%;
+}
+
+.combo1 {
+    border-top-color: red !important;
+}
+
+.combo2 {
+    border-right-color: aqua !important;
+}
+
+.combo3 {
+    border-left-color: yellow !important;
+    border-bottom-color: yellow !important;
+}
+
+.combo4 {
+    border-bottom-color: green;
+}
 
 .video-player .loader {
     bottom: -8px;
 }
 
 .playable {
-    background-color: green;
+    border-color: green;
 }
 
 .middle {
@@ -87,8 +144,11 @@ h2 {
     display: flex;
     flex-direction: column;
     width: 100vw;
+    width: 100dvw;
     max-width: 100vw;
+    max-width: 100dvw;
     max-height: 100vh;
+    max-height: 100dvh;
     aspect-ratio: 16/9;
 }
 
@@ -184,35 +244,6 @@ main {
 
 }
 
-@media (max-height: 1024px) {
-    html {
-        --eyesTop: calc((100% / 759) * 50);
-    }
-}
-
-/* @media eyestop : 200px */
-.eyes {
-    position: absolute;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid black;
-    top: var(--eyesTop);
-    width: var(--eyesWidth);
-    height: var(--eyesHeight);
-    margin: auto;
-    right: 50%;
-    left: 53%;
-    transform: translateX(-50%);
-}
-
-.eye {
-    flex: 1;
-    height: 100%;
-    background-image: url(/public/eyes.png);
-    background-size: 200% 900%;
-    background-position: calc(100% / 9) 0;
-}
 
 .singer[data-singer-id="1"]>.frame {
     background-image: var(--background-1);
@@ -279,7 +310,7 @@ img {
 .loader.loading {
     width: 100%;
     opacity: 1;
-    background: #5f7e7b;
+    background: var(--col);
 }
 
 footer {
