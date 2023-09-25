@@ -23,11 +23,11 @@ export default function cropImage(
 }
 
 export function clearRect(canvas: HTMLCanvasElement) {
+  console.log("wtf");
   const context = canvas.getContext("2d");
   context!.fillStyle = "rgba(0,0,0,0)";
   context?.fillRect(0, 0, canvas.width, canvas.height);
   context?.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.style.opacity = "0";
 }
 // context?.drawImage(image, sx: Number, sy: Number, sw: Number, sh: Number, dx: Number, dy: Number, dw: Number, dh: Number)
 // image.onload = ()=> {

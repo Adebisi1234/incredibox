@@ -159,9 +159,9 @@ function startSinging(ev: PointerEvent): void {
 
 function handleRemoveAudio(ev: PointerEvent): void {
   const target = getSinger(ev);
-  const id = target.getAttribute("data-song-id");
+  const audioId = target.getAttribute("data-song-id");
   const singerId = target.getAttribute("data-singer-id");
-  if (!id || !singerId) {
+  if (!audioId || !singerId) {
     return;
   }
 
@@ -180,7 +180,7 @@ function handleRemoveAudio(ev: PointerEvent): void {
     pointerUpTop - pointerDownTop > 20 &&
     pointerUpLeft - pointerDownLeft < 20
   ) {
-    stopSong(id, target);
+    stopSong(audioId, singerId, target);
     pointerUpTop = 0;
     pointerDownTop = 0;
     pointerUpLeft = 0;
@@ -216,14 +216,15 @@ function handlePlayVideo(target: HTMLVideoElement) {
     video.addEventListener("ended", handleStopVideo);
     video.parentElement!.style.height = "100vh";
     video.parentElement!.style.width = "100vw";
-    
-    document
-      .querySelector(`.video-player[data-player-id="${video.id}"]`)!
-      .lastElementChild!.classList.remove("loading");
+    const videoPlayer = document.querySelector(
+      `.video-player[data-player-id="${video.id}"]`
+    ) as HTMLDivElement;
+    videoPlayer.lastElementChild!.classList.remove("loading");
+    videoPlayer.style.pointerEvents = "all";
     setTimeout(() => {
       video.play();
       global.allCachedAudios[audioId].play();
-    }, 200);
+    }, 250);
   }
   for (const audio in global.getAudiosInDom) {
     if (Object.prototype.hasOwnProperty.call(global.getAudiosInDom, audio)) {
@@ -233,6 +234,16 @@ function handlePlayVideo(target: HTMLVideoElement) {
       )!;
 
       global.getAudiosInDom[audio].muteSound(element, true);
+    }
+  }
+  for (const audioObj in global.getAudioQueue) {
+    if (Object.prototype.hasOwnProperty.call(global.getAudioQueue, audioObj)) {
+      const audioId = global.getAudiosInDom[audioObj].id;
+      const element: HTMLDivElement = document.querySelector(
+        `.singer[data-song-id="${audioId}"]`
+      )!;
+
+      global.getAudioQueue[audioObj].audio.muteSound(element, true);
     }
   }
   function handleStopVideo() {
@@ -257,11 +268,11 @@ function handlePlayVideo(target: HTMLVideoElement) {
 }
 
 // Beat && loader
-function startBeatInterval() {
-  document.documentElement.style.setProperty(
-    "--transition-time",
-    `${global.counter % global.beat}s`
-  );
+function startBeatInterval(clear?: boolean) {
+  if (clear) {
+    clearInterval(global.beatIntervalId);
+  }
+
   if (global.getAudioQueue.length === 1) {
     const audioObj = global.getAudioQueue[0];
     audioObj.audio.play();
@@ -270,6 +281,10 @@ function startBeatInterval() {
   }
   global.beatIntervalId = setInterval(() => {
     global.counter += 1;
+    document.documentElement.style.setProperty(
+      "--transition-time",
+      `${global.counter % global.beat}s`
+    );
     if (global.counter % global.beat === 0) {
       global.getAudioQueue.forEach((audioObj, i) => {
         if (!global.getAudiosInDom[audioObj.audio.id]) {
@@ -443,111 +458,128 @@ function removeMovingSongStyles(currentMovingSong: HTMLDivElement | undefined) {
     global.singers.forEach((singer) => singer.classList.remove("active"));
   }
 }
-function stopSong(id: string, target: HTMLDivElement) {
+function stopSong(audioId: string, singerId: string, target: HTMLDivElement) {
   const headCanvas = target.querySelector(".head-canvas") as HTMLCanvasElement;
   const bodyCanvas = target.querySelector(".body-canvas") as HTMLCanvasElement;
   document.documentElement.style.setProperty(
-    `background-${id}`,
+    `background-${singerId}`,
     "/public/singer.png"
   );
-  global.clearAnimation(id, headCanvas, bodyCanvas);
-  isSingerSinging(false, target, id);
-  global.removeAudioFromQueue = id;
-  if (global.getAudiosInDom[+id]) {
-    global.removeAudioFromDom = +id;
+  global.clearAnimation(audioId, headCanvas, bodyCanvas);
+  isSingerSinging(false, target, audioId);
+  global.removeAudioFromQueue = audioId;
+  if (global.getAudiosInDom[+audioId]) {
+    global.removeAudioFromDom = +audioId;
   }
   if (Object.keys(global.getAudiosInDom).length === 0) {
     document.documentElement.style.setProperty("--transition-time", "0s");
+    startBeatInterval(true);
   }
-  isWinningCombination();
+  isLosingCombination(audioId);
+}
+function gettingCold(videoPlayerId: string) {
+  const videoPlayer = document.querySelector(
+    `.video-player[data-player-id="${videoPlayerId}"]`
+  );
+  switch (true) {
+    case videoPlayer?.classList.contains("combo3"):
+      videoPlayer?.classList.remove("combo3");
+      return;
+    case videoPlayer?.classList.contains("combo2"):
+      videoPlayer?.classList.remove("combo2");
+      return;
+    case videoPlayer?.classList.contains("combo1"):
+      videoPlayer?.classList.remove("combo1");
+      return;
+  }
 }
 
-function isWinningCombination() {
-  // There has to be a better way than this
-  for (const combination in global.winningCombination) {
-    if (
-      Object.prototype.hasOwnProperty.call(
-        global.winningCombination,
-        combination
-      )
-    ) {
-      let win: boolean = global.winningCombination[combination].every(
-        (songId) => {
-          if (
-            global.getAudioQueue[global.getAudioQueue.length - 1]?.audio.id ===
-            String(songId)
-          ) {
-            gettingHot(combination, songId, true);
-          }
-          if (
-            global.getAudiosInDom[songId] ||
-            global.getAudioQueue[global.getAudioQueue.length - 1]?.audio.id ===
-              String(songId)
-          ) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-      );
-
-      if (win) {
+function isLosingCombination(audioId: string) {
+  for (const id in global.win) {
+    if (Object.prototype.hasOwnProperty.call(global.win, id)) {
+      let index = global.win[id].indexOf(audioId);
+      let length = global.win[id].length;
+      if (index !== -1) {
+        global.win[id].splice(index, 1);
+      }
+      console.log(global.win[id].length, length);
+      if (global.win[id].length < length) {
+        gettingCold(id);
         const player = document.querySelector(
-          `.video-player[data-player-id="${combination}"]`
+          `.video-player[data-player-id="${id}"`
         ) as HTMLDivElement;
-        player.classList.add("playable");
-        player.addEventListener("click", () => {
-          const video = document.getElementsByTagName(
-            "video"
-          )[0] as HTMLVideoElement;
-          video.id = player.id;
-          player.lastElementChild!.classList.add("loading");
-          console.log("are we here");
-          setTimeout(() => {
-            handlePlayVideo(video);
-          }, (global.counter % global.beat) * 1000);
-          global.setVideoInQueue = video;
-          player.nextElementSibling?.classList.add("loading");
-        });
+
+        player.removeEventListener("click", makeVideoPlayable);
       }
     }
   }
 }
 
-function gettingHot(videoPlayerId: string, songId: number, add: boolean) {
-  console.log(songId);
+function isWinningCombination() {
+  // There has to be a better way than this
+  for (let i = 0; i < global.winningCombination.length; i++) {
+    let combo = global.winningCombination[i].split(",");
+    combo.forEach((audioId) => {
+      if (
+        global.getAudioQueue[global.getAudioQueue.length - 1]?.audio?.id ===
+        audioId
+      ) {
+        global.win[i + 1].push(audioId);
+        gettingHot(`${i + 1}`);
+      }
+    });
+    if (global.win[i + 1].length === 3) {
+      const player = document.querySelector(
+        `.video-player[data-player-id="${i + 1}"]`
+      ) as HTMLDivElement;
+      player.classList.add("playable");
+      player.addEventListener("click", makeVideoPlayable);
+    }
+  }
+}
+function makeVideoPlayable(ev: MouseEvent) {
+  const video = document.getElementsByTagName("video")[0] as HTMLVideoElement;
+  video.id = (ev.target as HTMLDivElement).id;
+  (ev.target as HTMLDivElement).style.pointerEvents = "none";
+  (ev.target as HTMLDivElement).lastElementChild!.classList.add("loading");
+  console.log("are we here");
+  setTimeout(() => {
+    handlePlayVideo(video);
+  }, (global.counter % global.beat) * 1000);
+  global.setVideoInQueue = video;
+}
+
+function gettingHot(videoPlayerId: string) {
   const videoPlayer = document.querySelector(
     `.video-player[data-player-id="${videoPlayerId}"]`
   );
 
-  if (add) {
-    switch (true) {
-      case videoPlayer?.classList.contains("combo2"):
-        videoPlayer?.classList.add("combo3");
-        return;
+  switch (true) {
+    case videoPlayer?.classList.contains("combo2"):
+      videoPlayer?.classList.add("combo3");
+      return;
 
-      case videoPlayer?.classList.contains("combo1"):
-        videoPlayer?.classList.add("combo2");
-        return;
+    case videoPlayer?.classList.contains("combo1"):
+      videoPlayer?.classList.add("combo2");
+      return;
 
-      default:
-        videoPlayer!.classList.add("combo1");
-        return;
-    }
-  } else {
-    // Use another function entirely
-    //  switch (true) {
-    //    case videoPlayer?.classList.contains("combo1"):
-    //      videoPlayer?.classList.remove("combo1");
-    //      return;
-    //    case videoPlayer?.classList.contains("combo2"):
-    //      videoPlayer?.classList.remove("combo2");
-    //      return;
-    //    default:
-    //      videoPlayer?.classList.remove("combo3");
-    //      return;
-    //  }
+    default:
+      videoPlayer!.classList.add("combo1");
+      return;
   }
+
+  // Use another function entirely
+  //  switch (true) {
+  //    case videoPlayer?.classList.contains("combo1"):
+  //      videoPlayer?.classList.remove("combo1");
+  //      return;
+  //    case videoPlayer?.classList.contains("combo2"):
+  //      videoPlayer?.classList.remove("combo2");
+  //      return;
+  //    default:
+  //      videoPlayer?.classList.remove("combo3");
+  //      return;
+  //  }
 }
 
 async function fetchBlob(link: string): Promise<Blob> {

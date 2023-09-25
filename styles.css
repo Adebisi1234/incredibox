@@ -61,7 +61,7 @@ canvas {
     align-items: center;
     background-color: black;
     z-index: 1;
-    transition: all ease-in 200ms;
+    transition: all ease-in 250ms;
 }
 
 .video.playing {

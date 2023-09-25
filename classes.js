@@ -14,19 +14,16 @@ export class GlobalState {
         this.audioQueue = [];
         this.beat = 7;
         this.interval = 1000;
+        this.win = {
+            1: [],
+            2: [],
+            3: [],
+        };
         this.counter = 0;
         this.anime = {};
         this.beatIntervalId = 0;
-        this.coolCombination = {
-            1: [1, 10, 19],
-            2: [2, 10, 5],
-            3: [5, 15, 2],
-        }; // For auto-play feature. placeholder for now
-        this.winningCombination = {
-            1: [1, 10, 19],
-            2: [2, 10, 5],
-            3: [5, 15, 2],
-        };
+        this.coolCombination = ["1,10,19", "2,5,14", "1,19,20"]; // For auto-play feature. placeholder for now
+        this.winningCombination = ["1,10,19", "2,5,14", "1,19,20"];
         this.audiosInDom = {};
         this.allSingers = document.querySelectorAll(".singer");
         this.videoPlayer = document.querySelectorAll(".video-player");
@@ -123,44 +120,63 @@ export class GlobalState {
                 Object.keys(this.allAnimeIntervalId[audioId]).length === 0) {
                 this.allAnimeIntervalId[audioId] = {
                     i: 0,
-                    intervalId: (() => {
-                        const frame = () => {
-                            var _a;
+                    intervalId: undefined,
+                    clear: false,
+                    pause: false,
+                };
+                this.allAnimeIntervalId[audioId].i = 0;
+                this.allAnimeIntervalId[audioId].intervalId = (() => {
+                    const frame = () => {
+                        var _a;
+                        if (this.allAnimeIntervalId[audioId]) {
                             let i = (_a = this.allAnimeIntervalId[audioId].i) !== null && _a !== void 0 ? _a : 0;
+                            this.allAnimeIntervalId[audioId].i = i;
                             const [x, y, translateX, translateY] = animeJson.arrayFrame[i].prop;
                             if (!this.allAnimeIntervalId[audioId].clear) {
-                                cropImage(headCanvas, image, x, y, +animeJson.width, +animeJson.headHeight);
-                                headCanvas.parentElement.style.transform = `translateX(${translateX}px) translateY(${translateY}px)`;
+                                if (!this.allAnimeIntervalId[audioId].pause) {
+                                    cropImage(headCanvas, image, x, y, +animeJson.width, +animeJson.headHeight);
+                                    headCanvas.parentElement.style.transform = `translateX(${translateX}px) translateY(${translateY}px)`;
+                                }
+                                this.allAnimeIntervalId[audioId].i
+                                    ? this.allAnimeIntervalId[audioId].i++
+                                    : (this.allAnimeIntervalId[audioId].i = 1);
+                                if (this.allAnimeIntervalId[audioId].i ===
+                                    animeJson.arrayFrame.length) {
+                                    this.allAnimeIntervalId[audioId].i = 0;
+                                }
+                                setTimeout(() => {
+                                    requestAnimationFrame(frame);
+                                }, timeout);
                             }
-                            this.allAnimeIntervalId[audioId].i
-                                ? this.allAnimeIntervalId[audioId].i++
-                                : (this.allAnimeIntervalId[audioId].i = 1);
-                            if (this.allAnimeIntervalId[audioId].i === animeJson.arrayFrame.length) {
-                                this.allAnimeIntervalId[audioId].i = 0;
-                            }
-                            setTimeout(() => {
-                                requestAnimationFrame(frame);
-                            }, timeout);
-                        };
-                        requestAnimationFrame(frame);
-                    })(),
-                    clear: false,
-                };
+                        }
+                    };
+                    requestAnimationFrame(frame);
+                })();
+                this.allAnimeIntervalId[audioId].pause = false;
             }
             else {
-                this.allAnimeIntervalId[audioId].clear = false;
+                this.allAnimeIntervalId[audioId].pause = false;
             }
         });
     }
     pauseAnimation(audioId, headCanvas, bodyCanvas) {
-        this.allAnimeIntervalId[audioId].clear = true;
+        if (this.allAnimeIntervalId[audioId]) {
+            this.allAnimeIntervalId[audioId].pause = true;
+        }
+        console.log(this.allAnimeIntervalId[audioId]);
         clearRect(headCanvas);
         clearRect(bodyCanvas);
     }
     clearAnimation(audioId, headCanvas, bodyCanvas) {
-        delete this.allAnimeIntervalId[audioId];
+        if (this.allAnimeIntervalId[audioId]) {
+            this.allAnimeIntervalId[audioId].pause = true;
+            this.allAnimeIntervalId[audioId].clear = true;
+        }
+        console.log(this.allAnimeIntervalId[audioId]);
         clearRect(headCanvas);
         clearRect(bodyCanvas);
+        console.log("fucckck");
+        delete this.allAnimeIntervalId[audioId];
     }
     get videoQueue() {
         return this.videoInQueue;

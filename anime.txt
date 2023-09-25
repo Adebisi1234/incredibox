@@ -16,3 +16,11 @@ If it's still slow figure whatever is causing it out
 
  video
  on song drop removeEventListener from videoPlayer
+ Fix the absolute muting of songs
+
+
+ Fix the beat mismatch
+ Finish all secondary features
+ Make it live
+
+ Make 8 more versions 

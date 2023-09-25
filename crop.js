@@ -5,11 +5,11 @@ export default function cropImage(canvas, image, x, y, width, height) {
     context === null || context === void 0 ? void 0 : context.drawImage(image, x, y, width, height, 0, 0, canvas.width, canvas.height);
 }
 export function clearRect(canvas) {
+    console.log("wtf");
     const context = canvas.getContext("2d");
     context.fillStyle = "rgba(0,0,0,0)";
     context === null || context === void 0 ? void 0 : context.fillRect(0, 0, canvas.width, canvas.height);
     context === null || context === void 0 ? void 0 : context.clearRect(0, 0, canvas.width, canvas.height);
-    canvas.style.opacity = "0";
 }
 // context?.drawImage(image, sx: Number, sy: Number, sw: Number, sh: Number, dx: Number, dy: Number, dw: Number, dh: Number)
 // image.onload = ()=> {
