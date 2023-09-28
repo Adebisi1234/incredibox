@@ -322,15 +322,7 @@ function handleMovingSong(ev: PointerEvent): void {
     highlightHoveredSinger(ev);
 
     // Implement moving eyes
-    (
-      document.querySelectorAll(".singer .eye") as NodeListOf<HTMLDivElement>
-    ).forEach((eye: HTMLDivElement) => {
-      const x = eye.offsetLeft + eye.offsetWidth / 2;
-      const y = eye.offsetTop + eye.offsetHeight / 2;
 
-      const rotate = Math.atan2(ev.clientY + y, ev.clientX + x);
-      eye.style.transform = `rotate(${rotate}deg)`;
-    });
   }
 }
 
@@ -449,11 +441,13 @@ function movingSongStyles(ev: PointerEvent, currentMovingSong: HTMLDivElement) {
     y % innerHeight
   }px, 10px) translate(-50%, -50%) `;
   currentMovingSong.style.backgroundPositionY = "100%";
+  currentMovingSong.style.boxShadow = "3px 3px #555";
 }
 function removeMovingSongStyles(currentMovingSong: HTMLDivElement | undefined) {
   if (currentMovingSong) {
     currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
     currentMovingSong.style.backgroundPositionY = "0";
+    currentMovingSong.style.boxShadow = "0px 0px";
     currentMovingSong = undefined;
     global.singers.forEach((singer) => singer.classList.remove("active"));
   }
