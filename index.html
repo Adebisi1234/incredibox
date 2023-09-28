@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
     <title>Incredibox (unofficial)</title>
-    <script type="module" src="./uiControl.js" defer></script>
+    <script type="module" src="./landing.js" defer></script>
     <!-- <script type="module" src="./orientation.js" defer></script> -->
     <!-- <script type="module" src="./crop.js" defer></script> -->
     <!-- <script type="module" src="classes.js" defer></script> -->
@@ -208,90 +208,90 @@
         </defs>
     </svg>
     <div class="intro">
-        <div class="intro-logo"></div>
-        <div class="pump">Pump it up and chill</div>
-        <div class="experience">For the best experience, use your headphones</div>
-        <div class="headphone">
+        <div class="intro-logo" id="title"></div>
+        <div class="pump" id="pump">Pump it up and chill</div>
+        <div class="experience" id="experience">For the best experience, use your headphones</div>
+        <div class="headphone" id="headphone">
             <img src="/public/headphone.svg" alt="headphones" id="headphone" width="126" height="150">
         </div>
+        <h2 class="choose" id="choose">SELECT A VERSION TO START MIXING MUSIC</h2>
     </div>
     <div class="versions absolute flex inset">
         <div class="settings">
-            <div class="info svg-icon">
+            <div class="info svg-icon" id="info">
                 <svg>
                     <use xlink:href="#ic-info"></use>
                 </svg>
             </div>
-            <div class="setting svg-icon">
+            <div class="setting svg-icon" id="setting">
                 <svg>
                     <use xlink:href="#ic-settings"></use>
                 </svg>
             </div>
         </div>
-        <div class="v">
-            <h2 class="txt">SELECT A VERSION TO START MIXING MUSIC</h2>
+        <div class="select">
             <div class="top">
                 <a href="/app.html?v=1">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v1">
-                    <img src="/public/titles.png" class="v1 title" alt="Alpha">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v1">
+                        <img src="/public/titles.png" class="v1 title" alt="Alpha">
+                    </div>
                 </a>
                 <a href="/app.html?v=2">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v2">
-                    <img src="/public/titles.png" class="v2 title" alt="Little Miss">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v2">
+                        <img src="/public/titles.png" class="v2 title" alt="Little Miss">
+                    </div>
                 </a>
                 <a href="/app.html?v=3">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v3">
-                    <img src="/public/titles.png" class="v3 title" alt="Sunrise">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v3">
+                        <img src="/public/titles.png" class="v3 title" alt="Sunrise">
+                    </div>
                 </a>
                 <a href="/app.html?v=4">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v4">
-                    <img src="/public/titles.png" class="v4 title" alt="The Love">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v4">
+                        <img src="/public/titles.png" class="v4 title" alt="The Love">
+                    </div>
                 </a>
             </div>
             <div class="bottom">
                 <a href="/app.html?v=5">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v5">
-                    <img src="/public/titles.png" class="v5 title" alt="Brazil">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v5">
+                        <img src="/public/titles.png" class="v5 title" alt="Brazil">
+                    </div>
                 </a>
                 <a href="/app.html?v=6">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v6">
-                    <img src="/public/titles.png" class="v6 title" alt="Alive">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v6">
+                        <img src="/public/titles.png" class="v6 title" alt="Alive">
+                    </div>
                 </a>
                 <a href="/app.html?v=7">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v7">
-                    <img src="/public/titles.png" class="v7 title" alt="Jeevan">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v7">
+                        <img src="/public/titles.png" class="v7 title" alt="Jeevan">
+                    </div>
                 </a>
                 <a href="/app.html?v=8">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v8">
-                    <img src="/public/titles.png" class="v8 title" alt="Dystopia">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v8">
+                        <img src="/public/titles.png" class="v8 title" alt="Dystopia">
+                    </div>
                 </a>
                 <a href="/app.html?v=9">
-                <div class="version">
-                    <img src="/public/versions.png" alt="logo" class="version-logo v9">
-                    <img src="/public/titles.png" class="v9 title" alt="Wekiddy">
-                </div>
+                    <div class="version">
+                        <img src="/public/versions.png" alt="logo" class="version-logo v9">
+                        <img src="/public/titles.png" class="v9 title" alt="Wekiddy">
+                    </div>
                 </a>
             </div>
         </div>
     </div>
-    <div class="modal inset hidden">
-        <div class="popup with-tab">
+    <div class="modal inset hidden">    <!-- animateFadeIn -->
+        <div class="popup with-tab slideUp">
             <div class="tab">
                 <div class="tab-button help">
                     <div class="txt">help</div>
