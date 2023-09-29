@@ -23,6 +23,12 @@ html {
     --background-8: url("/public/singer.png");
 }
 
+svg {
+    height: 90%;
+    width: 90%;
+    fill: white;
+}
+
 @media screen and (orientation: portrait) {
     .orientation {
         display: flex;
@@ -98,9 +104,8 @@ body {
     overflow: hidden;
 }
 
-
-.flex {
-    display: flex;
+body>* {
+    position: absolute;
 }
 
 .intro-logo {
@@ -185,7 +190,7 @@ body {
 }
 
 .choose {
-    margin-top: 3%;
+
     font-weight: 300;
     font-size: 17px;
     position: absolute;
@@ -206,11 +211,12 @@ body {
 
 .settings {
     height: 10%;
+    opacity: 0;
     padding-right: 20px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-
+    z-index: 1;
 }
 
 .settings>* {
@@ -227,6 +233,7 @@ body {
     justify-content: center;
     height: 100%;
     width: 100vw;
+    padding-top: 20px;
 }
 
 .select .top,
@@ -242,7 +249,7 @@ body {
     text-align: center;
     text-transform: uppercase;
     font-family: ralewaymedium, Sans-Serif;
-    font-size: var(--medium-font-size);
+    font-size: 16px;
     letter-spacing: .05em;
     color: #828282;
 }
@@ -258,7 +265,7 @@ body {
 }
 
 .versionUp {
-    animation: iconUp .4s cubic-bezier(.165, .84, .44, 1) .15s forwards;
+    animation: iconUp .4s cubic-bezier(.165, .84, .44, 1) .2s forwards;
 }
 
 .svg-icon {
@@ -273,7 +280,8 @@ body {
     background-color: #4f4e4e;
 }
 
-.title {
+.intro .title,
+.version .title {
     margin-top: 6%;
     height: 0;
     background-image: url('/public/titles.png');
@@ -334,7 +342,6 @@ body {
 }
 
 
-
 .with-tab.popup {
     max-height: 500px;
     border-top-left-radius: 0px;
@@ -342,36 +349,69 @@ body {
 
 .tab {
     height: 60px;
+    width: fit-content;
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
     display: flex;
     justify-content: flex-start;
+    background-color: #373737;
     border-top-left-radius: 6px;
 }
 
-.pop.active {
+.pop.active:not(.tutorial) {
     height: calc(100% - 60px);
+}
+
+.pop.active:is(.tutorial) {
+    height: 100%;
 }
 
 .pop:not(.active) {
     display: none;
 }
 
-.tab-active {
-    z-index: 1;
-    color: #fff;
-    background-color: var(--col1);
-}
 
 .tab-button {
     min-width: 100px;
-    background-color: #373737;
     color: #919191;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 0 24px;
 }
 
 .tab-button.active {
-    z-index: 1;
-    color: #fff;
     background-color: #5f5f5f;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.tab-button.active>.txt {
+    color: #fff;
+}
+
+.tab-button.disable {
+    opacity: 0.3;
+}
+
+.progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: -10px;
+    margin-top: auto;
+}
+
+.prog {
+    margin: 0 3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #ccc;
+}
+
+.prog.active {
+    background-color: #5a5a5a;
 }
 
 .popup {
@@ -380,7 +420,13 @@ body {
     width: calc(100vw - 60px);
     height: calc(100vw - 60px);
     max-height: 350px;
+    max-width: 700px;
     border-radius: 6px;
+}
+
+.pop {
+    display: flex;
+    flex-direction: column;
 }
 
 .slideUp {
@@ -392,8 +438,10 @@ body {
 .pop-container {
     padding: 40px 60px;
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    background-color: white;
+    border-radius: 6px;
+    border-top-left-radius: 0px;
+
 }
 
 .logo {
@@ -415,8 +463,17 @@ body {
     align-items: center;
 }
 
+hr {
+    width: 100%;
+}
+
+.credits {
+    text-align: center;
+}
+
 .credits .text {
     color: black;
+    text-align: center;
     font-size: 14px;
     line-height: 1.4;
 }
@@ -428,13 +485,121 @@ body {
 .box-team {
     display: inline-block;
     padding: 0 10px;
-    line-height: 1.3;
+    width: 100%;
     text-align: right;
+    color: black;
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 .box-team:last-child {
     text-align: left;
+    line-height: 1.3;
     color: #666;
+}
+
+.follow {
+    text-align: center;
+}
+
+.follow .title {
+    font-size: 18px;
+    font-family: ralewaybold, Sans-Serif;
+    margin-bottom: 0.5em;
+    color: #000;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.follow .links {
+    min-height: 33px;
+    display: flex;
+    margin-top: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.follow .icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.twitter {
+    background-color: #1da1f2;
+}
+
+.twitter:hover {
+    background-color: #3e82d7;
+}
+
+.facebook {
+    background-color: #3c5a97;
+}
+
+.facebook:hover {
+    background-color: #2f3a89;
+}
+
+.instagram {
+    background-color: #e95950;
+}
+
+.instagram:hover {
+    background-color: #cc4340;
+}
+
+.youtube {
+    background-color: #d20a0a;
+}
+
+.youtube:hover {
+    background-color: #960000;
+}
+
+.tumblr {
+    background-color: #2b4d66;
+}
+
+.tumblr:hover {
+    background-color: #203a49;
+}
+
+.github {
+    background-color: #000;
+}
+
+.github:hover {
+    background-color: #232323;
+}
+
+.hashnode {
+    background-color: white;
+}
+
+.hashnode:hover {
+    background-color: #ccc;
+}
+
+.linktree {
+    background-color: green;
+}
+
+.linktree:hover {
+    background-color: rgb(9, 181, 9);
+}
+
+.email {
+    background-color: #000;
+}
+
+.email:hover {
+    background-color: #232323;
 }
 
 span {
@@ -443,12 +608,15 @@ span {
 }
 
 .modal {
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.368);
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1;
 }
-.modal.animateFadeIn {
+
+.animateFadeIn {
+    display: flex;
     animation: animateFadeIn .3s ease 0s forwards;
 }
 
@@ -458,14 +626,12 @@ span {
     height: 15%;
 }
 
-.slideshow,
+
 .overflow-box {
     height: 100%;
     width: 100%;
-}
-
-.overflow-box {
     overflow: hidden;
+    position: relative;
 }
 
 .slide {
@@ -478,17 +644,18 @@ span {
     top: 0;
     left: 0;
     position: absolute;
+    transition: all .2s ease-in;
 }
 
 .slide-item {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 20%;
     height: 100%;
 }
 
 .slide-item img {
-    height: 100%;
+    height: calc(100% - 75px);
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -496,24 +663,30 @@ span {
 
 .slide-item .txt {
     height: 75px;
-    margin-top: 10px;
+    bottom: 10px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    text-transform: none;
 }
 
 .navbar {
-    position: absolute;
     display: flex;
     justify-content: space-between;
+    width: calc(100% - 80px);
+    height: 60px;
+    margin: 0 40px 60px;
+    background-color: transparent;
+    position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
-    height: 60px;
 }
 
 .nav-button {
     cursor: pointer;
+    width: 60px;
     fill: #ccc;
+    stroke: #ccc;
 }
 
 .nav-button.disable {
@@ -596,10 +769,10 @@ span {
 
 @keyframes animateFadeIn {
     0% {
-            opacity: 0;
-        }
-    
-        100% {
-            opacity: 1;
-        }
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }

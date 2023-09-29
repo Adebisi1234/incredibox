@@ -8,7 +8,252 @@
     <script type="module" src="main.js"></script>
 </head>
 <body>
-    <div class="app"></div>
+    <div class="app">
+            <div class="video inset hidden">
+                <video width="0px" height="0px"></video>
+            </div>
+            <div class="container hidden">
+                <header>
+                    <div class="head-container relative">
+                        <div class="head-left absolute transition">
+                            <div class="left-controls head-controls">
+                                <div class=" close">
+                                    <svg>
+                                        <use xlink:href="#ic-close"></use>
+                                    </svg>
+                                    <span>close</span>
+                                </div>
+                                <div class=" reset">
+                                    <svg>
+                                        <use xlink:href="#ic-reset"></use>
+                                    </svg>
+                                    <span>reset</span>
+                                </div>
+                                <div class=" auto">
+                                    <svg>
+                                        <use xlink:href="#ic-auto"></use>
+                                    </svg>
+                                    <span>auto</span>
+                                </div>
+                            </div>
+                            <div class="right-controls head-controls justify-right">
+                                <div class=" head-icons help">
+                                    <svg>
+                                        <use xlink:href="#ic-help"></use>
+                                    </svg>
+                                </div>
+                                <div class=" head-icons switch">
+                                    <svg>
+                                        <use xlink:href="#ic-switch"></use>
+                                    </svg>
+                                </div>
+                                <div class=" head-icons home">
+                                    <svg>
+                                        <use xlink:href="#ic-home"></use>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="head-right absolute">
+                            <div class="header-content menu">
+                                <div class=" head-icons menu">
+                                    <svg>
+                                        <use xlink:href="#ic-burger"></use>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="header-content middle">
+            
+                                <div class="video-player head-icons  relative" data-player-id="1" id="1">
+                                    <div class="loader"></div>
+                                </div>
+            
+            
+                                <div class="video-player head-icons  relative" data-player-id="2" id="2">
+                                    <div class="loader"></div>
+                                </div>
+            
+            
+                                <div class="video-player head-icons  relative" data-player-id="3" id="3">
+                                    <div class="loader"></div>
+                                </div>
+            
+                            </div>
+                            <div class="header-content justify-right clock">
+                                <div class="head-icons ">
+                                    <svg style="display: none;">
+                                        <use xlink:href="#ic-play"></use>
+                                    </svg>
+                                    <svg>
+                                        <use xlink:href="#ic-pause"></use>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            
+                <main>
+                    <div class="singers">
+                        <div class="singer relative" data-singer-id="1">
+                            <div class="frame relative">
+            
+                                <div class="body relative">
+                                    <div class="eyes absolute">
+                                        <div class="eye"></div>
+                                        <div class="eye"></div>
+                                    </div>
+                                    <canvas class="body-canvas"></canvas>
+                                    <div class="singer-control">
+                                        <div class="silent"></div>
+                                        <div class="drop-song"></div>
+                                    </div>
+                                    <div class="head absolute">
+            
+                                        <canvas class="head-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="loader"></div>
+                        </div>
+                        <div class="singer relative" data-singer-id="2">
+                            <div class="frame relative">
+                                <div class="body relative">
+                                    <canvas class="body-canvas"></canvas>
+                                    <div class="singer-control">
+                                        <div class="silent"></div>
+                                        <div class="drop-song"></div>
+                                    </div>
+                                    <div class="head absolute">
+                                        <canvas class="head-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="loader"></div>
+                        </div>
+                        <div class="singer relative" data-singer-id="3">
+                            <div class="frame relative">
+                                <div class="body relative">
+                                    <canvas class="body-canvas"></canvas>
+                                    <div class="singer-control">
+                                        <div class="silent"></div>
+                                        <div class="drop-song"></div>
+                                    </div>
+                                    <div class="head absolute">
+                                        <canvas class="head-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="loader"></div>
+                        </div>
+                        <div class="singer relative" data-singer-id="4">
+                            <div class="frame relative">
+                                <div class="body relative">
+                                    <canvas class="body-canvas"></canvas>
+                                    <div class="singer-control">
+                                        <div class="silent"></div>
+                                        <div class="drop-song"></div>
+                                    </div>
+                                    <div class="head absolute">
+                                        <canvas class="head-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="loader"></div>
+                        </div>
+                        <div class="singer relative" data-singer-id="5">
+                            <div class="frame relative">
+                                <div class="body relative">
+                                    <canvas class="body-canvas"></canvas>
+                                    <div class="singer-control">
+                                        <div class="silent"></div>
+                                        <div class="drop-song"></div>
+                                    </div>
+                                    <div class="head absolute">
+                                        <canvas class="head-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="loader"></div>
+                        </div>
+                        <div class="singer relative" data-singer-id="6">
+                            <div class="frame relative">
+                                <div class="body relative">
+                                    <canvas class="body-canvas"></canvas>
+                                    <div class="singer-control">
+                                        <div class="silent"></div>
+                                        <div class="drop-song"></div>
+                                    </div>
+                                    <div class="head absolute">
+                                        <canvas class="head-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="loader"></div>
+                        </div>
+                        <div class="singer relative" data-singer-id="7">
+                            <div class="frame relative">
+                                <div class="body relative">
+                                    <canvas class="body-canvas"></canvas>
+                                    <div class="singer-control">
+                                        <div class="silent"></div>
+                                        <div class="drop-song"></div>
+                                    </div>
+                                    <div class="head absolute">
+                                        <canvas class="head-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="loader"></div>
+                        </div>
+                        <div class="singer relative" data-singer-id="8">
+                            <div class="frame relative">
+                                <div class="body relative">
+                                    <canvas class="body-canvas"></canvas>
+                                    <div class="singer-control">
+                                        <div class="silent"></div>
+                                        <div class="drop-song"></div>
+                                    </div>
+                                    <div class="head absolute">
+                                        <canvas class="head-canvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                </main>
+                <footer>
+                    <div class="songs">
+            
+                        <div class="right">
+                            <div class="song" data-song-id="1"></div>
+                            <div class="song" data-song-id="2"></div>
+                            <div class="song" data-song-id="3"></div>
+                            <div class="song" data-song-id="4"></div>
+                            <div class="song" data-song-id="5"></div>
+                            <div class="song" data-song-id="6"></div>
+                            <div class="song" data-song-id="7"></div>
+                            <div class="song" data-song-id="8"></div>
+                            <div class="song" data-song-id="9"></div>
+                            <div class="song" data-song-id="10"></div>
+                        </div>
+                        <div class="left">
+                            <div class="song" data-song-id="11"></div>
+                            <div class="song" data-song-id="12"></div>
+                            <div class="song" data-song-id="13"></div>
+                            <div class="song" data-song-id="14"></div>
+                            <div class="song" data-song-id="15"></div>
+                            <div class="song" data-song-id="16"></div>
+                            <div class="song" data-song-id="17"></div>
+                            <div class="song" data-song-id="18"></div>
+                            <div class="song" data-song-id="19"></div>
+                            <div class="song" data-song-id="20"></div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+    </div>
     <div class="home"></div>
 </body>
 </html>
