@@ -7,6 +7,7 @@ const choose = document.getElementById("choose");
 const versions = [...document.getElementsByClassName("version")];
 const info = document.getElementById("info");
 const settings = document.getElementById("settings");
+const theme = document.getElementById("theme");
 const modal = document.getElementById("modal");
 const tabButtons = [
     ...document.getElementsByClassName("tab-button"),
@@ -17,14 +18,21 @@ const navr = document.getElementById("navr");
 let progress = 0;
 const prog = [...document.getElementsByClassName("prog")];
 const slide = document.getElementById("slide");
+const savedTheme = localStorage.getItem("theme") ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
+if (savedTheme === "dark") {
+    document.documentElement.classList.add("darkmode");
+}
 window.onload = () => {
     if (screen.orientation.type.includes("landscape")) {
         introAnim();
     }
 };
-navl.onclick = moveTutLeft;
-navr.onclick = moveTutRight;
-function moveTutRight() {
+navl.onclick = moveSlideLeft;
+navr.onclick = moveSlideRight;
+function moveSlideRight() {
     navl.classList.remove("disable");
     progress = ++progress % 5;
     if (progress <= 0) {
@@ -42,7 +50,7 @@ function moveTutRight() {
     slide.style.transform = `translate(-${progress * 20}%, 0%)`;
     console.log(progress);
 }
-function moveTutLeft() {
+function moveSlideLeft() {
     console.log("fuck");
     if (!(progress <= 0)) {
         progress = --progress % 5;
@@ -72,6 +80,16 @@ info.onclick = () => {
         modal.classList.add("animateFadeIn");
         tabButtons[0].classList.add("active");
         pops[0].classList.add("active");
+    }
+};
+``;
+theme.onclick = () => {
+    document.documentElement.classList.toggle("darkmode");
+    if (document.documentElement.classList.contains("darkmode")) {
+        localStorage.setItem("theme", "dark");
+    }
+    else {
+        localStorage.setItem("theme", "light");
     }
 };
 tabButtons.forEach((tabButton) => {

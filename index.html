@@ -12,11 +12,6 @@
     <!-- <script type="module" src="./crop.js" defer></script> -->
     <!-- <script type="module" src="classes.js" defer></script> -->
     <!-- <script type="module" src="main.js" defer></script> -->
-    <script>
-        if (localStorage.getItem("orientation") === "landscape") {
-            screen.orientation.lock("landscape");
-        }
-    </script>
 </head>
 
 <body>
@@ -274,9 +269,9 @@
                 <use xlink:href="#ic-info"></use>
             </svg>
         </div>
-        <div class="setting svg-icon" id="setting">
+        <div class="theme svg-icon" id="theme">
             <svg>
-                <use xlink:href="#ic-settings"></use>
+                <use xlink:href="#ic-dark"></use>
             </svg>
         </div>
     </div>
@@ -357,65 +352,65 @@
             </div>
             <div class="pop-container">
                 <div class="tutorial pop active">
-                        <div class="overflow-box">
-                            <div class="slide" id="slide">
-                                <div class="slide-item" id="tuto1">
-                                    <img src="/public/info1.png" alt="tutorial image">
-                                    <div class="txt">
-                                        <span>
-                                            <b>Drag and drop</b>
-                                            an icon on
-                                            <br>
-                                            a character to make him sing
-                                        </span>
-                                    </div>
+                    <div class="overflow-box">
+                        <div class="slide" id="slide">
+                            <div class="slide-item" id="tuto1">
+                                <img src="/public/info1.png" alt="tutorial image">
+                                <div class="txt">
+                                    <span>
+                                        <b>Drag and drop</b>
+                                        an icon on
+                                        <br>
+                                        a character to make him sing
+                                    </span>
                                 </div>
-                                <div class="slide-item" id="tuto2">
-                                    <img src="/public/info2.png" alt="tutorial image">
-                                    <div class="txt">
-                                        <span>
-                                            <b>Drag down</b>
-                                            a character
-                                            <br>
-                                            to have him stop singing
-                                        </span>
-                                    </div>
+                            </div>
+                            <div class="slide-item" id="tuto2">
+                                <img src="/public/info2.png" alt="tutorial image">
+                                <div class="txt">
+                                    <span>
+                                        <b>Drag down</b>
+                                        a character
+                                        <br>
+                                        to have him stop singing
+                                    </span>
                                 </div>
-                                <div class="slide-item" id="tuto3">
-                                    <img src="/public/info3.png" alt="tutorial image">
-                                    <div class="txt">
-                                        <span>
-                                            <b>Press</b>
-                                            on a character
-                                            <br>
-                                            to mute him
-                                        </span>
-                                    </div>
+                            </div>
+                            <div class="slide-item" id="tuto3">
+                                <img src="/public/info3.png" alt="tutorial image">
+                                <div class="txt">
+                                    <span>
+                                        <b>Press</b>
+                                        on a character
+                                        <br>
+                                        to mute him
+                                    </span>
                                 </div>
-                                <div class="slide-item" id="tuto4">
-                                    <img src="/public/info4.png" alt="tutorial image">
-                                    <div class="txt">
-                                        <span>
-                                            <b>Press</b>
-                                            on a character and hold
-                                            <br>
-                                            for a second to make him sing solo
-                                        </span>
-                                    </div>
+                            </div>
+                            <div class="slide-item" id="tuto4">
+                                <img src="/public/info4.png" alt="tutorial image">
+                                <div class="txt">
+                                    <span>
+                                        <b>Press</b>
+                                        on a character and hold
+                                        <br>
+                                        for a second to make him sing solo
+                                    </span>
                                 </div>
-                                <div class="slide-item" id="tuto5">
-                                    <img src="/public/info5.png" alt="tutorial image">
-                                    <div class="txt">
-                                        <span>
-                                            Find the
-                                            <b>right sound combos</b>
-                                            <br>
-                                            to unlock animated choruses
-                                        </span>
-                                    </div>
+                            </div>
+                            <div class="slide-item" id="tuto5">
+                                <img src="/public/info5.png" alt="tutorial image">
+                                <div class="txt">
+                                    <span>
+                                        Find the
+                                        <b>right sound combos</b>
+                                        <br>
+                                        to unlock animated choruses
+                                    </span>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     <div class="navbar">
                         <div class="navl nav-button disable" id="navl">
                             <svg>

@@ -6,6 +6,7 @@ const choose = document.getElementById("choose") as HTMLDivElement;
 const versions = [...document.getElementsByClassName("version")];
 const info = document.getElementById("info") as HTMLDivElement;
 const settings = document.getElementById("settings") as HTMLDivElement;
+const theme = document.getElementById("theme") as HTMLDivElement;
 const modal = document.getElementById("modal") as HTMLDivElement;
 const tabButtons = [
   ...document.getElementsByClassName("tab-button"),
@@ -17,16 +18,24 @@ let progress = 0;
 const prog = [...document.getElementsByClassName("prog")] as HTMLDivElement[];
 const slide = document.getElementById("slide") as HTMLDivElement;
 
+const savedTheme =
+  localStorage.getItem("theme") ||
+  (window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light");
+if (savedTheme === "dark") {
+  document.documentElement.classList.add("darkmode");
+}
 window.onload = () => {
   if (screen.orientation.type.includes("landscape")) {
     introAnim();
   }
 };
 
-navl.onclick = moveTutLeft;
-navr.onclick = moveTutRight;
+navl.onclick = moveSlideLeft;
+navr.onclick = moveSlideRight;
 
-function moveTutRight() {
+function moveSlideRight() {
   navl.classList.remove("disable");
   progress = ++progress % 5;
   if (progress <= 0) {
@@ -43,7 +52,7 @@ function moveTutRight() {
   slide.style.transform = `translate(-${progress * 20}%, 0%)`;
   console.log(progress);
 }
-function moveTutLeft() {
+function moveSlideLeft() {
   console.log("fuck");
   if (!(progress <= 0)) {
     progress = --progress % 5;
@@ -75,7 +84,15 @@ info.onclick = () => {
     pops[0].classList.add("active");
   }
 };
-
+``;
+theme.onclick = () => {
+  document.documentElement.classList.toggle("darkmode");
+  if (document.documentElement.classList.contains("darkmode")) {
+    localStorage.setItem("theme", "dark");
+  } else {
+    localStorage.setItem("theme", "light");
+  }
+};
 tabButtons.forEach((tabButton) => {
   tabButton.onclick = (ev: MouseEvent) => {
     const target = ev.target as HTMLDivElement;
