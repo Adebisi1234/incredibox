@@ -2,10 +2,6 @@
     user-select: none;
     --colV8: #5f7e7b;
     --col: var(--colV8);
-    --headHeight: calc((100% / 380) * 234);
-    --frameHeight: calc((100% / 380) * 380);
-    --marginTop: calc((380 - 328) * (100% / 380));
-    --headBottom: calc(((380 - 234) * (100% / 380)));
     --transition-time: 5s;
     --background-1: url("/public/singer.png");
     --background-2: url("/public/singer.png");
@@ -26,9 +22,55 @@
     --colV9: #005cfa;
 }
 
+.home {
+    background-image: url(/public/v8/home.jpg);
+    background-size: cover;
+}
+
+.settings {
+    opacity: 1;
+}
+
+.home .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    bottom: 5%;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img-title {
+    transform: translate(-50%, 10%);
+    width: calc(var(--ratio-h) * 520);
+    background-image: url('/public/titles.png');
+    position: absolute;
+    height: 100px;
+    bottom: 20%;
+    left: 50%;
+    max-width: 520px;
+    min-width: 200px;
+    margin: auto;
+    margin-bottom: 1%;
+}
+
+.home .controls>* {
+    width: calc(var(--bt-scale) * 80px);
+    height: calc(var(--bt-scale) * 80px);
+    background-color: var(--color);
+    border-radius: 50%;
+}
 
 canvas {
     width: 100%;
+
     height: 100%;
 }
 
@@ -62,12 +104,10 @@ canvas {
 }
 
 .head-icons {
-    fill: white;
     background-color: var(--col);
     aspect-ratio: 1;
     height: 80%;
     max-height: 60px;
-    border: 1px solid green;
     border-radius: 50%;
 }
 
@@ -174,10 +214,12 @@ h2 {
     max-width: 100%;
     max-height: 100%;
     aspect-ratio: 16/9;
+    background-color: var(--col-general-bck);
 }
 
 header {
     height: 15%;
+    background-color: var(--col-general-bck);
 }
 
 .head-container {
@@ -187,15 +229,8 @@ header {
 
 .head-container>* {
     display: flex;
-    background-color: white;
     width: 100%;
     height: 100%;
-}
-
-svg {
-    height: 90%;
-    width: 90%;
-    fill: white;
 }
 
 .head-left {
@@ -221,7 +256,7 @@ main {
     align-items: flex-end;
     /* max-height: 329px; */
     justify-content: center;
-    background-image: url("/public/mainbg.jpg");
+    background-image: url("/public/bg.jpg");
     background-size: cover;
     background-repeat: no-repeat;
 }
@@ -239,10 +274,10 @@ main {
 .singer {
     width: 100%;
     display: flex;
-    align-items: flex-end;
     max-width: 164px;
     height: 100%;
-    opacity: 0.6;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
 }
 
 .singing {
@@ -372,10 +407,8 @@ img {
 footer {
     height: 33%;
     padding: 1% 15%;
-
+    background-color: var(--col-general-bck);
 }
-
-
 
 .songs {
     width: 100%;
@@ -403,20 +436,19 @@ footer {
     margin: 0 4px;
     cursor: grab;
     border-radius: 8px;
-    background-image: url(/public/songs.png);
+    background-image: url(/public/v8/songs.png);
 }
 
-.left {
+.song .left {
     padding-left: 5%;
 }
 
-.right {
+.song .right {
     padding-right: 5%;
 }
 
-/* Will replace with sprites */
-.song[data-song-id="1"] {
 
+.song[data-song-id="1"] {
     background-position: calc((100% / 19) * 0) 0;
     background-size: auto 200%;
 }

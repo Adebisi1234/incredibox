@@ -1,45 +1,152 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-const canvas = document.getElementById("canvas");
+import { global } from "main.js";
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = false;
+let imgWidth = canvas.offsetWidth < 1000 ? 164 : 328;
+let imgHeight = canvas.offsetHeight < 1000 ? 380 : 760;
+let canvasToIntrinsicRatio = canvas.offsetHeight / imgHeight;
+ctx!.imageSmoothingEnabled = false;
 window.addEventListener("load", () => {
-    // Draw all the singers
-    canvas.width = +canvas.offsetWidth;
-    canvas.height = +canvas.offsetHeight;
-    drawAllSingers();
+  // Draw all the singers
+  canvas.width = +canvas.offsetWidth;
+  canvas.height = +canvas.offsetHeight;
+  drawAllSingers();
 });
 window.addEventListener("resize", () => {
-    // RE-draw all the singers
-    canvas.width = +canvas.offsetWidth;
-    canvas.height = +canvas.offsetHeight;
-    drawAllSingers();
+  // RE-draw all the singers
+  canvas.width = +canvas.offsetWidth;
+  canvas.height = +canvas.offsetHeight;
+  drawAllSingers();
 });
+
 // const eyesWidth = 80 * 2; //hd?
 // const eyesHeight = 40 * 2; //480; //hd?
 // const eyesX = 574 * 2; //hd?
 // const eyesY = 0 * 2; //hd?
-function drawAllSingers() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const imgSource = canvas.width < 1000
-            ? yield (yield fetch("/public/polo-sprite.png")).blob()
-            : yield (yield fetch("/public/polo-sprite-hd.png")).blob();
-        const imgWidth = canvas.width < 1000 ? 164 : 328;
-        const imgHeight = canvas.width < 1000 ? 380 : 760;
-        const img = yield createImageBitmap(imgSource);
-        for (let i = 0; i <= 8; i++) {
-            ctx === null || ctx === void 0 ? void 0 : ctx.drawImage(img, 0, 0, imgWidth, imgHeight, (canvas.width / 8) * i, 0, canvas.width / 8, canvas.height);
-        }
-    });
+
+async function drawAllSingers() {
+  imgWidth = canvas.offsetWidth < 1000 ? 164 : 328;
+  imgHeight = canvas.offsetHeight < 1000 ? 380 : 760;
+  const imgSource =
+    canvas.width < 1000
+      ? await (await fetch("/public/polo-sprite.png")).blob()
+      : await (await fetch("/public/polo-sprite-hd.png")).blob();
+
+  const img = await createImageBitmap(imgSource);
+  for (let i = 0; i <= 8; i++) {
+    ctx?.drawImage(
+      img,
+      0,
+      0,
+      imgWidth,
+      imgHeight,
+      (canvas.width / 8) * i,
+      0,
+      canvas.width / 8,
+      canvas.height
+    );
+  }
 }
+
+export async function pauseAnim(singerId: string, songId: string) {
+  // @ts-ignore
+  const pausedImage: Blob = global.getSprites(songId);
+  const img = await createImageBitmap(pausedImage, 0, 0, imgWidth, imgHeight);
+  global.timeouts[songId].paused = true;
+  ctx?.clearRect(
+    (canvas.width / 8) * (+singerId - 1),
+    0,
+    canvas.width / 8,
+    canvas.height
+  );
+  ctx?.drawImage(
+    img,
+    (canvas.width / 8) * (+singerId - 1),
+    0,
+    canvas.width / 8,
+    canvas.height
+  );
+}
+
+export async function clearAnim(singerId: string, songId: string) {
+  const defaultSinger =
+    canvas.width < 1000
+      ? await (await fetch("/public/polo-sprite.png")).blob()
+      : await (await fetch("/public/polo-sprite-hd.png")).blob();
+  const img = await createImageBitmap(defaultSinger);
+  clearTimeout(global.timeouts[songId].timeoutId);
+  global.timeouts[songId].i = 0;
+  ctx?.clearRect(
+    (canvas.width / 8) * (+singerId - 1),
+    0,
+    canvas.width / 8,
+    canvas.height
+  );
+  ctx?.drawImage(
+    img,
+    (canvas.width / 8) * (+singerId - 1),
+    0,
+    canvas.width / 8,
+    canvas.height
+  );
+}
+
+export async function animate(singerId: string, songId: number) {
+  // @ts-ignore
+  const animeImg = global.getSprite(songId);
+  const img = await createImageBitmap(animeImg);
+  const animeFrame: {
+    percentageMax: number;
+    headHeight: number;
+    prop: { x: number; y: number; translateX: number; translateY: number }[];
+  } = global.getAnimeFrames(songId);
+  // Try to get frame per seconds or something
+  let interval = global.getAudioLength(songId) / animeFrame.prop.length;
+  interval = interval * animeFrame.percentageMax;
+
+  // Draw the body
+  ctx?.drawImage(
+    img,
+    imgWidth,
+    0,
+    imgWidth,
+    imgHeight,
+    (canvas.width / 8) * (+singerId - 1),
+    0,
+    canvas.width / 8,
+    canvas.height
+  );
+  const animation = () => {
+    let i = global.timeouts[songId].i;
+    requestAnimationFrame(() => {
+      if (!global.timeouts[songId].paused) {
+        ctx?.clearRect(
+          (canvas.width / 8) * (+singerId - 1),
+          0,
+          canvas.width / 8,
+          canvas.height
+        );
+        ctx?.drawImage(
+          img,
+          animeFrame.prop[i].x,
+          animeFrame.prop[i].y,
+          canvas.width / 8,
+          animeFrame.headHeight,
+          (canvas.width / 8) * (+singerId - 1) + animeFrame.prop[i].translateX,
+          (canvas.width / 8) * (+singerId - 1) + animeFrame.prop[i].translateY,
+          canvas.width / 8,
+          animeFrame.headHeight * canvasToIntrinsicRatio
+        );
+      }
+      global.timeouts[songId].i++;
+      if (global.timeouts[songId].i === animeFrame.prop.length) {
+        global.timeouts[songId].i = 0;
+      }
+    });
+    global.timeouts[songId].timeoutId = setTimeout(animation, interval);
+  };
+  animation();
+}
+
 // export default function cropImage(
 //   canvas: HTMLCanvasElement,
 //   image: ImageBitmap,
@@ -63,6 +170,7 @@ function drawAllSingers() {
 //     canvas.height
 //   );
 // }
+
 // export function clearRect(canvas: HTMLCanvasElement) {
 //   console.log("wtf");
 //   const context = canvas.getContext("2d");
@@ -84,15 +192,18 @@ function drawAllSingers() {
 // dWidth: draw width i.e canvas :) width
 // dheight: draw height i.e canvas :) height
 // */
+
 // // if (typeof window.createImageBitmap !== "function") {
 // //   window.createImageBitmap = monkeyPatch;
 // // }
+
 // // var img = new Image();
 // // img.crossOrigin = "anonymous";
 // // img.src = "https://upload.wikimedia.org/wikipedia/commons/b/be/SpriteSheet.png";
 // // img.onload = function () {
 // //   makeSprites().then(draw);
 // // };
+
 // // function makeSprites() {
 // //   var coords = [],
 // //     x,
@@ -108,12 +219,14 @@ function drawAllSingers() {
 // //     })
 // //   );
 // // }
+
 // // function draw(sprites) {
 // //   var delay = 96;
 // //   var current = 0,
 // //     lastTime = performance.now(),
 // //     ctx = document.getElementById("canvas").getContext("2d");
 // //   anim();
+
 // //   function anim(t) {
 // //     requestAnimationFrame(anim);
 // //     if (t - lastTime < delay) return;
@@ -123,8 +236,10 @@ function drawAllSingers() {
 // //     ctx.drawImage(sprites[current], 0, 0);
 // //   }
 // // }
+
 // // function monkeyPatch(source, sx, sy, sw, sh) {
 // //   return Promise.resolve().then(drawImage);
+
 // //   function drawImage() {
 // //     var canvas = document.createElement("canvas");
 // //     canvas.width =
@@ -147,6 +262,7 @@ function drawAllSingers() {
 // //     return canvas;
 // //   }
 // // }
+
 // // const eyes = await createImageBitmap(
 // //   imgSource,
 // // );

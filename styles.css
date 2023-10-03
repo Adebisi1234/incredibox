@@ -5,10 +5,6 @@
 }
 
 :root {
-    /* --bg1: white;
-    --bg2: #ccc;
-    --bg3: #fafafa;
-    --txt1: #828282; */
     --col0: #919191;
     --col1: #5f5f5f;
     --col2: #4b4b4b;
@@ -28,13 +24,24 @@
     --txt-color-active: #FFF;
     --icn-color-active: #FFF;
     --color-alt: #ccc;
+    --color-inv: #333;
     --col-general-bck: #FAFAFA;
     --col-dark-bck: #111;
-    --col-mixlist-line: #FAFAFA;
+    --col-mixlist-line: #5555554b;
     --col-mixlist-line-even: #F0F0F0;
     --sp-select-scale: 1;
     --tab-height: 60px;
     --bt-scale: 1;
+    --sp-intro-scale: 1;
+    --mini-font-size: 11px;
+    --small-font-size: 13px;
+    --normal-font-size: 14px;
+    --medium-font-size: 16px;
+    --big-font-size: 18px;
+    --huge-font-size: 20px;
+    --mixlist-rating-font-size: 26px;
+    --popup-scale: 1;
+    --ratio-h: 100vh / 850;
 }
 
 
@@ -42,9 +49,10 @@
     :root {
         --col-dark-bck: #ccc;
         --col-general-bck: #111;
-        --col-mixlist-line: #222;
+
         --col-mixlist-line-even: #111;
         --color-alt: #333;
+        --color-inv: #ccc;
         --color: #555;
         --color-hover: #333;
         --color-active: #333;
@@ -54,7 +62,7 @@
 .darkmode {
     --col-dark-bck: #ccc;
     --col-general-bck: #111;
-    --col-mixlist-line: #222;
+    --color-inv: #ccc;
     --col-mixlist-line-even: #111;
     --color-alt: #333;
     --color: #555;
@@ -156,7 +164,7 @@ svg {
 
 #orient {
     width: fit-content;
-    font-size: large;
+    font-size: var(--big-font-size);
     text-align: center;
     padding: 16px;
     background-color: var(--col-dark-bck);
@@ -192,7 +200,7 @@ body>* {
     background-image: url(/public/title.svg);
     background-repeat: no-repeat;
     background-position: calc(50% + 20px) center;
-    height: 100px;
+    height: calc(100px * var(--sp-intro-scale));
     transform: translate(0, 0);
 }
 
@@ -264,7 +272,7 @@ body>* {
     text-align: center;
     text-transform: uppercase;
     font-family: ralewaymedium, Sans-Serif;
-    font-size: 16px;
+    font-size: var(--big-font-size);
     letter-spacing: .05em;
     color: #828282;
 }
@@ -272,7 +280,7 @@ body>* {
 .choose {
 
     font-weight: 300;
-    font-size: 17px;
+    font-size: var(--big-font-size);
     position: absolute;
     width: 100%;
     top: calc(50% - 200px);
@@ -329,7 +337,7 @@ body>* {
     text-align: center;
     text-transform: uppercase;
     font-family: ralewaymedium, Sans-Serif;
-    font-size: 16px;
+    font-size: var(--medium-font-size);
     letter-spacing: .05em;
     color: var(--color);
 }
@@ -348,7 +356,7 @@ body>* {
     animation: iconUp .4s cubic-bezier(.165, .84, .44, 1) .2s forwards;
 }
 
-.svg-icon {
+.svg-icon, .head-icons {
     background-color: var(--color);
     border: 1px solid var(--border-color);
     display: flex;
@@ -357,7 +365,7 @@ body>* {
     transition: background .15s ease-in-out;
 }
 
-.svg-icon:hover {
+.svg-icon:hover, .head-icons:hover {
     background-color: var(--color-active);
 }
 
@@ -433,11 +441,14 @@ body>* {
     width: fit-content;
     border-top-right-radius: 6px;
     border-top-left-radius: 6px;
-    display: flex;
+    display: none;
     justify-content: flex-start;
     background-color: var(--col3);
     color: var(--icn-color);
     border-top-left-radius: 6px;
+}
+.with-tab.tab {
+    display: flex;
 }
 
 .pop.active:not(.tutorial) {
@@ -560,9 +571,9 @@ hr {
 }
 
 .credits .text {
-    color: var(--txt-color);
+    color: var(--col4);
     text-align: center;
-    font-size: 14px;
+    font-size: var(--normal-font-size);
     line-height: 1.4;
 }
 
@@ -575,8 +586,8 @@ hr {
     padding: 0 10px;
     width: 100%;
     text-align: right;
-    color: var(--txt-color);
-    font-size: 14px;
+    color: var(--color-inv);
+    font-size: var(--normal-font-size);
     line-height: 1.4;
 }
 
@@ -595,7 +606,7 @@ hr {
 }
 
 .follow .title {
-    font-size: 18px;
+    font-size: var(--big-font-size);
     font-family: ralewaybold, Sans-Serif;
     margin-bottom: 0.5em;
     color: var(--col-dark-bck);
@@ -695,7 +706,7 @@ hr {
 }
 
 span {
-    font-size: 13px;
+    font-size: var(--small-font-size);
     color: #666;
 }
 
