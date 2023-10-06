@@ -1,3 +1,4 @@
+import { animate, isSongInPosition } from "./canvas.js";
 import { Audios, GlobalState, prop } from "./classes.js";
 export const global: GlobalState = new GlobalState();
 const appLoader = document.getElementById("app-loader") as HTMLDivElement;
@@ -36,17 +37,65 @@ window.onload = () => {
 
 const handleMovingSong = (ev: PointerEvent) => {
   throttle++;
-  if (throttle % 500 === 0) {
-    console.log("handleMovingSong", ev.target);
+  if (throttle % 5 === 0) {
     if (global.currentMovingSong) {
+      const x = ev.clientX - global.currentMovingSong.offsetLeft;
+      const y = ev.clientY - global.currentMovingSong.offsetTop;
+      global.currentMovingSong.style.transform = `translate3d(${
+        x % innerWidth
+      }px, ${y % innerHeight}px, 10px) translate(-50%, -50%) `;
     } else return;
   }
 };
 const handleReturnSong = (ev: PointerEvent) => {
-  console.log("handleReturnSong", ev.target);
+  console.log("handleReturnSong", global.currentMovingSong);
   if (global.currentMovingSong) {
+    const { left, right, top, bottom } = getMovingSongPosition(ev);
+    const singerId: number = isSongInPosition(left, right, top, bottom);
+    console.log(singerId);
+    if (singerId !== 0 && typeof singerId === "number") {
+      const audioId = global.currentMovingSong.getAttribute("data-song-id");
+      if (audioId) {
+        addAudio(singerId, +audioId);
+      } else console.log("audioId error");
+    }
+    global.currentMovingSong.style.transform = `translate3d(0,0,0) translate(0,0) `;
     global.currentMovingSong = undefined;
   } else return;
+};
+
+const addAudio = (singerId: number, audioId: number) => {
+  const newAudio = { audio: global.allAudios[audioId], singerId };
+  global.audioQueue.push(newAudio);
+  if (Object.keys(global.audiosInDom).length === 0) {
+    console.log("Start");
+    startBeatInterval();
+  }
+};
+
+const startBeatInterval = (clear: boolean = false) => {
+  let i = 0;
+  console.log("starting interval");
+  const audioObj = global.audioQueue.pop();
+  global.audiosInDom[audioObj!.audio.id] = audioObj!.audio;
+  animate(audioObj!.singerId, +audioObj!.audio?.id);
+  if (clear) {
+    clearInterval(global.beatIntervalId);
+  }
+  global.beatIntervalId = setInterval(() => {
+    i += 100;
+    if (i % global.beat === 0) {
+      addAudioToDom();
+    }
+  }, 100);
+};
+
+const addAudioToDom = () => {
+  for (let i = 0; i < global.audioQueue.length; i++) {
+    const audioObj = global.audioQueue[i];
+    global.audiosInDom[audioObj!.audio.id] = audioObj!.audio;
+    animate(audioObj!.singerId, +audioObj!.audio?.id);
+  }
 };
 // // I PITY WHOEVER GOES THROUGH THIS CODE
 // import { GlobalState, Audios, json, oldJson } from "./classes.js";
@@ -428,15 +477,15 @@ const handleReturnSong = (ev: PointerEvent) => {
 //   }
 // }
 
-// function getMovingSongPosition(ev: PointerEvent) {
-//   const position: { left: number; top: number; right: number; bottom: number } =
-//     { left: 0, top: 0, right: 0, bottom: 0 };
-//   position.left = ev.clientX;
-//   position.right = position.left + currentMovingSong!.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
-//   position.top = ev.clientY;
-//   position.bottom = position.top + currentMovingSong!.offsetHeight / 2; // taking Translate(-50%, -50%) above into account
-//   return position;
-// }
+function getMovingSongPosition(ev: PointerEvent) {
+  const position: { left: number; top: number; right: number; bottom: number } =
+    { left: 0, top: 0, right: 0, bottom: 0 };
+  position.left = ev.clientX;
+  position.right = position.left + global.currentMovingSong!.offsetWidth / 2; // taking Translate(-50%, -50%) above into account
+  position.top = ev.clientY;
+  position.bottom = position.top + global.currentMovingSong!.offsetHeight / 2; // taking Translate(-50%, -50%) above into account
+  return position;
+}
 // function isSingerSinging(
 //   isSinging: boolean,
 //   singer: HTMLDivElement,
@@ -728,6 +777,7 @@ function startApplication(version: number) {
     switch (version) {
       // There has to be a better way
       case 1:
+        global.beat = 55; //100ms
         allAudioLinks = {
           1: "/public/v1/audios/1_lead.ogg",
           2: "/public/v1/audios/2_deux.ogg",
@@ -826,6 +876,7 @@ function startApplication(version: number) {
         };
         break;
       case 2:
+        global.beat = 45;
         allAudioLinks = {
           1: "/public/v2/audios/beat1.ogg",
           2: "/public/v2/audios/beat2.ogg",
@@ -925,6 +976,7 @@ function startApplication(version: number) {
 
         break;
       case 3:
+        global.beat = 80;
         allAudioLinks = {
           1: "/public/v3/audios/drum1_ballet.ogg",
           2: "/public/v3/audios/drum2_kick.ogg",
@@ -1023,6 +1075,7 @@ function startApplication(version: number) {
         };
         break;
       case 4:
+        global.beat = 80;
         allAudioLinks = {
           1: "/public/v4/audios/chips1_feel.ogg",
           2: "/public/v4/audios/chips2_chillin.ogg",
@@ -1122,6 +1175,7 @@ function startApplication(version: number) {
 
         break;
       case 5:
+        global.beat = 80;
         allAudioLinks = {
           1: "/public/v5/audios/1_poum.ogg",
           2: "/public/v5/audios/2_creuki.ogg",
@@ -1221,6 +1275,7 @@ function startApplication(version: number) {
 
         break;
       case 6:
+        global.beat = 7;
         allAudioLinks = {
           1: "/public/v6/audios/1_kick.ogg",
           2: "/public/v6/audios/2_snare.ogg",
@@ -1320,6 +1375,7 @@ function startApplication(version: number) {
 
         break;
       case 7:
+        global.beat = 65;
         allAudioLinks = {
           1: "/public/v7/audios/1_lead.ogg",
           2: "/public/v7/audios/2_pouin.ogg",
@@ -1358,7 +1414,7 @@ function startApplication(version: number) {
           5: "/public/v7/sprites/5_tuduki-sprite.png",
           6: "/public/v7/sprites/6_bass-sprite.png",
           7: "/public/v7/sprites/7_bourdon-sprite.png",
-          8: "/public/v7/audios/8_campan-sprite.png",
+          8: "/public/v7/sprites/8_campan-sprite.png",
           9: "/public/v7/sprites/9_kum-sprite.png",
           10: "/public/v7/sprites/10_string-sprite.png",
           11: "/public/v7/sprites/11_citar-sprite.png",
@@ -1418,6 +1474,7 @@ function startApplication(version: number) {
 
         break;
       case 8:
+        global.beat = 7;
         allAudioLinks = {
           1: "/public/v8/audios/1_atlanta.ogg",
           2: "/public/v8/audios/2_tuctom.ogg",
@@ -1516,6 +1573,7 @@ function startApplication(version: number) {
         };
         break;
       case 9:
+        global.beat = 5;
         allAudioLinks = {
           1: "/public/v9/audios/01_boo_9.ogg",
           2: "/public/v9/audios/02_kevin.ogg",
@@ -1621,6 +1679,15 @@ function startApplication(version: number) {
       allSpriteHdLinks,
       allJsonLinks
     );
+    for (const id in allAudioLinks) {
+      if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
+        global.timeouts[id] = {
+          i: 0,
+          timeoutId: 0,
+          paused: false,
+        };
+      }
+    }
   }
 }
 
@@ -1688,7 +1755,17 @@ async function fetchFiles(
     document.getElementById("home")?.classList.add("hidden");
     playLoader.classList.remove("rotate");
     playButton.classList.remove("loading");
+    console.log("events");
     document.body.addEventListener("pointermove", handleMovingSong);
     document.body.addEventListener("pointerup", handleReturnSong);
+    document.body.addEventListener("pointercancel", handleReturnSong);
+    global.allSongs.forEach((song) =>
+      song.addEventListener("pointerdown", handleSelectSong)
+    );
   });
 }
+
+const handleSelectSong = (ev: PointerEvent) => {
+  console.log(ev.target);
+  global.currentMovingSong = ev.target as HTMLDivElement;
+};

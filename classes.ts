@@ -9,8 +9,8 @@ export class GlobalState {
   } = {};
   public version: number = 0;
   public audiosInDom: { [key: string]: Audios } = {};
-  public audioQueue: { [key: string]: Audios } = {};
-  readonly beat: number = 7;
+  public audioQueue: { audio: Audios; singerId: number }[] = [];
+  public beat: number = 70;
   public interval: number = 1000;
   public beatIntervalId: number = 0;
   public allAudios: { [key: number]: Audios } = {};
@@ -21,6 +21,13 @@ export class GlobalState {
     [key: number]: prop;
   } = {};
   public allSongs: HTMLDivElement[] = [];
+  public singersPost: {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    id: number;
+  }[] = [];
   public allSingers: HTMLDivElement[] = [];
   /**
    * getAudioLength
@@ -29,8 +36,8 @@ export class GlobalState {
    */
   public getAudioLength(songId: number) {
     return (
-      this.audiosInDom[songId].buffer.length ||
-      this.audioQueue[songId].buffer.length
+      this.audiosInDom[songId].buffer.duration ||
+      this.audioQueue[songId].audio.buffer.duration
     );
   }
 
@@ -60,7 +67,7 @@ export class Audios {
     this.id = id;
   }
 
-  playSound() {
+  protected playSound() {
     this.audioSource = this.audioCtx.createBufferSource();
     this.audioSource.buffer = this.buffer!;
     this.audioSource.loop = true;

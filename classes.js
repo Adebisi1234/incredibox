@@ -2,8 +2,8 @@ export class GlobalState {
     timeouts = {};
     version = 0;
     audiosInDom = {};
-    audioQueue = {};
-    beat = 7;
+    audioQueue = [];
+    beat = 70;
     interval = 1000;
     beatIntervalId = 0;
     allAudios = {};
@@ -12,6 +12,7 @@ export class GlobalState {
     currentMovingSong = undefined;
     animeFrames = {};
     allSongs = [];
+    singersPost = [];
     allSingers = [];
     /**
      * getAudioLength
@@ -19,8 +20,8 @@ export class GlobalState {
      *
      */
     getAudioLength(songId) {
-        return (this.audiosInDom[songId].buffer.length ||
-            this.audioQueue[songId].buffer.length);
+        return (this.audiosInDom[songId].buffer.duration ||
+            this.audioQueue[songId].audio.buffer.duration);
     }
     getSprite(songId) {
         return this.allSprites[songId];
