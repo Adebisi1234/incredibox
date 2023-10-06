@@ -23,8 +23,7 @@
 }
 
 .home {
-    background-size: 1488px 710px;
-    background-position: 50% calc(50% - 60px);
+    background-size: cover;
 }
 
 .settings {

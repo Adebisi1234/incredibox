@@ -86,12 +86,6 @@
 }
 
 @media only screen and (max-height: 550px) {
-    .home {
-
-        background-size: auto 130vh;
-        background-position: center calc(50% - 35px);
-    }
-
     :root {
         --mini-font-size: 11px;
         --small-font-size: 12px;
