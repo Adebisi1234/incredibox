@@ -464,6 +464,10 @@ body>* {
     display: flex;
 }
 
+.with-tab.tab {
+    display: flex;
+}
+
 .pop.active:not(.tutorial) {
     height: calc(100% - 60px);
 }
