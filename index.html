@@ -9,7 +9,6 @@
     <title>Incredibox (unofficial)</title>
     <script type="module" src="/general.js" defer></script>
     <script type="module" src="./landing.js" defer></script>
-    <script type="module" src="./orientation.js" defer></script>
 
 </head>
 
@@ -337,7 +336,7 @@
         </div>
     </div>
     <div class="modal inset" id="modal"> <!-- animateFadeIn -->
-        <div class="popup with-tab slideUp">
+        <div class="popup with-tab slideUp" id="popup">
             <div class="tab">
                 <div class="tab-button help" id="help">
                     <div class="txt">help</div>
@@ -549,17 +548,15 @@
                         </a>
                     </div>
                 </div>
-
+                <div class="empty pop"></div>
+                <div class="orientation pop">
+                    <div class="txt orient">Seems you're on a mobile phone please click the button
+                        below to enable fullscreen <b>THEN</b> rotate your phone </div>
+                    <button id="fullscreen">Enable</button>
+                </div>
             </div>
         </div>
     </div>
-    <div class="orientation inset hidden">
-        <div class="orient">
-            <p>Please rotate your phone to landscape to play this game</p>
-            <button id="orient">Lock screen to landscape</button>
-        </div>
-    </div>
-
 </body>
 
 </html>

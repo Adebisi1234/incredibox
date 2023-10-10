@@ -1,17 +1,30 @@
 export interface prop {
   percentageMax: number;
   headHeight: number;
+  totalFrame: string;
   arrayFrame: [x: number, y: number, translateX: number, translateY: number][];
 }
 export class GlobalState {
   public timeouts: {
-    [key: string]: { paused: boolean; timeoutId: number; i: number };
+    [key: string]: {
+      paused: boolean;
+      timeoutId: number;
+      i: number;
+      clear: boolean;
+    };
   } = {};
+  // public random  Combination // Maybe v1.1
+  public mix: number[][] = [
+    [1, 3, 5, 9],
+    [1, 4, 6, 10],
+    [2, 5, 7, 11],
+  ]; // Maybe v1.1
+  public userMix: number[][] = [[], [], []];
   public version: number = 0;
   public audiosInDom: { [key: string]: Audios } = {};
   public audioQueue: { audio: Audios; singerId: number }[] = [];
   public beat: number = 70;
-  public interval: number = 1000;
+  public transition: number = 0;
   public beatIntervalId: number = 0;
   public allAudios: { [key: number]: Audios } = {};
   public allVideo: { [key: number]: string } = {};
@@ -21,6 +34,9 @@ export class GlobalState {
     [key: number]: prop;
   } = {};
   public allSongs: HTMLDivElement[] = [];
+  public allLoaders: HTMLDivElement[] = [];
+  public allSingers: HTMLDivElement[] = [];
+  public allVideoPlayers: HTMLDivElement[] = [];
   public singersPost: {
     left: number;
     right: number;
@@ -28,7 +44,6 @@ export class GlobalState {
     bottom: number;
     id: number;
   }[] = [];
-  public allSingers: HTMLDivElement[] = [];
   /**
    * getAudioLength
    * getSprite
@@ -72,6 +87,9 @@ export class Audios {
     this.audioSource.buffer = this.buffer!;
     this.audioSource.loop = true;
     this.audioSource.connect(this.gainNode);
+  }
+  isMute() {
+    return this.gainNode.gain.value;
   }
   muteSound() {
     this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);

@@ -6,6 +6,7 @@ const savedTheme =
 if (savedTheme === "dark") {
   document.documentElement.classList.add("darkmode");
 }
+
 const info = document.getElementById("info") as HTMLDivElement;
 const settings = document.getElementById("settings") as HTMLDivElement;
 const theme = document.getElementById("theme") as HTMLDivElement;
@@ -19,6 +20,29 @@ const navr = document.getElementById("navr") as HTMLDivElement;
 let progress = 0;
 const prog = [...document.getElementsByClassName("prog")] as HTMLDivElement[];
 const slide = document.getElementById("slide") as HTMLDivElement;
+const popup = document.getElementById("popup") as HTMLDivElement;
+const fullscreen = document.getElementById("fullscreen") as HTMLDivElement;
+
+fullscreen.onclick = () => {
+  document.body.requestFullscreen();
+};
+
+window.addEventListener("load", () => {
+  if (screen.orientation.type.includes("portrait")) {
+    pops.forEach((pop) => pop.classList.remove("active"));
+    modal.classList.add("animateFadeIn");
+    pops[4].classList.add("active");
+  }
+});
+screen.orientation.addEventListener("change", () => {
+  if (screen.orientation.type.includes("landscape")) {
+    modal.classList.remove("animateFadeIn");
+  } else {
+    pops.forEach((pop) => pop.classList.remove("active"));
+    modal.classList.add("animateFadeIn");
+    pops[4].classList.add("active");
+  }
+});
 
 navl.onclick = moveSlideLeft;
 navr.onclick = moveSlideRight;
@@ -56,12 +80,12 @@ function moveSlideLeft() {
     }
   });
   slide.style.transform = `translate(${progress * 20}%, 0%)`;
-  console.log(progress);
 }
 info.onclick = () => {
   pops.forEach((pop) => pop.classList.remove("active"));
   if (!modal.classList.contains("animateFadeIn")) {
     modal.classList.add("animateFadeIn");
+    popup.classList.add("with-tab");
     tabButtons[0].classList.add("active");
     pops[0].classList.add("active");
   }

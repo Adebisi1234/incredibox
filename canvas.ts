@@ -2,14 +2,14 @@ import { global } from "./main.js";
 import { prop } from "./classes";
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
-let imgWidth = canvas.offsetWidth < 1000 ? 164 : 328;
-let imgHeight = canvas.offsetHeight < 1000 ? 380 : 760;
+let imgWidth = hd(164);
+let imgHeight = hd(318);
 let canvasToIntrinsicRatio = canvas.offsetHeight / imgHeight;
 ctx!.imageSmoothingEnabled = false;
 window.addEventListener("load", () => {
   // Draw all the singers
-  canvas.width = +canvas.offsetWidth;
-  canvas.height = +canvas.offsetHeight;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
   drawAllSingers();
   global.singersPost = global.allSingers.map((singer) => {
     const { left, right, top, bottom } = singer.getBoundingClientRect();
@@ -24,8 +24,8 @@ window.addEventListener("load", () => {
 });
 window.addEventListener("resize", () => {
   // RE-draw all the singers
-  canvas.width = +canvas.offsetWidth;
-  canvas.height = +canvas.offsetHeight;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
   drawAllSingers();
   global.singersPost = global.allSingers.map((singer) => {
     const { left, right, top, bottom } = singer.getBoundingClientRect();
@@ -46,16 +46,17 @@ export const isSongInPosition = (
   bottom: number
 ) => {
   let id: number = 0;
-  console.log(global.singersPost);
-  global.singersPost.forEach((singer) => {
+  global.singersPost.forEach((singer, i) => {
     if (
       singer.left < left &&
       singer.right > right &&
       singer.top < top &&
       singer.bottom > bottom
     ) {
-      console.log("wtf");
       id = singer.id;
+      global.allSingers[i].classList.add("over");
+    } else {
+      global.allSingers[i].classList.remove("over");
     }
   });
   return id;
@@ -71,7 +72,7 @@ function hd(num: number) {
 
 async function drawAllSingers() {
   imgWidth = hd(164);
-  imgHeight = hd(380);
+  imgHeight = hd(320);
   const imgSource =
     canvas.width < 1000
       ? await (await fetch("/public/polo-sprite.png")).blob()
@@ -83,7 +84,7 @@ async function drawAllSingers() {
       0,
       0,
       imgWidth,
-      hd(320),
+      imgHeight,
       (canvas.width / 8) * i,
       0,
       canvas.width / 8,
@@ -92,26 +93,86 @@ async function drawAllSingers() {
   }
 }
 
-export async function pauseAnim(singerId: string, songId: string) {
-  const pausedImage: Blob = global.getSprite(+songId);
+export async function startAnim(singerId: number, songId: number) {
+  const pausedImage: Blob = global.getSprite(songId);
   const img = await createImageBitmap(pausedImage, 0, 0, imgWidth, imgHeight);
-  global.timeouts[songId].paused = true;
+  // Remove overlay
+  global.allSingers[singerId - 1].classList.add("active");
   ctx?.clearRect(
-    (canvas.width / 8) * (+singerId - 1),
+    (canvas.width / 8) * (singerId - 1),
     0,
     canvas.width / 8,
     canvas.height
   );
   ctx?.drawImage(
     img,
-    (canvas.width / 8) * (+singerId - 1),
-    0,
+    (canvas.width / 8) * (singerId - 1),
+    -15,
     canvas.width / 8,
     canvas.height
   );
+  setTimeout(() => {
+    ctx?.clearRect(
+      (canvas.width / 8) * (singerId - 1),
+      0,
+      canvas.width / 8,
+      canvas.height
+    );
+    ctx?.drawImage(
+      img,
+      (canvas.width / 8) * (singerId - 1),
+      0,
+      canvas.width / 8,
+      canvas.height
+    );
+  }, 250);
 }
 
-export async function clearAnim(singerId: string, songId: string) {
+export function resetSongs() {
+  for (const audio in global.audiosInDom) {
+    if (Object.prototype.hasOwnProperty.call(global.audiosInDom, audio)) {
+      global.audiosInDom[audio].muteSound();
+    }
+  }
+  global.allSingers.forEach((singer) => {
+    const songId = singer.getAttribute("data-song-id");
+    if (songId) {
+      clearAnim(+singer.id, +songId);
+    }
+  });
+}
+export function pauseSongs() {
+  global.allSingers.forEach((singer) => {
+    const songId = singer.getAttribute("data-song-id");
+    console.log("songId", songId);
+    if (songId) {
+      global.timeouts[songId].paused = true;
+      global.audiosInDom[songId]
+        ? global.audiosInDom[songId].muteSound()
+        : global.audioQueue.forEach((audioObj) => {
+            if (audioObj.audio.id === songId) {
+              audioObj.audio.muteSound();
+            }
+          });
+      singer.classList.remove("active");
+    }
+  });
+}
+export function resumeSongs() {
+  global.allSingers.forEach((singer) => {
+    const songId = singer.getAttribute("data-song-id");
+    console.log("songId", songId);
+    if (songId) {
+      global.timeouts[songId].paused = false;
+      global.audiosInDom[songId].unmuteSound();
+      singer.classList.add("active");
+    }
+  });
+}
+
+export function autoSongs() {}
+
+export async function clearAnim(singerId: number, songId: number) {
   const defaultSinger =
     canvas.width < 1000
       ? await (await fetch("/public/polo-sprite.png")).blob()
@@ -119,38 +180,50 @@ export async function clearAnim(singerId: string, songId: string) {
   const img = await createImageBitmap(defaultSinger);
   clearTimeout(global.timeouts[songId].timeoutId);
   global.timeouts[songId].i = 0;
+  global.timeouts[songId].paused = true;
+  global.timeouts[songId].clear = true;
+  global.allSingers[singerId - 1].classList.remove("active");
+  global.allSingers[singerId - 1].removeAttribute("data-song-id");
+  global.allSongs[songId - 1].classList.remove("moved");
   ctx?.clearRect(
-    (canvas.width / 8) * (+singerId - 1),
+    (canvas.width / 8) * (singerId - 1),
     0,
     canvas.width / 8,
     canvas.height
   );
   ctx?.drawImage(
     img,
-    (canvas.width / 8) * (+singerId - 1),
+    0,
+    0,
+    imgWidth,
+    imgHeight,
+    (canvas.width / 8) * (singerId - 1),
     0,
     canvas.width / 8,
     canvas.height
   );
+  global.audiosInDom[songId].stop();
+  console.log("deleting song");
+  delete global.audiosInDom[songId];
+  global.timeouts[songId] = {
+    i: 0,
+    timeoutId: 0,
+    paused: false,
+    clear: false,
+  };
 }
 
 export async function animate(singerId: number, songId: number) {
   const animeImg = global.getSprite(songId);
   const img = await createImageBitmap(animeImg);
   const animeFrame: prop = global.animeFrames[songId];
-  // Try to get frame per seconds or something
+  // Try to get frame per seconds
   let fps = animeFrame.arrayFrame.length / global.getAudioLength(songId);
   const interval = Math.round(1000 / fps);
-  console.log(
-    animeFrame.arrayFrame.length,
-    global.getAudioLength(songId),
-    interval
-  );
-  // Remove overlay
-  global.allSingers[singerId - 1].style.backgroundColor = "rgba(0,0,0,0)";
+  console.log(interval);
   // Draw the body
   ctx?.clearRect(
-    (canvas.width / 8) * (+singerId - 1),
+    (canvas.width / 8) * (singerId - 1),
     0,
     canvas.width / 8,
     canvas.height
@@ -161,7 +234,7 @@ export async function animate(singerId: number, songId: number) {
     0,
     imgWidth,
     imgHeight,
-    (canvas.width / 8) * (+singerId - 1),
+    (canvas.width / 8) * (singerId - 1),
     0,
     canvas.width / 8,
     canvas.height
@@ -169,58 +242,67 @@ export async function animate(singerId: number, songId: number) {
   const animation = () => {
     let i = global.timeouts[songId].i % animeFrame.arrayFrame.length;
     requestAnimationFrame(() => {
-      if (!global.timeouts[songId].paused) {
-        // Remove previous frame
-        ctx?.clearRect(
-          (canvas.width / 8) * (+singerId - 1),
-          0,
-          canvas.width / 8,
-          canvas.height
-        );
-        // Redraw body
-        ctx?.drawImage(
-          img,
-          imgWidth,
-          0,
-          imgWidth,
-          imgHeight,
-          (canvas.width / 8) * (+singerId - 1),
-          0,
-          canvas.width / 8,
-          canvas.height
-        );
-        // Draw new head
-        ctx?.drawImage(
-          img,
-          hd(animeFrame.arrayFrame[i][0]),
-          hd(animeFrame.arrayFrame[i][1]),
-          imgWidth,
-          hd(animeFrame.headHeight),
-          (canvas.width / 8) * (+singerId - 1) +
-            hd(animeFrame.arrayFrame[i][2] * canvasToIntrinsicRatio),
-          hd(animeFrame.arrayFrame[i][3] * canvasToIntrinsicRatio),
-          canvas.width / 8,
-          animeFrame.headHeight * canvasToIntrinsicRatio
-        );
-        // play song
-        if (global.timeouts[songId].i == 0) {
-          global.audiosInDom[songId].play();
+      if (!global.timeouts[songId].clear) {
+        if (!global.timeouts[songId].paused) {
+          // Remove previous frame
+          ctx?.clearRect(
+            (canvas.width / 8) * (singerId - 1),
+            0,
+            canvas.width / 8,
+            canvas.height
+          );
+          // Redraw body
+          ctx?.drawImage(
+            img,
+            imgWidth,
+            0,
+            imgWidth,
+            imgHeight,
+            (canvas.width / 8) * (singerId - 1),
+            0,
+            canvas.width / 8,
+            canvas.height
+          );
+          // Draw new head
+          ctx?.drawImage(
+            img,
+            hd(animeFrame.arrayFrame[i][0]),
+            hd(animeFrame.arrayFrame[i][1]),
+            imgWidth,
+            hd(animeFrame.headHeight),
+            (canvas.width / 8) * (singerId - 1) +
+              hd(animeFrame.arrayFrame[i][2] * canvasToIntrinsicRatio),
+            hd(animeFrame.arrayFrame[i][3] * canvasToIntrinsicRatio),
+            canvas.width / 8,
+            animeFrame.headHeight * canvasToIntrinsicRatio
+          );
+          // play song
+          if (global.timeouts[songId].i == 0) {
+            global.audiosInDom[songId].play();
+          }
+        } else {
+          // Handle pausing anim
+          // Remove previous frame
+          ctx?.clearRect(
+            (canvas.width / 8) * (singerId - 1),
+            0,
+            canvas.width / 8,
+            canvas.height
+          );
+          ctx?.drawImage(
+            img,
+            0,
+            0,
+            imgWidth,
+            imgHeight,
+            (canvas.width / 8) * (singerId - 1),
+            0,
+            canvas.width / 8,
+            canvas.height
+          );
         }
-      } else {
-        // Handle pausing anim
-        ctx?.drawImage(
-          img,
-          0,
-          0,
-          imgWidth,
-          imgHeight,
-          (canvas.width / 8) * (+singerId - 1),
-          0,
-          canvas.width / 8,
-          canvas.height
-        );
+        global.timeouts[songId].i++;
       }
-      global.timeouts[songId].i++;
     });
     global.timeouts[songId].timeoutId = setTimeout(animation, interval);
   };

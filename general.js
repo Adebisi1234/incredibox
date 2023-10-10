@@ -19,6 +19,28 @@ const navr = document.getElementById("navr");
 let progress = 0;
 const prog = [...document.getElementsByClassName("prog")];
 const slide = document.getElementById("slide");
+const popup = document.getElementById("popup");
+const fullscreen = document.getElementById("fullscreen");
+fullscreen.onclick = () => {
+    document.body.requestFullscreen();
+};
+window.addEventListener("load", () => {
+    if (screen.orientation.type.includes("portrait")) {
+        pops.forEach((pop) => pop.classList.remove("active"));
+        modal.classList.add("animateFadeIn");
+        pops[4].classList.add("active");
+    }
+});
+screen.orientation.addEventListener("change", () => {
+    if (screen.orientation.type.includes("landscape")) {
+        modal.classList.remove("animateFadeIn");
+    }
+    else {
+        pops.forEach((pop) => pop.classList.remove("active"));
+        modal.classList.add("animateFadeIn");
+        pops[4].classList.add("active");
+    }
+});
 navl.onclick = moveSlideLeft;
 navr.onclick = moveSlideRight;
 function moveSlideRight() {
@@ -57,12 +79,12 @@ function moveSlideLeft() {
         }
     });
     slide.style.transform = `translate(${progress * 20}%, 0%)`;
-    console.log(progress);
 }
 info.onclick = () => {
     pops.forEach((pop) => pop.classList.remove("active"));
     if (!modal.classList.contains("animateFadeIn")) {
         modal.classList.add("animateFadeIn");
+        popup.classList.add("with-tab");
         tabButtons[0].classList.add("active");
         pops[0].classList.add("active");
     }

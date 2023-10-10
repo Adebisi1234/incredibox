@@ -1,10 +1,17 @@
 export class GlobalState {
     timeouts = {};
+    // public random  Combination // Maybe v1.1
+    mix = [
+        [1, 3, 5, 9],
+        [1, 4, 6, 10],
+        [2, 5, 7, 11],
+    ]; // Maybe v1.1
+    userMix = [[], [], []];
     version = 0;
     audiosInDom = {};
     audioQueue = [];
     beat = 70;
-    interval = 1000;
+    transition = 0;
     beatIntervalId = 0;
     allAudios = {};
     allVideo = {};
@@ -12,8 +19,10 @@ export class GlobalState {
     currentMovingSong = undefined;
     animeFrames = {};
     allSongs = [];
-    singersPost = [];
+    allLoaders = [];
     allSingers = [];
+    allVideoPlayers = [];
+    singersPost = [];
     /**
      * getAudioLength
      * getSprite
@@ -51,6 +60,9 @@ export class Audios {
         this.audioSource.buffer = this.buffer;
         this.audioSource.loop = true;
         this.audioSource.connect(this.gainNode);
+    }
+    isMute() {
+        return this.gainNode.gain.value;
     }
     muteSound() {
         this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
