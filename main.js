@@ -1,12 +1,24 @@
-import { animate, isSongInPosition } from "./canvas.js";
+import { animate, clearAnim, isSongInPosition, pauseSongs, resumeSongs, startAnim, } from "./canvas.js";
 import { Audios, GlobalState } from "./classes.js";
+import { firstTime } from "./uiControl.js";
 export const global = new GlobalState();
 const appLoader = document.getElementById("app-loader");
 const appLoaderStatus = document.getElementById("app-loader-status");
 const playButton = document.getElementById("play-icon");
 const playLoader = document.getElementById("play-loader");
-let throttle = 0;
-window.onload = () => {
+const video = document.getElementById("video");
+video.onended = () => {
+    video.classList.remove("active");
+    if (video.getAttribute("data-video-id")) {
+        const audioId = +video.getAttribute("data-video-id");
+        global.allAudios[20 + audioId].stop();
+        video.removeAttribute("data-played");
+        resumeSongs();
+        global.allVideoPlayers[audioId - 1].classList.remove("loading");
+    }
+    video.src = "";
+};
+window.addEventListener("load", () => {
     if (!location.href.slice(-3).includes("v=") ||
         +location.href.slice(-1) > 9 ||
         +location.href.slice(-1) < 1 ||
@@ -26,34 +38,43 @@ window.onload = () => {
         global.allSongs = [
             ...document.querySelectorAll(".song"),
         ];
+        global.allVideoPlayers = [
+            ...document.querySelectorAll(".video-player"),
+        ];
+        global.allLoaders = [
+            ...document.querySelectorAll(".loader-container > .singers > *"),
+        ];
     }
-};
+});
 const handleMovingSong = (ev) => {
-    throttle++;
-    if (throttle % 5 === 0) {
-        if (global.currentMovingSong) {
-            const x = ev.clientX - global.currentMovingSong.offsetLeft;
-            const y = ev.clientY - global.currentMovingSong.offsetTop;
-            global.currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${y % innerHeight}px, 10px) translate(-50%, -50%) `;
-        }
-        else
-            return;
+    if (global.currentMovingSong) {
+        global.currentMovingSong.classList.add("active");
+        const { left, right, top, bottom } = getMovingSongPosition(ev);
+        isSongInPosition(left, right, top, bottom);
+        const x = ev.clientX - global.currentMovingSong.offsetLeft;
+        const y = ev.clientY - global.currentMovingSong.offsetTop;
+        global.currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${y % innerHeight}px, 10px) translate(-50%, -50%) `;
     }
+    else
+        return;
 };
 const handleReturnSong = (ev) => {
-    console.log("handleReturnSong", global.currentMovingSong);
     if (global.currentMovingSong) {
+        global.currentMovingSong.classList.remove("active");
         const { left, right, top, bottom } = getMovingSongPosition(ev);
         const singerId = isSongInPosition(left, right, top, bottom);
-        console.log(singerId);
         if (singerId !== 0 && typeof singerId === "number") {
             const audioId = global.currentMovingSong.getAttribute("data-song-id");
-            if (audioId) {
+            if (audioId && !global.allSingers[singerId - 1].getAttribute("data-song-id")) {
                 addAudio(singerId, +audioId);
             }
             else
                 console.log("audioId error");
+            global.currentMovingSong.classList.add("moved");
         }
+        global.allSingers.forEach((singer) => {
+            singer.classList.remove("over");
+        });
         global.currentMovingSong.style.transform = `translate3d(0,0,0) translate(0,0) `;
         global.currentMovingSong = undefined;
     }
@@ -62,24 +83,34 @@ const handleReturnSong = (ev) => {
 };
 const addAudio = (singerId, audioId) => {
     const newAudio = { audio: global.allAudios[audioId], singerId };
+    global.allSingers[singerId - 1].setAttribute("data-song-id", `${audioId}`);
     global.audioQueue.push(newAudio);
+    mixtape(audioId, "add");
+    startAnim(singerId, audioId);
     if (Object.keys(global.audiosInDom).length === 0) {
-        console.log("Start");
         startBeatInterval();
+    }
+    else {
+        global.allLoaders[singerId - 1].classList.add("loading");
     }
 };
 const startBeatInterval = (clear = false) => {
+    if (clear) {
+        clearInterval(global.beatIntervalId);
+        return;
+    }
     let i = 0;
-    console.log("starting interval");
     const audioObj = global.audioQueue.pop();
     global.audiosInDom[audioObj.audio.id] = audioObj.audio;
     animate(audioObj.singerId, +audioObj.audio?.id);
-    if (clear) {
-        clearInterval(global.beatIntervalId);
-    }
     global.beatIntervalId = setInterval(() => {
-        i += 100;
+        i += 1;
+        if (i % 10 === 0) {
+            document.documentElement.style.setProperty("--transition-time", `${(i % global.beat) / 10}s`);
+        }
+        global.transition = (i % global.beat) * 100;
         if (i % global.beat === 0) {
+            global.allLoaders.forEach((loader) => loader.classList.remove("loading"));
             addAudioToDom();
         }
     }, 100);
@@ -87,354 +118,71 @@ const startBeatInterval = (clear = false) => {
 const addAudioToDom = () => {
     for (let i = 0; i < global.audioQueue.length; i++) {
         const audioObj = global.audioQueue[i];
+        global.audioQueue.splice(i, 1);
         global.audiosInDom[audioObj.audio.id] = audioObj.audio;
         animate(audioObj.singerId, +audioObj.audio?.id);
     }
 };
-// // I PITY WHOEVER GOES THROUGH THIS CODE
-// import { GlobalState, Audios, json, oldJson } from "./classes.js";
-// // Constants
-// const global = new GlobalState();
-// // For Stopping Songs
-// let pointerDownTop: number = 0;
-// let pointerUpTop: number = 0;
-// let pointerDownLeft: number = 0;
-// let pointerUpLeft: number = 0;
-// // Updating the singers size on DOM load
-// window.addEventListener("DOMContentLoaded", () => {
-//   global.setSingers = document.querySelectorAll(".singer");
-//   cacheFiles(
-//     global.allAudioLinks,
-//     global.allVideoLinks,
-//     global.allSpriteLinks,
-//     global.allStaticSpriteLinks,
-//     global.allAnimeURl
-//   )
-//     .then(() => {
-//       if (global.isReady) {
-//         (
-//           document.getElementsByClassName("splashscreen")[0] as HTMLDivElement
-//         ).style.display = "none";
-//         global.singers.forEach((singer) => {
-//           singer.addEventListener("click", handlePauseAudio);
-//           singer.addEventListener("pointerdown", handleRemoveAudio);
-//           singer.addEventListener("pointerup", handleRemoveAudio);
-//         });
-//         // dragging songs
-//         global.songs.forEach((song) => {
-//           song.addEventListener("pointerdown", startSongDrag);
-//           song.addEventListener("pointerup", startSinging);
-//         });
-//       }
-//     })
-//     .catch((err) => (document.body.textContent = `An error occurred ${err}`));
-// });
-// window.addEventListener("resize", () => {
-//   global.setSingers = document.querySelectorAll(".singer");
-// });
-// let currentMovingSong: HTMLDivElement | undefined = undefined;
-// // CacheFiles and start application function
-// // Start application
-// // const stage: HTMLElement = document.querySelector("main")!;
-// // fetch blog helper function
-// // Singers main events
-// // Event handlers
-// function handlePauseAudio(ev: MouseEvent) {
-//   const element: HTMLDivElement = getSinger(ev);
-//   const audioId = element.getAttribute("data-song-id");
-//   if (!audioId) {
-//     return;
-//   } else {
-//     const audio: Audios = global.getAudiosInDom[+audioId];
-//     if (audio) {
-//       const headCanvas = element.querySelector(
-//         ".head-canvas"
-//       ) as HTMLCanvasElement;
-//       const bodyCanvas = element.querySelector(
-//         ".body-canvas"
-//       ) as HTMLCanvasElement;
-//       if (element.style.opacity === "1") {
-//         document.documentElement.style.setProperty(
-//           `--background-${element.getAttribute("data-singer-id")}`,
-//           `url("${global.allCachedStaticSpriteURL[+audioId]}")`
-//         );
-//         global.pauseAnimation(audioId, headCanvas, bodyCanvas);
-//       } else {
-//         global.animate(audioId, headCanvas, bodyCanvas);
-//       }
-//       audio.muteSound(element);
-//     }
-//   }
-// }
-// function startSongDrag(ev: PointerEvent): void {
-//   const container =
-//     (ev.target as HTMLDivElement).classList.contains("left") ||
-//     (ev.target as HTMLDivElement).classList.contains("right");
-//   currentMovingSong = container ? undefined : (ev.target as HTMLDivElement);
-//   if (
-//     !currentMovingSong ||
-//     Object.keys(global.getAudiosInDom).includes(
-//       currentMovingSong.getAttribute("data-song-id")!
-//     )
-//   ) {
-//     currentMovingSong = undefined;
-//   }
-//   // stage.addEventListener("pointerover", handleStagePointerMove);
-//   modifyBodyEvents("add");
-//   // singers.forEach((singer) => {
-//   //   singer.addEventListener("pointerover", handleSingerPointerOver);
-//   //   singer.addEventListener("pointerleave", handleSingerPointerLeave);
-//   // });
-// }
-// function startSinging(ev: PointerEvent): void {
-//   if (currentMovingSong) {
-//     const { left, right, top, bottom } = getMovingSongPosition(ev);
-//     global.singersPost.forEach((singer) => {
-//       const isInsideSinger =
-//         singer.left < left &&
-//         right < singer.right &&
-//         singer.top < top &&
-//         bottom < singer.bottom;
-//       if (isInsideSinger) {
-//         const id = currentMovingSong!.getAttribute("data-song-id")!;
-//         isSingerSinging(true, singer.element, id);
-//         const headCanvas: HTMLCanvasElement =
-//           singer.element.querySelector(".head-canvas")!;
-//         const bodyCanvas: HTMLCanvasElement =
-//           singer.element.querySelector(".body-canvas")!;
-//         addAudio(id, headCanvas, bodyCanvas);
-//         currentMovingSong!.style.transform = `translate3d(0px, 0px, 0px)`;
-//         currentMovingSong = undefined;
-//       }
-//     });
-//     removeMovingSongStyles(currentMovingSong);
-//   }
-//   modifyBodyEvents("remove");
-//   // stage.removeEventListener("pointerover", handleStagePointerMove);
-//   // singers.forEach((singer) => {
-//   //   // singer.removeEventListener("pointerover", handleSingerPointerOver);
-//   //   singer.removeEventListener("pointerleave", handleSingerPointerLeave);
-//   // });
-// }
-// // Main stage
-// // function handleStagePointerMove(ev: PointerEvent): void {
-// //
-// //   if (
-// //     currentMovingSong &&
-// //     ((ev.target as HTMLDivElement).classList.contains("frame") ||
-// //       (ev.target as HTMLDivElement).classList.contains("singers"))
-// //   ) {
-// //     console.log("enter singer");
-// //     (ev.target as HTMLDivElement).classList.add("entered");
-// //   }
-// // }
-// // Singers
-// // function handleSingerPointerOver(ev: PointerEvent): void {
-// //   //
-// // }
-// // function handleSingerPointerLeave(ev: PointerEvent): void {
-// //   // console.log("singer pointer leave");
-// // }
-// function handleRemoveAudio(ev: PointerEvent): void {
-//   const target = getSinger(ev);
-//   const audioId = target.getAttribute("data-song-id");
-//   const singerId = target.getAttribute("data-singer-id");
-//   if (!audioId || !singerId) {
-//     return;
-//   }
-//   if (ev.type === "pointerdown") {
-//     pointerDownTop = ev.clientY;
-//     pointerDownLeft = ev.clientX;
-//   } else if (ev.type === "pointerup") {
-//     pointerUpTop = ev.clientY;
-//     pointerUpLeft = ev.clientX;
-//   }
-//   if (
-//     pointerDownTop !== 0 &&
-//     pointerUpTop !== 0 &&
-//     pointerDownLeft !== 0 &&
-//     pointerUpLeft !== 0 &&
-//     pointerUpTop - pointerDownTop > 20 &&
-//     pointerUpLeft - pointerDownLeft < 20
-//   ) {
-//     stopSong(audioId, singerId, target);
-//     pointerUpTop = 0;
-//     pointerDownTop = 0;
-//     pointerUpLeft = 0;
-//     pointerDownLeft = 0;
-//   }
-// }
-// // customizing the singers
-// // Playing video
-// // adding & Playing audio
-// function addAudio(
-//   id: string,
-//   headCanvas: HTMLCanvasElement,
-//   bodyCanvas: HTMLCanvasElement
-// ) {
-//   const newAudio = global.allCachedAudios[+id];
-//   global.setAudioQueue = { audio: newAudio, headCanvas, bodyCanvas };
-//   if (Object.keys(global.getAudiosInDom).length === 0) {
-//     startBeatInterval();
-//   }
-//   isWinningCombination();
-// }
-// function handlePlayVideo(target: HTMLVideoElement) {
-//   // This can also be better
-//   const video = target;
-//   const audioId = `2${video.id}`;
-//   if (video) {
-//     video.src = global.allCachedVideoURL[+video.id];
-//     video.addEventListener("ended", handleStopVideo);
-//     video.parentElement!.style.height = "100vh";
-//     video.parentElement!.style.width = "100vw";
-//     const videoPlayer = document.querySelector(
-//       `.video-player[data-player-id="${video.id}"]`
-//     ) as HTMLDivElement;
-//     videoPlayer.lastElementChild!.classList.remove("loading");
-//     videoPlayer.style.pointerEvents = "all";
-//     setTimeout(() => {
-//       video.play();
-//       global.allCachedAudios[audioId].play();
-//     }, 250);
-//   }
-//   for (const audio in global.getAudiosInDom) {
-//     if (Object.prototype.hasOwnProperty.call(global.getAudiosInDom, audio)) {
-//       const audioId = global.getAudiosInDom[audio].id;
-//       const element: HTMLDivElement = document.querySelector(
-//         `.singer[data-song-id="${audioId}"]`
-//       )!;
-//       global.getAudiosInDom[audio].muteSound(element, true);
-//     }
-//   }
-//   for (const audioObj in global.getAudioQueue) {
-//     if (Object.prototype.hasOwnProperty.call(global.getAudioQueue, audioObj)) {
-//       const audioId = global.getAudiosInDom[audioObj].id;
-//       const element: HTMLDivElement = document.querySelector(
-//         `.singer[data-song-id="${audioId}"]`
-//       )!;
-//       global.getAudioQueue[audioObj].audio.muteSound(element, true);
-//     }
-//   }
-//   function handleStopVideo() {
-//     if (video) {
-//       video.parentElement!.style.height = "0vh";
-//       global.allCachedAudios[audioId].stop();
-//       global.setVideoInQueue = undefined;
-//       for (const audio in global.getAudiosInDom) {
-//         if (
-//           Object.prototype.hasOwnProperty.call(global.getAudiosInDom, audio)
-//         ) {
-//           const audioId = global.getAudiosInDom[audio].id;
-//           const element: HTMLDivElement = document.querySelector(
-//             `.singer[data-song-id="${audioId}"]`
-//           )!;
-//           global.getAudiosInDom[audio].muteSound(element);
-//         }
-//       }
-//     }
-//   }
-// }
-// // Beat && loader
-// function startBeatInterval(clear?: boolean) {
-//   if (clear) {
-//     clearInterval(global.beatIntervalId);
-//   }
-//   if (global.getAudioQueue.length === 1) {
-//     const audioObj = global.getAudioQueue[0];
-//     audioObj.audio.play();
-//     global.setAudiosInDom = { id: +audioObj.audio.id, audio: audioObj.audio };
-//     global.animate(audioObj.audio.id, audioObj.headCanvas, audioObj.bodyCanvas);
-//   }
-//   global.beatIntervalId = setInterval(() => {
-//     global.counter += 1;
-//     document.documentElement.style.setProperty(
-//       "--transition-time",
-//       `${global.counter % global.beat}s`
-//     );
-//     if (global.counter % global.beat === 0) {
-//       global.getAudioQueue.forEach((audioObj, i) => {
-//         if (!global.getAudiosInDom[audioObj.audio.id]) {
-//           global.setAudiosInDom = {
-//             id: +audioObj.audio.id,
-//             audio: audioObj.audio,
-//           };
-//           global.animate(
-//             audioObj.audio.id,
-//             audioObj.headCanvas,
-//             audioObj.bodyCanvas
-//           );
-//           audioObj.audio.play();
-//           document
-//             .querySelector(`.singer[data-song-id="${audioObj.audio.id}"]`)!
-//             .lastElementChild!.classList.remove("loading");
-//         }
-//         global.getAudioQueue.splice(i, 1);
-//       });
-//     }
-//   }, global.getInterval);
-// }
-// // Muting audio
-// // Loading indicator animation
-// // Removing audio & clear interval
-// // Animations
-// function handleMovingSong(ev: PointerEvent): void {
-//   if (currentMovingSong) {
-//     movingSongStyles(ev, currentMovingSong);
-//     highlightHoveredSinger(ev);
-//     // Implement moving eyes
-//   }
-// }
-// // Helper functions
-// async function cacheFiles(
-//   allAudioLinks: {
-//     [key: number]: string;
-//   },
-//   allVideoLinks: {
-//     [key: number]: string;
-//   },
-//   allSpriteLinks: {
-//     [key: number]: string;
-//   },
-//   allStaticSpriteLinks: {
-//     [key: number]: string;
-//   },
-//   allAnimeLinks: {
-//     [key: number]: string;
-//   }
-// ) {
-//   try {
-//     for (const audioLink in allAudioLinks) {
-//       global.allCachedAudios[audioLink] = await decodeAudio(
-//         allAudioLinks[audioLink],
-//         audioLink
-//       );
-//     }
-//     for (const videoLink in allVideoLinks) {
-//       const videoBlob = await fetchBlob(allVideoLinks[videoLink]);
-//       global.allCachedVideoURL[videoLink] = URL.createObjectURL(videoBlob);
-//     }
-//     for (const spriteLink in allSpriteLinks) {
-//       global.allCachedSpriteURL[spriteLink] = await fetchBlob(
-//         allSpriteLinks[spriteLink]
-//       );
-//     }
-//     for (const staticSpriteLink in allStaticSpriteLinks) {
-//       const staticSpriteBlob = await fetchBlob(
-//         allStaticSpriteLinks[staticSpriteLink]
-//       );
-//       global.allCachedStaticSpriteURL[staticSpriteLink] =
-//         URL.createObjectURL(staticSpriteBlob);
-//     }
-//     for (const animeLink in allAnimeLinks) {
-//       const animeJSON = await fetchJson(allAnimeLinks[animeLink]);
-//       global.anime[animeLink] = animeJSON;
-//     }
-//     global.isLoading = false;
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
+function mixtape(id, func) {
+    if (func === "add") {
+        global.mix.forEach((mix, i) => {
+            if (mix.includes(id) && !global.userMix[i].includes(id)) {
+                global.userMix[i].push(id);
+                combo(i);
+            }
+        });
+    }
+    else if (func === "drop") {
+        global.mix.forEach((mix, i) => {
+            if (mix.includes(id) && global.userMix[i].includes(id)) {
+                global.userMix[i].splice(id, 1);
+                dropCombo(i);
+            }
+        });
+    }
+}
+function combo(id) {
+    const classList = global.allVideoPlayers[id].classList;
+    switch (true) {
+        case classList.contains("combo3") &&
+            classList.contains("combo2") &&
+            classList.contains("combo1"):
+            global.allVideoPlayers[id].classList.add("combo4");
+            return;
+        case classList.contains("combo2") && classList.contains("combo1"):
+            global.allVideoPlayers[id].classList.add("combo3");
+            return;
+        case classList.contains("combo1"):
+            global.allVideoPlayers[id].classList.add("combo2");
+            return;
+        default:
+            global.allVideoPlayers[id].classList.add("combo1");
+            break;
+    }
+}
+function dropCombo(id) {
+    const classList = global.allVideoPlayers[id].classList;
+    console.log("dropCombo");
+    switch (true) {
+        case classList.contains("combo4") &&
+            classList.contains("combo3") &&
+            classList.contains("combo2") &&
+            classList.contains("combo1"):
+            global.allVideoPlayers[id].classList.remove("combo4");
+            return;
+        case classList.contains("combo3") &&
+            classList.contains("combo2") &&
+            classList.contains("combo1"):
+            global.allVideoPlayers[id].classList.remove("combo3");
+            return;
+        case classList.contains("combo2") && classList.contains("combo1"):
+            global.allVideoPlayers[id].classList.remove("combo2");
+            return;
+        default:
+            global.allVideoPlayers[id].classList.remove("combo1");
+            break;
+    }
+}
 function getMovingSongPosition(ev) {
     const position = { left: 0, top: 0, right: 0, bottom: 0 };
     position.left = ev.clientX;
@@ -443,185 +191,6 @@ function getMovingSongPosition(ev) {
     position.bottom = position.top + global.currentMovingSong.offsetHeight / 2; // taking Translate(-50%, -50%) above into account
     return position;
 }
-// function isSingerSinging(
-//   isSinging: boolean,
-//   singer: HTMLDivElement,
-//   id: string
-// ) {
-//   const singerId = singer.getAttribute("data-singer-id");
-//   const loader = singer.lastElementChild! as HTMLDivElement;
-//   if (isSinging) {
-//     Object.keys(global.getAudiosInDom).length !== 0 &&
-//       global.counter % global.beat !== 0 &&
-//       loader.classList.add("loading");
-//     singer.style.opacity = "1";
-//     singer.setAttribute("data-song-id", id);
-//     singer.classList.add("singing");
-//     document.documentElement.style.setProperty(
-//       `--background-${singerId}`,
-//       `url("${global.allCachedStaticSpriteURL[+id]}")`
-//     );
-//   } else {
-//     singer.classList.remove("singing");
-//     singer.style.opacity = "0.6";
-//     singer.removeAttribute("data-song-id");
-//     loader.classList.remove("loading");
-//     (
-//       document.querySelector(`.song[data-song-id='${id}']`) as HTMLDivElement
-//     ).style.opacity = "1";
-//     (
-//       document.querySelector(`.song[data-song-id='${id}']`) as HTMLDivElement
-//     ).style.backgroundPositionY = `0`;
-//     document.documentElement.style.setProperty(
-//       `--background-${singerId}`,
-//       `url("/public/singer.png")`
-//     );
-//   }
-// }
-// function modifyBodyEvents(type: "add" | "remove") {
-//   if (type === "add") {
-//     document.body.addEventListener("pointermove", handleMovingSong);
-//     document.body.addEventListener("pointercancel", startSinging);
-//     document.body.addEventListener("pointerup", startSinging);
-//   } else if (type === "remove") {
-//     document.body.removeEventListener("pointermove", handleMovingSong);
-//     document.body.removeEventListener("pointercancel", startSinging);
-//     document.body.removeEventListener("pointerup", startSinging);
-//   }
-// }
-// function movingSongStyles(ev: PointerEvent, currentMovingSong: HTMLDivElement) {
-//   const x = ev.clientX - currentMovingSong.offsetLeft;
-//   const y = ev.clientY - currentMovingSong.offsetTop;
-//   currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${
-//     y % innerHeight
-//   }px, 10px) translate(-50%, -50%) `;
-//   currentMovingSong.style.backgroundPositionY = "100%";
-//   currentMovingSong.style.boxShadow = "3px 3px #555";
-// }
-// function removeMovingSongStyles(currentMovingSong: HTMLDivElement | undefined) {
-//   if (currentMovingSong) {
-//     currentMovingSong.style.transform = `translate3d(0px, 0px, 0px)`;
-//     currentMovingSong.style.backgroundPositionY = "0";
-//     currentMovingSong.style.boxShadow = "0px 0px";
-//     currentMovingSong = undefined;
-//     global.singers.forEach((singer) => singer.classList.remove("active"));
-//   }
-// }
-// function stopSong(audioId: string, singerId: string, target: HTMLDivElement) {
-//   const headCanvas = target.querySelector(".head-canvas") as HTMLCanvasElement;
-//   const bodyCanvas = target.querySelector(".body-canvas") as HTMLCanvasElement;
-//   document.documentElement.style.setProperty(
-//     `background-${singerId}`,
-//     "/public/singer.png"
-//   );
-//   global.clearAnimation(audioId, headCanvas, bodyCanvas);
-//   isSingerSinging(false, target, audioId);
-//   global.removeAudioFromQueue = audioId;
-//   if (global.getAudiosInDom[+audioId]) {
-//     global.removeAudioFromDom = +audioId;
-//   }
-//   if (Object.keys(global.getAudiosInDom).length === 0) {
-//     document.documentElement.style.setProperty("--transition-time", "0s");
-//     startBeatInterval(true);
-//   }
-//   isLosingCombination(audioId);
-// }
-// function gettingCold(videoPlayerId: string) {
-//   const videoPlayer = document.querySelector(
-//     `.video-player[data-player-id="${videoPlayerId}"]`
-//   );
-//   switch (true) {
-//     case videoPlayer?.classList.contains("combo3"):
-//       videoPlayer?.classList.remove("combo3");
-//       return;
-//     case videoPlayer?.classList.contains("combo2"):
-//       videoPlayer?.classList.remove("combo2");
-//       return;
-//     case videoPlayer?.classList.contains("combo1"):
-//       videoPlayer?.classList.remove("combo1");
-//       return;
-//   }
-// }
-// function isLosingCombination(audioId: string) {
-//   for (const id in global.win) {
-//     if (Object.prototype.hasOwnProperty.call(global.win, id)) {
-//       let index = global.win[id].indexOf(audioId);
-//       let length = global.win[id].length;
-//       if (index !== -1) {
-//         global.win[id].splice(index, 1);
-//       }
-//       console.log(global.win[id].length, length);
-//       if (global.win[id].length < length) {
-//         gettingCold(id);
-//         const player = document.querySelector(
-//           `.video-player[data-player-id="${id}"`
-//         ) as HTMLDivElement;
-//         player.removeEventListener("click", makeVideoPlayable);
-//       }
-//     }
-//   }
-// }
-// function isWinningCombination() {
-//   // There has to be a better way than this
-//   for (let i = 0; i < global.winningCombination.length; i++) {
-//     let combo = global.winningCombination[i].split(",");
-//     combo.forEach((audioId) => {
-//       if (
-//         global.getAudioQueue[global.getAudioQueue.length - 1]?.audio?.id ===
-//         audioId
-//       ) {
-//         global.win[i + 1].push(audioId);
-//         gettingHot(`${i + 1}`);
-//       }
-//     });
-//     if (global.win[i + 1].length === 3) {
-//       const player = document.querySelector(
-//         `.video-player[data-player-id="${i + 1}"]`
-//       ) as HTMLDivElement;
-//       player.classList.add("playable");
-//       player.addEventListener("click", makeVideoPlayable);
-//     }
-//   }
-// }
-// function makeVideoPlayable(ev: MouseEvent) {
-//   const video = document.getElementsByTagName("video")[0] as HTMLVideoElement;
-//   video.id = (ev.target as HTMLDivElement).id;
-//   (ev.target as HTMLDivElement).style.pointerEvents = "none";
-//   (ev.target as HTMLDivElement).lastElementChild!.classList.add("loading");
-//   console.log("are we here");
-//   setTimeout(() => {
-//     handlePlayVideo(video);
-//   }, (global.counter % global.beat) * 1000);
-//   global.setVideoInQueue = video;
-// }
-// function gettingHot(videoPlayerId: string) {
-//   const videoPlayer = document.querySelector(
-//     `.video-player[data-player-id="${videoPlayerId}"]`
-//   );
-//   switch (true) {
-//     case videoPlayer?.classList.contains("combo2"):
-//       videoPlayer?.classList.add("combo3");
-//       return;
-//     case videoPlayer?.classList.contains("combo1"):
-//       videoPlayer?.classList.add("combo2");
-//       return;
-//     default:
-//       videoPlayer!.classList.add("combo1");
-//       return;
-//   }
-//   // Use another function entirely
-//   //  switch (true) {
-//   //    case videoPlayer?.classList.contains("combo1"):
-//   //      videoPlayer?.classList.remove("combo1");
-//   //      return;
-//   //    case videoPlayer?.classList.contains("combo2"):
-//   //      videoPlayer?.classList.remove("combo2");
-//   //      return;
-//   //    default:
-//   //      videoPlayer?.classList.remove("combo3");
-//   //      return;
-//   //  }
-// }
 async function fetchBlob(link) {
     try {
         const response = await (await fetch(link)).blob();
@@ -688,23 +257,6 @@ async function fetchJson(link) {
 async function decodeAudio(buffer, id, audioCtx) {
     return new Audios(await audioCtx.decodeAudioData(buffer), id);
 }
-// function highlightHoveredSinger(ev: PointerEvent) {
-//   const { left, right, top, bottom } = getMovingSongPosition(ev);
-//   // Highlighting the hovered singer
-//   global.singers.forEach((singer) => singer.classList.add("active"));
-//   global.singersPost.forEach((singer) => {
-//     const isInsideSinger =
-//       singer.left < left &&
-//       right < singer.right &&
-//       singer.top < top &&
-//       bottom < singer.bottom;
-//     if (isInsideSinger) {
-//       singer.element.style.opacity = "1";
-//     } else if (!singer.element.getAttribute("data-song-id")) {
-//       singer.element.style.opacity = "0.6";
-//     }
-//   });
-// }
 function startApplication(version) {
     if (version === 0) {
         console.log("error game version shouldn't be zero");
@@ -717,7 +269,7 @@ function startApplication(version) {
         let allSpriteHdLinks = {};
         let allJsonLinks = {};
         switch (version) {
-            // There has to be a better way
+            // There has to be a better way HATE THE
             case 1:
                 global.beat = 55; //100ms
                 allAudioLinks = {
@@ -911,9 +463,15 @@ function startApplication(version) {
                     20: "/public/v2/json/voix2.json",
                 };
                 allVideoLinks = {
-                    1: "/public/v2/videos/video1.webm",
-                    2: "/public/v2/videos/video2.webm",
-                    3: "/public/v2/videos/video3.webm",
+                    1: innerWidth < 1000
+                        ? "/public/v2/videos/video1.webm"
+                        : "/public/v2/videos/video1-hd.webm",
+                    2: innerWidth < 1000
+                        ? "/public/v2/videos/video2.webm"
+                        : "/public/v2/videos/video2-hd.webm",
+                    3: innerWidth < 1000
+                        ? "/public/v2/videos/video3.webm"
+                        : "/public/v2/videos/video3-hd.webm",
                 };
                 break;
             case 3:
@@ -1010,9 +568,15 @@ function startApplication(version) {
                     20: "/public/v3/json/voix5_sunrise.json",
                 };
                 allVideoLinks = {
-                    1: "/public/v3/videos/video1.webm",
-                    2: "/public/v3/videos/video2.webm",
-                    3: "/public/v3/videos/video3.webm",
+                    1: innerWidth < 1000
+                        ? "/public/v3/videos/video1.webm"
+                        : "/public/v3/videos/video1-hd.webm",
+                    2: innerWidth < 1000
+                        ? "/public/v3/videos/video2.webm"
+                        : "/public/v3/videos/video2-hd.webm",
+                    3: innerWidth < 1000
+                        ? "/public/v3/videos/video3.webm"
+                        : "/public/v3/videos/video3-hd.webm",
                 };
                 break;
             case 4:
@@ -1109,9 +673,15 @@ function startApplication(version) {
                     20: "/public/v4/json/melo5_ah.json",
                 };
                 allVideoLinks = {
-                    1: "/public/v4/videos/video1.webm",
-                    2: "/public/v4/videos/video2.webm",
-                    3: "/public/v4/videos/video3.webm",
+                    1: innerWidth < 1000
+                        ? "/public/v4/videos/video1.webm"
+                        : "/public/v4/videos/video1-hd.webm",
+                    2: innerWidth < 1000
+                        ? "/public/v4/videos/video2.webm"
+                        : "/public/v4/videos/video2-hd.webm",
+                    3: innerWidth < 1000
+                        ? "/public/v4/videos/video3.webm"
+                        : "/public/v4/videos/video3-hd.webm",
                 };
                 break;
             case 5:
@@ -1142,9 +712,15 @@ function startApplication(version) {
                     23: "/public/v5/audios/23_bonus.ogg",
                 };
                 allVideoLinks = {
-                    1: "/public/v5/videos/video1.webm",
-                    2: "/public/v5/videos/video2.webm",
-                    3: "/public/v5/videos/video3.webm",
+                    1: innerWidth < 1000
+                        ? "/public/v5/videos/video1.webm"
+                        : "/public/v5/videos/video1-hd.webm",
+                    2: innerWidth < 1000
+                        ? "/public/v5/videos/video2.webm"
+                        : "/public/v5/videos/video2-hd.webm",
+                    3: innerWidth < 1000
+                        ? "/public/v5/videos/video3.webm"
+                        : "/public/v5/videos/video3-hd.webm",
                 };
                 allSpriteLinks = {
                     1: "/public/v5/sprites/1_poum-sprite.png",
@@ -1214,7 +790,7 @@ function startApplication(version) {
                 };
                 break;
             case 6:
-                global.beat = 7;
+                global.beat = 70;
                 allAudioLinks = {
                     1: "/public/v6/audios/1_kick.ogg",
                     2: "/public/v6/audios/2_snare.ogg",
@@ -1241,9 +817,15 @@ function startApplication(version) {
                     23: "/public/v6/audios/23_bonus.ogg",
                 };
                 allVideoLinks = {
-                    1: "/public/v6/videos/video1.webm",
-                    2: "/public/v6/videos/video2.webm",
-                    3: "/public/v6/videos/video3.webm",
+                    1: innerWidth < 1000
+                        ? "/public/v6/videos/video1.webm"
+                        : "/public/v6/videos/video1-hd.webm",
+                    2: innerWidth < 1000
+                        ? "/public/v6/videos/video2.webm"
+                        : "/public/v6/videos/video2-hd.webm",
+                    3: innerWidth < 1000
+                        ? "/public/v6/videos/video3.webm"
+                        : "/public/v6/videos/video3-hd.webm",
                 };
                 allSpriteLinks = {
                     1: "/public/v6/sprites/1_kick-sprite.png",
@@ -1340,9 +922,15 @@ function startApplication(version) {
                     23: "/public/v7/audios/23_bonus.ogg",
                 };
                 allVideoLinks = {
-                    1: "/public/v7/videos/video1.webm",
-                    2: "/public/v7/videos/video2.webm",
-                    3: "/public/v7/videos/video3.webm",
+                    1: innerWidth < 1000
+                        ? "/public/v7/videos/video1.webm"
+                        : "/public/v7/videos/video1-hd.webm",
+                    2: innerWidth < 1000
+                        ? "/public/v7/videos/video2.webm"
+                        : "/public/v7/videos/video2-hd.webm",
+                    3: innerWidth < 1000
+                        ? "/public/v7/videos/video3.webm"
+                        : "/public/v7/videos/video3-hd.webm",
                 };
                 allSpriteLinks = {
                     1: "/public/v7/sprites/1_lead-sprite.png",
@@ -1411,7 +999,7 @@ function startApplication(version) {
                 };
                 break;
             case 8:
-                global.beat = 7;
+                global.beat = 70;
                 allAudioLinks = {
                     1: "/public/v8/audios/1_atlanta.ogg",
                     2: "/public/v8/audios/2_tuctom.ogg",
@@ -1438,9 +1026,15 @@ function startApplication(version) {
                     23: "/public/v8/audios/23_bonus.ogg",
                 };
                 allVideoLinks = {
-                    1: "/public/v8/videos/video1.webm",
-                    2: "/public/v8/videos/video2.webm",
-                    3: "/public/v8/videos/video3.webm",
+                    1: innerWidth < 1000
+                        ? "/public/v8/videos/video1.webm"
+                        : "/public/v8/videos/video1-hd.webm",
+                    2: innerWidth < 1000
+                        ? "/public/v8/videos/video2.webm"
+                        : "/public/v8/videos/video2-hd.webm",
+                    3: innerWidth < 1000
+                        ? "/public/v8/videos/video3.webm"
+                        : "/public/v8/videos/video3-hd.webm",
                 };
                 allSpriteLinks = {
                     1: "/public/v8/sprites/1_atlanta-sprite.png",
@@ -1510,7 +1104,7 @@ function startApplication(version) {
                 };
                 break;
             case 9:
-                global.beat = 5;
+                global.beat = 50;
                 allAudioLinks = {
                     1: "/public/v9/audios/01_boo_9.ogg",
                     2: "/public/v9/audios/02_kevin.ogg",
@@ -1537,9 +1131,15 @@ function startApplication(version) {
                     23: "/public/v9/audios/23_bonus.ogg",
                 };
                 allVideoLinks = {
-                    1: "/public/v9/videos/video1.webm",
-                    2: "/public/v9/videos/video2.webm",
-                    3: "/public/v9/videos/video3.webm",
+                    1: innerWidth < 1000
+                        ? "/public/v9/videos/video1.webm"
+                        : "/public/v9/videos/video1-hd.webm",
+                    2: innerWidth < 1000
+                        ? "/public/v9/videos/video2.webm"
+                        : "/public/v9/videos/video2-hd.webm",
+                    3: innerWidth < 1000
+                        ? "/public/v9/videos/video3.webm"
+                        : "/public/v9/videos/video3-hd.webm",
                 };
                 allSpriteLinks = {
                     1: "/public/v9/sprites/01_boo_9-sprite.png",
@@ -1616,6 +1216,7 @@ function startApplication(version) {
                     i: 0,
                     timeoutId: 0,
                     paused: false,
+                    clear: false,
                 };
             }
         }
@@ -1676,14 +1277,87 @@ async function fetchFiles(allAudioLinks, allVideoLinks, allSpriteLinks, allSprit
         document.getElementById("home")?.classList.add("hidden");
         playLoader.classList.remove("rotate");
         playButton.classList.remove("loading");
-        console.log("events");
+        localStorage.getItem("firsttime") ?? firstTime();
         document.body.addEventListener("pointermove", handleMovingSong);
         document.body.addEventListener("pointerup", handleReturnSong);
         document.body.addEventListener("pointercancel", handleReturnSong);
         global.allSongs.forEach((song) => song.addEventListener("pointerdown", handleSelectSong));
+        global.allSingers.forEach((singer) => {
+            singer.addEventListener("click", handlePauseSong);
+            singer.addEventListener("pointerdown", handleDropSong);
+        });
+        global.allVideoPlayers.forEach((videoPlayer) => {
+            videoPlayer.addEventListener("click", handleStartVideo);
+        });
     });
 }
+const handlePauseSong = (ev) => {
+    const songId = ev.target.getAttribute("data-song-id");
+    if (songId && ev.target.classList.contains("singer")) {
+        if (global.audiosInDom[songId].isMute() === 1) {
+            global.timeouts[songId].paused = true;
+            global.audiosInDom[songId].muteSound();
+            ev.target.classList.remove("active");
+        }
+        else if (global.audiosInDom[songId].isMute() === 0) {
+            global.timeouts[songId].paused = false;
+            global.audiosInDom[songId].unmuteSound();
+            ev.target.classList.add("active");
+        }
+    }
+    else
+        return;
+};
 const handleSelectSong = (ev) => {
-    console.log(ev.target);
-    global.currentMovingSong = ev.target;
+    if (!ev.target.classList.contains("moved")) {
+        global.currentMovingSong = ev.target;
+    }
+};
+function handleStartVideo(ev) {
+    const target = ev.target;
+    const videoId = target.getAttribute("data-player-id");
+    if (video.getAttribute("data-played"))
+        return;
+    if (target.classList.contains("combo4") && videoId) {
+        video.src = global.allVideo[+videoId];
+        target.classList.add("loading");
+        setTimeout(() => {
+            const audioId = +target.getAttribute("data-player-id");
+            pauseSongs();
+            video.classList.add("active");
+            video.setAttribute("data-video-id", `${audioId}`);
+            video.play();
+            video.setAttribute("data-played", "true");
+            global.allAudios[20 + audioId].play();
+        }, global.transition);
+    }
+}
+const handleDropSong = (ev) => {
+    let throttle = 0;
+    const target = ev.target;
+    const songId = target.getAttribute("data-song-id");
+    if (!songId)
+        return;
+    const downTop = ev.clientY;
+    const downleft = target.getBoundingClientRect().left;
+    const downright = target.getBoundingClientRect().right;
+    const downbottom = target.getBoundingClientRect().bottom;
+    target.addEventListener("pointerup", (ev) => {
+        const left = ev.clientX;
+        const top = ev.clientY;
+        if (downTop <= top &&
+            top - downTop >= 50 &&
+            downleft < left &&
+            downright > left &&
+            downbottom > top &&
+            throttle === 0) {
+            console.log("Clear animation");
+            clearAnim(+target.id, +songId);
+            mixtape(+songId, "drop");
+            if (Object.keys(global.audiosInDom).length === 0) {
+                startBeatInterval(true);
+            }
+        }
+        throttle++;
+    });
 };

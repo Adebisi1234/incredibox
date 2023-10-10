@@ -1,8 +1,6 @@
 :root {
     user-select: none;
-    --colV8: #5f7e7b;
-    --col: var(--colV8);
-    --transition-time: 5s;
+    --transition-time: 0s;
     --background-1: url("/public/singer.png");
     --background-2: url("/public/singer.png");
     --background-3: url("/public/singer.png");
@@ -20,6 +18,10 @@
     --colV7: #d65a1e;
     --colV8: #5f7e7b;
     --colV9: #005cfa;
+}
+
+* {
+    touch-action: none;
 }
 
 .settings {
@@ -45,7 +47,6 @@
 .img-title {
     transform: translate(-50%, 10%);
     width: calc(var(--ratio-h) * 520);
-    background-image: url('/public/titles.png');
     position: absolute;
     height: 100px;
     bottom: 20%;
@@ -408,7 +409,6 @@
 
 canvas {
     width: 100%;
-
     height: 100%;
 }
 
@@ -433,11 +433,12 @@ canvas {
     display: flex;
     fill: white;
     background-color: black;
+    font-size: var(--big-font-size);
     color: white;
     gap: 4px;
     border-radius: 12px;
-    height: 60%;
-    width: 20%;
+    height: 45%;
+    width: calc(var(--bt-scale) * 100px);
     justify-content: space-around;
     align-items: center;
 }
@@ -458,27 +459,19 @@ canvas {
     justify-content: flex-end;
 }
 
-.video {
-    position: fixed;
-    display: flex;
-    align-items: center;
-    background-color: black;
-    z-index: 1;
-    transition: all ease-in 250ms;
-}
-
-.video.playing {
-    height: 100%;
-    height: 100%;
-    width: 100%;
-    width: 100%;
-}
-
 video {
     width: 100%;
+    position: absolute;
     aspect-ratio: 16/9;
     object-fit: contain;
-    min-height: 72%;
+    display: none;
+    height: 100%;
+}
+
+video.active {
+    display: block;
+    background-color: black;
+    z-index: 2;
 }
 
 .video-player {
@@ -510,7 +503,6 @@ video {
 
 .combo3 {
     border-left-color: yellow !important;
-    border-bottom-color: yellow !important;
 }
 
 .combo4 {
@@ -519,6 +511,9 @@ video {
 
 .video-player .loader {
     bottom: -8px;
+    height: 4px;
+    width: 100%;
+    border-radius: 2px;
 }
 
 .playable {
@@ -625,17 +620,68 @@ main {
 .singer {
     width: 100%;
     display: flex;
-    max-width: 164px;
+    justify-content: center;
+    align-items: flex-end;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1;
+}
+
+.loader-container {
+    height: 4px;
+    margin: 2px 0px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.loader-container .loader {
+    height: 4px;
+    width: 80%;
+    border-radius: 2px;
+}
+
+.loader-container .loader>.status,
+.video-player .loader>.status {
+    width: 0%;
+    height: 100%;
+    border-radius: 2px;
+    opacity: 0.1;
+    background-color: var(--col);
+    transition: width ease-in;
+    transition-duration: var(--transition-time);
+}
+
+.loader-container .loader.loading>.status,
+.video-player.loading .loader>.status {
+    width: 100%;
+    opacity: 1;
+}
+
+.singer.over {
+    background-color: transparent;
+}
+
+.singer.active {
+    background-color: transparent;
 }
 
 .singing {
     animation: jump 250ms ease forwards;
 }
 
+.song.moved {
+    opacity: .7;
 
+}
+
+.song.active {
+    box-shadow: 3px 3px #555
+}
+
+.darkmode .song.active {
+    box-shadow: 3px 3px #000
+}
 
 @keyframes jump {
 
@@ -720,39 +766,8 @@ main {
     background-image: var(--background-8);
 }
 
-.splashscreen {
-    position: fixed;
-    z-index: 100;
-    background-image: url(/public/home.jpg);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    user-select: none;
-}
-
 img {
     width: 100%;
-}
-
-
-
-.loader {
-    height: 4px;
-    width: 0%;
-    background-color: grey;
-    border-radius: 8px;
-    bottom: 0;
-    opacity: 0;
-    position: absolute;
-    transition-duration: var(--transition-time);
-    transition-property: width;
-    transition-timing-function: ease-in;
-}
-
-.loader.loading {
-    width: 100%;
-    opacity: 1;
-    background: var(--col);
 }
 
 footer {
@@ -913,4 +928,20 @@ footer {
         margin: 0;
         padding: 0;
     }
+}
+
+.clock #pause {
+    display: block;
+}
+
+.clock #play {
+    display: none;
+}
+
+.clock.paused #pause {
+    display: none;
+}
+
+.clock.paused #play {
+    display: block;
 }
