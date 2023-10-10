@@ -17,7 +17,6 @@
 
 .settings {
     opacity: 1;
-    margin-top: calc(var(--bt-scale) * 20px);
 }
 
 .home .controls {
