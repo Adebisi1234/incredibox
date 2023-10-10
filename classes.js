@@ -1,6 +1,6 @@
 export class GlobalState {
     timeouts = {};
-    // public random  Combination // Maybe v1.1
+    randomMix = [[], [], [], []]; // Maybe v1.1
     mix = [
         [1, 3, 5, 9],
         [1, 4, 6, 10],
@@ -8,6 +8,7 @@ export class GlobalState {
     ]; // Maybe v1.1
     userMix = [[], [], []];
     version = 0;
+    autoInterval = 0;
     audiosInDom = {};
     audioQueue = [];
     beat = 70;
@@ -80,8 +81,15 @@ export class Audios {
         }
     }
     stop() {
-        this.audioSource.stop();
-        this.playSound();
+        try {
+            this.audioSource.stop();
+            this.playSound();
+        }
+        catch (error) {
+            this.playSound();
+            this.audioSource.start();
+            this.audioSource.stop();
+        }
     }
 }
 // import cropImage, { clearRect } from "./crop.js";

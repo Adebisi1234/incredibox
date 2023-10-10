@@ -1,14 +1,5 @@
 :root {
-    user-select: none;
     --transition-time: 0s;
-    --background-1: url("/public/singer.png");
-    --background-2: url("/public/singer.png");
-    --background-3: url("/public/singer.png");
-    --background-4: url("/public/singer.png");
-    --background-5: url("/public/singer.png");
-    --background-6: url("/public/singer.png");
-    --background-7: url("/public/singer.png");
-    --background-8: url("/public/singer.png");
     --colV1: #5f5f5f;
     --colV2: #C32D2D;
     --colV3: #3C646E;
@@ -26,6 +17,7 @@
 
 .settings {
     opacity: 1;
+    margin-top: calc(var(--bt-scale) * 20px);
 }
 
 .home .controls {
@@ -72,10 +64,6 @@
 
 .modal {
     z-index: 3;
-}
-
-.settings {
-    opacity: 1;
 }
 
 .space {
@@ -429,22 +417,36 @@ canvas {
     transition: all 250ms linear;
 }
 
-.left-controls>* {
+.left-controls>*:not(.close) {
     display: flex;
     fill: white;
     background-color: black;
-    font-size: var(--big-font-size);
+    font-size: var(--big-medium-size);
     color: white;
     gap: 4px;
     border-radius: 12px;
-    height: 45%;
+    height: calc(var(--bt-scale) * 70%);
     width: calc(var(--bt-scale) * 100px);
     justify-content: space-around;
+    padding: 0% 8px;
     align-items: center;
 }
 
-.left-controls>*>* {
-    flex: 1;
+.left-controls .reset {
+    background-color: var(--col1);
+}
+
+.left-controls .auto {
+    background-color: #0a44a7;
+
+}
+
+.left-controls .reset:hover {
+    background-color: var(--col2);
+}
+
+.left-controls .auto:hover {
+    background-color: #005cfa;
 }
 
 .head-icons {

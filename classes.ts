@@ -13,7 +13,7 @@ export class GlobalState {
       clear: boolean;
     };
   } = {};
-  // public random  Combination // Maybe v1.1
+  public randomMix: number[][] = [[], [], [], []]; // Maybe v1.1
   public mix: number[][] = [
     [1, 3, 5, 9],
     [1, 4, 6, 10],
@@ -21,6 +21,7 @@ export class GlobalState {
   ]; // Maybe v1.1
   public userMix: number[][] = [[], [], []];
   public version: number = 0;
+  public autoInterval: number = 0;
   public audiosInDom: { [key: string]: Audios } = {};
   public audioQueue: { audio: Audios; singerId: number }[] = [];
   public beat: number = 70;
@@ -106,8 +107,14 @@ export class Audios {
     }
   }
   stop() {
-    this.audioSource.stop();
-    this.playSound();
+    try {
+      this.audioSource.stop();
+      this.playSound();
+    } catch (error: unknown) {
+      this.playSound();
+      this.audioSource.start();
+      this.audioSource.stop();
+    }
   }
 }
 

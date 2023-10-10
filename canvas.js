@@ -124,7 +124,6 @@ export function resumeSongs() {
         }
     });
 }
-export function autoSongs() { }
 export async function clearAnim(singerId, songId) {
     const defaultSinger = canvas.width < 1000
         ? await (await fetch("/public/polo-sprite.png")).blob()
@@ -173,7 +172,7 @@ export async function animate(singerId, songId) {
                     ctx?.drawImage(img, hd(animeFrame.arrayFrame[i][0]), hd(animeFrame.arrayFrame[i][1]), imgWidth, hd(animeFrame.headHeight), (canvas.width / 8) * (singerId - 1) +
                         hd(animeFrame.arrayFrame[i][2] * canvasToIntrinsicRatio), hd(animeFrame.arrayFrame[i][3] * canvasToIntrinsicRatio), canvas.width / 8, animeFrame.headHeight * canvasToIntrinsicRatio);
                     // play song
-                    if (global.timeouts[songId].i == 0) {
+                    if (global.timeouts[songId].i === 0) {
                         global.audiosInDom[songId].play();
                     }
                 }

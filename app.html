@@ -271,6 +271,11 @@
             </symbol>
         </defs>
     </svg>
+    <div class="orientation" id="orientation">
+        <div class="txt orient">Seems you're on a mobile phone please click the button
+            below to enable fullscreen <b>THEN</b> rotate your phone </div>
+        <button id="fullscreen">Enable</button>
+    </div>
     <div class="app absolute inset">
         <div class="video inset hidden">
             <video type="video/webm" preload="auto" autobuffer></video>
@@ -280,11 +285,10 @@
                 <div class="head-container relative">
                     <div class="head-left absolute head-transition">
                         <div class="left-controls head-controls">
-                            <div class="close" id="close">
+                            <div class="close head-icons" id="close">
                                 <svg>
                                     <use xlink:href="#ic-close"></use>
                                 </svg>
-                                <div>close</div>
                             </div>
                             <div class="reset" id="reset">
                                 <svg>
@@ -292,8 +296,8 @@
                                 </svg>
                                 <div>reset</div>
                             </div>
-                            <div class="auto" id="auto">
-                                <svg>
+                            <div class="auto" id="autoSongs">
+                                <svg id="rotate">
                                     <use xlink:href="#ic-auto"></use>
                                 </svg>
                                 <div>auto</div>
@@ -484,7 +488,7 @@
         </div>
     </div>
     <div class="home inset absolute" id="home">
-        <div class="settings inset" id="settings">
+        <div class="settings" id="settings">
             <div class="space"></div>
             <div class="v-title"></div>
             <div class="info svg-icon" id="info">

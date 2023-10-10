@@ -170,7 +170,6 @@ export function resumeSongs() {
   });
 }
 
-export function autoSongs() {}
 
 export async function clearAnim(singerId: number, songId: number) {
   const defaultSinger =
@@ -277,7 +276,7 @@ export async function animate(singerId: number, songId: number) {
             animeFrame.headHeight * canvasToIntrinsicRatio
           );
           // play song
-          if (global.timeouts[songId].i == 0) {
+          if (global.timeouts[songId].i === 0) {
             global.audiosInDom[songId].play();
           }
         } else {

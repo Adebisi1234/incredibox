@@ -1,4 +1,4 @@
-import { animate, clearAnim, isSongInPosition, pauseSongs, resumeSongs, startAnim, } from "./canvas.js";
+import { animate, clearAnim, isSongInPosition, pauseSongs, resetSongs, resumeSongs, startAnim, } from "./canvas.js";
 import { Audios, GlobalState } from "./classes.js";
 import { firstTime } from "./uiControl.js";
 export const global = new GlobalState();
@@ -65,7 +65,8 @@ const handleReturnSong = (ev) => {
         const singerId = isSongInPosition(left, right, top, bottom);
         if (singerId !== 0 && typeof singerId === "number") {
             const audioId = global.currentMovingSong.getAttribute("data-song-id");
-            if (audioId && !global.allSingers[singerId - 1].getAttribute("data-song-id")) {
+            if (audioId &&
+                !global.allSingers[singerId - 1].getAttribute("data-song-id")) {
                 addAudio(singerId, +audioId);
             }
             else
@@ -94,6 +95,32 @@ const addAudio = (singerId, audioId) => {
         global.allLoaders[singerId - 1].classList.add("loading");
     }
 };
+export function autoSongs(clear = false) {
+    if (clear) {
+        clearInterval(global.autoInterval);
+        return;
+    }
+    let i = 0;
+    let singerIds = [1, 3, 5, 2, 4, 6, 7, 0];
+    let singerInt = 0;
+    resetSongs();
+    global.randomMix[i].forEach((songId) => {
+        console.log(singerIds[singerInt], songId);
+        addAudio(singerIds[singerInt], songId);
+        singerInt++;
+    });
+    i++;
+    global.autoInterval = setInterval(() => {
+        resetSongs();
+        global.randomMix[i].forEach((songId) => {
+            console.log(singerIds[singerInt], songId);
+            addAudio(singerIds[singerInt], songId);
+            singerInt++;
+        });
+        i++;
+    }, global.beat * 300);
+    console.log(global.autoInterval);
+}
 const startBeatInterval = (clear = false) => {
     if (clear) {
         clearInterval(global.beatIntervalId);
@@ -235,25 +262,6 @@ async function fetchJson(link) {
         throw new Error("Invalid URL");
     }
 }
-// // Gotta make this better
-// function getSinger(ev: Event) {
-//   if ((ev.target as HTMLDivElement).classList.contains("frame")) {
-//     return (ev.target as HTMLDivElement).parentElement as HTMLDivElement;
-//   } else if ((ev.target as HTMLDivElement).classList.contains("body")) {
-//     return (ev.target as HTMLDivElement).parentElement!
-//       .parentElement as HTMLDivElement;
-//   } else if ((ev.target as HTMLDivElement).classList.contains("body-canvas")) {
-//     return (ev.target as HTMLDivElement).parentElement!.parentElement!
-//       .parentElement as HTMLDivElement;
-//   } else if ((ev.target as HTMLDivElement).classList.contains("head")) {
-//     return (ev.target as HTMLDivElement).parentElement!.parentElement!
-//       .parentElement as HTMLDivElement;
-//   } else if ((ev.target as HTMLDivElement).classList.contains("head-canvas")) {
-//     return (ev.target as HTMLDivElement).parentElement!.parentElement!
-//       .parentElement!.parentElement as HTMLDivElement;
-//   }
-//   return ev.target as HTMLDivElement;
-// }
 async function decodeAudio(buffer, id, audioCtx) {
     return new Audios(await audioCtx.decodeAudioData(buffer), id);
 }
@@ -269,9 +277,18 @@ function startApplication(version) {
         let allSpriteHdLinks = {};
         let allJsonLinks = {};
         switch (version) {
-            // There has to be a better way HATE THE
+            // There has to be a better way HATE THE HARD-CODE
             case 1:
                 global.beat = 55; //100ms
+                global.randomMix = [
+                    [2, 4, 6],
+                    [1, 14, 18],
+                    [12, 18, 20],
+                    [1, 2, 3, 9, 11, 16],
+                    [1, 3, 8, 13, 15, 18],
+                    [6, 10, 14, 16, 20],
+                    [2, 3, 4, 10, 20],
+                ];
                 allAudioLinks = {
                     1: "/public/v1/audios/1_lead.ogg",
                     2: "/public/v1/audios/2_deux.ogg",
@@ -371,6 +388,15 @@ function startApplication(version) {
                 break;
             case 2:
                 global.beat = 45;
+                global.randomMix = [
+                    [2, 4],
+                    [2, 5, 9, 11, 17, 18],
+                    [2, 8, 9],
+                    [6, 13, 17],
+                    [2, 5, 9, 10, 15, 16],
+                    [7, 9, 14, 16, 17, 19, 20],
+                    [1, 2, 3, 8, 11, 15],
+                ];
                 allAudioLinks = {
                     1: "/public/v2/audios/beat1.ogg",
                     2: "/public/v2/audios/beat2.ogg",
@@ -476,6 +502,14 @@ function startApplication(version) {
                 break;
             case 3:
                 global.beat = 80;
+                global.randomMix = [
+                    [2, 4, 9, 14, 16],
+                    [1, 5, 7, 14, 19],
+                    [1, 5, 7, 9, 10, 11, 19],
+                    [1, 5, 6, 7, 9, 11, 12],
+                    [3, 4, 8, 17],
+                    [4, 7, 11],
+                ];
                 allAudioLinks = {
                     1: "/public/v3/audios/drum1_ballet.ogg",
                     2: "/public/v3/audios/drum2_kick.ogg",
@@ -581,6 +615,12 @@ function startApplication(version) {
                 break;
             case 4:
                 global.beat = 80;
+                global.randomMix = [
+                    [3, 4, 8, 17],
+                    [4, 7, 11],
+                    [1, 4, 7, 9, 11, 12],
+                    [1, 5, 9, 12, 14, 15, 19],
+                ];
                 allAudioLinks = {
                     1: "/public/v4/audios/chips1_feel.ogg",
                     2: "/public/v4/audios/chips2_chillin.ogg",
@@ -686,6 +726,13 @@ function startApplication(version) {
                 break;
             case 5:
                 global.beat = 80;
+                global.randomMix = [
+                    [3, 7, 10],
+                    [3, 4, 7, 10, 15, 18],
+                    [2, 3, 4, 10, 18],
+                    [2, 4, 6, 7, 11, 18],
+                    [7, 8, 10, 11, 14, 15, 16],
+                ];
                 allAudioLinks = {
                     1: "/public/v5/audios/1_poum.ogg",
                     2: "/public/v5/audios/2_creuki.ogg",
@@ -791,6 +838,12 @@ function startApplication(version) {
                 break;
             case 6:
                 global.beat = 70;
+                global.randomMix = [
+                    [4, 10],
+                    [1, 4, 5, 9, 10, 19, 20],
+                    [4, 8, 9, 16, 19],
+                    [9, 11, 14, 15, 16],
+                ];
                 allAudioLinks = {
                     1: "/public/v6/audios/1_kick.ogg",
                     2: "/public/v6/audios/2_snare.ogg",
@@ -896,6 +949,13 @@ function startApplication(version) {
                 break;
             case 7:
                 global.beat = 65;
+                global.randomMix = [
+                    [5, 6, 7, 11, 14, 16],
+                    [4, 5, 6, 7, 14],
+                    [3, 4, 6, 10, 17],
+                    [3, 4, 6, 10, 15, 17],
+                    [2, 6, 9, 13, 15],
+                ];
                 allAudioLinks = {
                     1: "/public/v7/audios/1_lead.ogg",
                     2: "/public/v7/audios/2_pouin.ogg",
@@ -1000,6 +1060,13 @@ function startApplication(version) {
                 break;
             case 8:
                 global.beat = 70;
+                global.randomMix = [
+                    [2, 12, 13, 14, 16],
+                    [2, 6, 12, 14, 16, 17, 19],
+                    [10, 15, 19],
+                    [4, 8, 10, 14, 15, 18],
+                    [4, 8, 13, 14, 18],
+                ];
                 allAudioLinks = {
                     1: "/public/v8/audios/1_atlanta.ogg",
                     2: "/public/v8/audios/2_tuctom.ogg",
@@ -1105,6 +1172,13 @@ function startApplication(version) {
                 break;
             case 9:
                 global.beat = 50;
+                global.randomMix = [
+                    [2, 6, 9],
+                    [2, 6, 9, 11, 12, 17],
+                    [1, 4, 5, 6, 17, 18],
+                    [1, 3, 5, 7, 9],
+                    [13, 14, 15, 19, 20, 16],
+                ];
                 allAudioLinks = {
                     1: "/public/v9/audios/01_boo_9.ogg",
                     2: "/public/v9/audios/02_kevin.ogg",

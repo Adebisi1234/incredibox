@@ -1,4 +1,5 @@
-import { autoSongs, pauseSongs, resetSongs, resumeSongs } from "./canvas.js";
+import { pauseSongs, resetSongs, resumeSongs } from "./canvas.js";
+import { autoSongs } from "./main.js";
 
 // header
 const menu = document.getElementsByClassName("menu")[0] as HTMLDivElement;
@@ -15,11 +16,21 @@ const popup = document.getElementById("popup") as HTMLDivElement;
 const modal = document.getElementById("modal") as HTMLDivElement;
 const pops = [...document.getElementsByClassName("pop")] as HTMLDivElement[];
 const reset = document.getElementById("reset") as HTMLDivElement;
-const auto = document.getElementById("auto") as HTMLDivElement;
+const auto = document.getElementById("autoSongs") as HTMLDivElement;
+const rotate = document.getElementById("rotate") as HTMLDivElement;
 const clock = document.getElementById("clock") as HTMLDivElement;
 
 reset.onclick = resetSongs;
-auto.onclick = autoSongs;
+auto.onclick = () => {
+  if (rotate.classList.contains("rotate")) {
+    autoSongs(true);
+    rotate.classList.remove("rotate");
+  } else {
+    console.log("auto");
+    autoSongs();
+    rotate.classList.add("rotate");
+  }
+};
 clock.onclick = () => {
   clock.classList.toggle("paused");
   if (clock.classList.contains("paused")) {

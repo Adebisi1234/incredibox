@@ -1,8 +1,4 @@
-const savedTheme =
-  localStorage.getItem("theme") ||
-  (window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light");
+const savedTheme = localStorage.getItem("theme");
 if (savedTheme === "dark") {
   document.documentElement.classList.add("darkmode");
 }
@@ -22,6 +18,8 @@ const prog = [...document.getElementsByClassName("prog")] as HTMLDivElement[];
 const slide = document.getElementById("slide") as HTMLDivElement;
 const popup = document.getElementById("popup") as HTMLDivElement;
 const fullscreen = document.getElementById("fullscreen") as HTMLDivElement;
+const orientationPop = document.getElementById("orientation") as HTMLDivElement;
+
 
 fullscreen.onclick = () => {
   document.body.requestFullscreen();
@@ -29,18 +27,14 @@ fullscreen.onclick = () => {
 
 window.addEventListener("load", () => {
   if (screen.orientation.type.includes("portrait")) {
-    pops.forEach((pop) => pop.classList.remove("active"));
-    modal.classList.add("animateFadeIn");
-    pops[4].classList.add("active");
+    orientationPop.classList.add("active")
   }
 });
 screen.orientation.addEventListener("change", () => {
   if (screen.orientation.type.includes("landscape")) {
-    modal.classList.remove("animateFadeIn");
+    orientationPop.classList.remove("active");
   } else {
-    pops.forEach((pop) => pop.classList.remove("active"));
-    modal.classList.add("animateFadeIn");
-    pops[4].classList.add("active");
+    orientationPop.classList.add("active");
   }
 });
 
