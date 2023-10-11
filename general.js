@@ -35,6 +35,9 @@ window.addEventListener("load", () => {
     if (!(screen.height === innerHeight)) {
         orientationPop.classList.add("active");
     }
+     if (screen.orientation.type.includes("landscape")) {  
+          orientationPop.classList.remove("active");  
+      } 
 });
 navl.onclick = moveSlideLeft;
 navr.onclick = moveSlideRight;
