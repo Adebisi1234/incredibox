@@ -128,7 +128,7 @@ svg {
     display: none;
     flex-direction: column;
     justify-content: space-between;
-    z-index: 3;
+    z-index: 4;
     align-items: center;
 }
 
