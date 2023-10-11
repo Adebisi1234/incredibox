@@ -23,6 +23,11 @@ fullscreen.onclick = () => {
     document.body.requestFullscreen();
  orientationPop.classList.remove("active");
 };
+window.addEventListener("orientationchange", () => { 
+     if (screen.orientation.type.includes("landscape")) { 
+         orientationPop.classList.remove("active"); 
+     } 
+ });
 window.addEventListener("load", () => {
     if (screen.orientation.type.includes("portrait")) {
         orientationPop.classList.add("active");
