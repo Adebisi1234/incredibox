@@ -19,6 +19,7 @@
     <svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1"
         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <defs>
+            <symbol id="ic-fullscreen" viewBox="0 0 32 32"><path d="M22.4 9.6v0 3.792c0 0.442 0.358 0.8 0.8 0.8s0.8-0.358 0.8-0.8v0-4.592c-0.001-0.221-0.090-0.42-0.235-0.565l0 0c-0.145-0.144-0.345-0.234-0.565-0.235h-4.592c-0.442 0-0.8 0.358-0.8 0.8s0.358 0.8 0.8 0.8v0z"></path><path d="M9.6 9.6h3.792c0.442 0 0.8-0.358 0.8-0.8s-0.358-0.8-0.8-0.8v0h-4.592c-0.221 0.001-0.42 0.090-0.565 0.235l0-0c-0.144 0.145-0.234 0.345-0.235 0.565v4.592c0 0.442 0.358 0.8 0.8 0.8s0.8-0.358 0.8-0.8v0z"></path><path d="M9.6 22.4v0-3.792c0-0.442-0.358-0.8-0.8-0.8s-0.8 0.358-0.8 0.8v0 4.592c0.001 0.221 0.090 0.42 0.235 0.565l-0-0c0.145 0.144 0.345 0.234 0.565 0.235h4.592c0.442 0 0.8-0.358 0.8-0.8s-0.358-0.8-0.8-0.8v0z"></path><path d="M22.4 22.4h-3.792c-0.442 0-0.8 0.358-0.8 0.8s0.358 0.8 0.8 0.8v0h4.592c0.221-0.001 0.42-0.090 0.565-0.235l-0 0c0.144-0.145 0.234-0.345 0.235-0.565v-4.592c0-0.442-0.358-0.8-0.8-0.8s-0.8 0.358-0.8 0.8v0z"></path></symbol>
             <symbol id="ic-resize" viewBox="0 0 33 36">
                 <path
                     d="m30,0H3C1.3,0,0,1.3,0,3v31c0,1.1.9,2,2,2h29c1.1,0,2-.9,2-2V3c0-1.7-1.3-3-3-3ZM3,2c.6,0,1,.4,1,1s-.4,1-1,1-1-.4-1-1,.4-1,1-1Zm28,31.5c0,.3-.2.5-.5.5H2.5c-.3,0-.5-.2-.5-.5V5h29v28.5Z">
@@ -271,11 +272,6 @@
             </symbol>
         </defs>
     </svg>
-    <div class="orientation" id="orientation">
-        <div class="txt orient">Seems you're on a mobile phone please make sure your phone is in landscape orientation <b>and click the button
-            below to enable fullscreen</b></div>
-        <button id="fullscreen">Enable</button>
-    </div>
     <div class="app absolute inset">
         <div class="video inset hidden">
             <video type="video/webm" preload="auto" autobuffer></video>
@@ -491,6 +487,10 @@
         <div class="settings" id="settings">
             <div class="space"></div>
             <div class="v-title"></div>
+<div class="svg-icon">
+ <svg>
+                    <use xlink:href="#ic-fullscreen"></use>
+                </svg></div>
             <div class="info svg-icon" id="info">
                 <svg>
                     <use xlink:href="#ic-info"></use>
@@ -800,11 +800,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="orientation pop">
-                    <div class="txt orient">Seems you're on a mobile phone please click the button
-                        below to enable fullscreen <b>THEN</b> rotate your phone</div>
-                    <button id="fullscreen">Enable</button>
-                </div>
+                <div class="orientation pop" id="orientation">
+                    <div class="txt orient">Seems you're on a mobile phone please put your phone in landscape orientation
+               </div>
             </div>
         </div>
     </div>
