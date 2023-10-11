@@ -872,13 +872,3 @@ span {
         opacity: 1;
     }
 }
-
-#fullscreen {
-    background-color: var(--col-general-bck);
-    padding: 14px 20px;
-    width: 100%;
-    text-align: center;
-    font-size: var(--medium-font-size);
-    color: var(--color-inv);
-    border-radius: 4px;
-}
