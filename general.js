@@ -31,13 +31,10 @@ window.addEventListener("orientationchange", () => {
 window.addEventListener("load", () => {
     if (screen.orientation.type.includes("portrait")) {
         orientationPop.classList.add("active");
-    }
-    if (!(screen.height === innerHeight)) {
-        orientationPop.classList.add("active");
-    }
-     if (screen.orientation.type.includes("landscape")) {  
+    }else if (screen.orientation.type.includes("landscape")) {  
           orientationPop.classList.remove("active");  
       } 
+
 });
 navl.onclick = moveSlideLeft;
 navr.onclick = moveSlideRight;
