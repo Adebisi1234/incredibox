@@ -20,21 +20,13 @@ const popup = document.getElementById("popup");
 const fullscreen = document.getElementById("fullscreen");
 const orientationPop = document.getElementById("orientation");
 fullscreen.onclick = () => {
-    document.body.requestFullscreen();
+    document.body.requestFullscreen(); orientationPop.classList.remove("active");
 };
 window.addEventListener("load", () => {
     if (screen.orientation.type.includes("portrait")) {
         orientationPop.classList.add("active");
     }
     if (!(screen.height === innerHeight)) {
-        orientationPop.classList.add("active");
-    }
-});
-screen.orientation.addEventListener("change", () => {
-    if (screen.orientation.type.includes("landscape")) {
-        orientationPop.classList.remove("active");
-    }
-    else {
         orientationPop.classList.add("active");
     }
 });
