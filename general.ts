@@ -22,7 +22,7 @@ const orientationPop = document.getElementById("orientation") as HTMLDivElement;
 
 
 fullscreen.onclick = () => {
-  document.body.requestFullscreen();
+  document.body.requestFullscreen();     orientationPop.classList.remove("active");
 };
 
 window.addEventListener("load", () => {
