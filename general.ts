@@ -26,7 +26,12 @@ fullscreen.onclick = () => {
 };
 
 window.addEventListener("load", () => {
+  if (screen.orientation.type.includes("portrait")) {
     orientationPop.classList.add("active");
+  }
+  if (!(screen.height === innerHeight)) {
+    orientationPop.classList.add("active");
+  }
 });
 screen.orientation.addEventListener("change", () => {
   if (screen.orientation.type.includes("landscape")) {

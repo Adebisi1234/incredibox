@@ -104,6 +104,9 @@
         --formline-height: 35px;
         --icn-formline-height: 25px;
     }
+        body .settings {
+            margin-top: 10px;
+        }
 }
 
 svg {
