@@ -168,6 +168,7 @@ body>* {
 
 .intro-logo {
     position: absolute;
+    opacity: 0;
     top: calc(50% - 115px);
     width: 100%;
     pointer-events: none;
@@ -790,6 +791,7 @@ span {
 @keyframes titleUp {
     100% {
         transform: translate(0, -60px);
+        opacity: 1;
     }
 }
 
