@@ -20,7 +20,8 @@ const popup = document.getElementById("popup");
 const fullscreen = document.getElementById("fullscreen");
 const orientationPop = document.getElementById("orientation");
 fullscreen.onclick = () => {
-    document.body.requestFullscreen(); orientationPop.classList.remove("active");
+    document.body.requestFullscreen();
+ orientationPop.classList.remove("active");
 };
 window.addEventListener("load", () => {
     if (screen.orientation.type.includes("portrait")) {
