@@ -50,20 +50,6 @@
     }
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --col-dark-bck: #ccc;
-        --col-general-bck: #111;
-
-        --col-mixlist-line-even: #111;
-        --color-alt: #333;
-        --color-inv: #ccc;
-        --color: #555;
-        --color-hover: #333;
-        --color-active: #333;
-    }
-}
-
 .darkmode {
     --col-dark-bck: #ccc;
     --col-general-bck: #111;
