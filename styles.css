@@ -44,6 +44,11 @@
     --ratio-h: 100vh / 850;
 }
 
+@media (orientation: portrait) {
+    body {
+        pointer-events: none;
+    }
+}
 
 @media (prefers-color-scheme: dark) {
     :root {
@@ -116,7 +121,7 @@ svg {
 }
 
 .orientation {
-    background-color: var(--col-general-bck);
+    background-color: var(--col-dark-bck);
     width: 100%;
     height: 100%;
     padding: 16px 24px;
@@ -128,7 +133,7 @@ svg {
     display: none;
     flex-direction: column;
     justify-content: space-between;
-    z-index: 4;
+    z-index: 3;
     align-items: center;
 }
 
@@ -136,13 +141,16 @@ svg {
     display: flex;
 }
 
-#orient {
+.tuto-img {
+    object-fit: contain;
+}
+
+.orient {
     width: fit-content;
     font-size: var(--medium-font-size);
     text-align: center;
     padding: 16px;
-    background-color: var(--col-dark-bck);
-    color: white;
+    color: var(--color-inv);
     border-radius: 16px;
 }
 
@@ -188,8 +196,8 @@ body>* {
     width: 100%;
     top: 50%;
     transform: translate(0, 0);
+    opacity: 0;
 }
-
 
 .titleUp {
     animation: titleUp .8s cubic-bezier(0.77, 0, 0.175, 1) 0s forwards;
@@ -203,7 +211,6 @@ body>* {
 .pumpUpHide {
     animation: pumpUpHide .7s cubic-bezier(.77, 0, .175, 1) .15s forwards;
 }
-
 .experience {
     position: absolute;
     top: calc(50% - 55px);
@@ -336,6 +343,7 @@ body>* {
     border: 1px solid var(--border-color);
     display: flex;
     justify-content: center;
+    cursor: pointer;
     align-items: center;
     transition: background .15s ease-in-out;
 }
@@ -452,7 +460,7 @@ body>* {
 .tab-button {
     min-width: 100px;
     color: var(--col0);
-    height: var(--tab-height);
+    min-height: var(--tab-height);
     background-color: var(--col3);
     display: flex;
     justify-content: center;
@@ -789,7 +797,9 @@ span {
 }
 
 @keyframes titleUp {
-    0% { opacity: 1; }
+    0% {
+            opacity: 1;
+        }
     100% {
         transform: translate(0, -60px);
         
@@ -803,7 +813,15 @@ span {
     }
 }
 
+@keyframes pumpUp {
+    100% {
+        opacity: 1;
+    }
+}
 @keyframes pumpUpHide {
+    0% {
+            opacity: 1;
+        }
     100% {
         transform: translate(0, -60px);
         opacity: 0;

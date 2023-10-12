@@ -18,26 +18,37 @@ const prog = [...document.getElementsByClassName("prog")] as HTMLDivElement[];
 const slide = document.getElementById("slide") as HTMLDivElement;
 const popup = document.getElementById("popup") as HTMLDivElement;
 const fullscreen = document.getElementById("fullscreen") as HTMLDivElement;
-const orientationPop = document.getElementById("orientation") as HTMLDivElement;
-
 
 fullscreen.onclick = () => {
-  document.body.requestFullscreen();     orientationPop.classList.remove("active");
+  if (screen.height === innerHeight) {
+    document.exitFullscreen();
+  } else {
+    document.body.requestFullscreen();
+  }
 };
 
 window.addEventListener("load", () => {
   if (screen.orientation.type.includes("portrait")) {
-    orientationPop.classList.add("active");
-  }
-  if (!(screen.height === innerHeight)) {
-    orientationPop.classList.add("active");
+    pops.forEach((pop) => pop.classList.remove("active"));
+    if (!modal.classList.contains("animateFadeIn")) {
+      modal.classList.add("animateFadeIn");
+    }
+    popup.classList.remove("with-tab");
+    pops[4].classList.add("active");
+  } else {
+    modal.classList.remove("animateFadeIn");
   }
 });
 screen.orientation.addEventListener("change", () => {
-  if (screen.orientation.type.includes("landscape")) {
-    orientationPop.classList.remove("active");
+  if (screen.orientation.type.includes("portrait")) {
+    pops.forEach((pop) => pop.classList.remove("active"));
+    if (!modal.classList.contains("animateFadeIn")) {
+      modal.classList.add("animateFadeIn");
+    }
+    popup.classList.remove("with-tab");
+    pops[4].classList.add("active");
   } else {
-    orientationPop.classList.add("active");
+    modal.classList.remove("animateFadeIn");
   }
 });
 

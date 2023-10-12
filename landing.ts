@@ -3,22 +3,22 @@ const pump = document.getElementById("pump") as HTMLDivElement;
 const experience = document.getElementById("experience") as HTMLDivElement;
 const headphone = document.getElementById("headphone") as HTMLDivElement;
 const choose = document.getElementById("choose") as HTMLDivElement;
-const versions = [...document.getElementsByClassName("version")];
+const versions = [...document.querySelectorAll(".version")];
 const settingsElem = document.getElementById("settings") as HTMLDivElement;
 
 window.onload = () => {
+  console.log(screen.orientation.type);
   if (screen.orientation.type.includes("landscape")) {
     introAnim();
   }
 };
 
-
 window.addEventListener("orientationchange", () => {
+  console.log(screen.orientation.type);
   if (screen.orientation.type.includes("landscape")) {
     introAnim();
   }
 });
-
 
 function introAnim() {
   setTimeout(() => {

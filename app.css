@@ -1,948 +1,942 @@
 :root {
-    --transition-time: 0s;
-    --colV1: #5f5f5f;
-    --colV2: #C32D2D;
-    --colV3: #3C646E;
-    --colV4: #BA7B3D;
-    --colV5: #41A032;
-    --colV6: #825fd2;
-    --colV7: #d65a1e;
-    --colV8: #5f7e7b;
-    --colV9: #005cfa;
+  --transition-time: 0s;
+  --colV1: #5f5f5f;
+  --colV2: #c32d2d;
+  --colV3: #3c646e;
+  --colV4: #ba7b3d;
+  --colV5: #41a032;
+  --colV6: #825fd2;
+  --colV7: #d65a1e;
+  --colV8: #5f7e7b;
+  --colV9: #005cfa;
 }
 
 * {
-    touch-action: none;
+  touch-action: none;
 }
 
 .settings {
-    opacity: 1;
+  opacity: 1;
 }
 
 .home .controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: absolute;
-    bottom: 5%;
-    width: 100%;
-    padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 5%;
+  width: 100%;
+  padding: 0 20px;
 }
 
 .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .img-title {
-    transform: translate(-50%, 10%);
-    width: calc(var(--ratio-h) * 520);
-    position: absolute;
-    height: 100px;
-    bottom: 20%;
-    left: 50%;
-    max-width: 520px;
-    min-width: 200px;
-    margin: auto;
-    margin-bottom: 1%;
+  transform: translate(-50%, 10%);
+  width: calc(var(--ratio-h) * 520);
+  position: absolute;
+  height: 100px;
+  bottom: 20%;
+  left: 50%;
+  max-width: 520px;
+  min-width: 200px;
+  margin: auto;
+  margin-bottom: 1%;
 }
 
-.home .controls>* {
-    width: calc(var(--bt-scale) * 80px);
-    height: calc(var(--bt-scale) * 80px);
-    background-color: var(--color);
-    border-radius: 50%;
+.home .controls > * {
+  width: calc(var(--bt-scale) * 80px);
+  height: calc(var(--bt-scale) * 80px);
+  background-color: var(--color);
+  border-radius: 50%;
 }
 
 .home {
-    background-size: cover;
-    background-color: var(--col-general-bck);
-    z-index: 2;
+  background-size: cover;
+  background-color: var(--col-general-bck);
+  z-index: 2;
 }
 
 .modal {
-    z-index: 3;
+  z-index: 3;
 }
 
 .space {
-    opacity: 0;
+  opacity: 0;
 }
 
 .settings .space {
-    margin-right: auto;
+  margin-right: auto;
 }
 
 .v-title {
-    margin-right: auto;
-    width: calc(var(--bt-scale) * 150px);
-    border-radius: 0;
-    background-size: contain;
-    background-position: center;
+  margin-right: auto;
+  width: calc(var(--bt-scale) * 150px);
+  border-radius: 0;
+  background-size: contain;
+  background-position: center;
 }
 
 .home .controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: absolute;
-    bottom: 5%;
-    width: 100%;
-    padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 5%;
+  width: 100%;
+  padding: 0 20px;
 }
 
 .v1 .img-title {
-    background-image: url('/public/v1/img/title.png');
+  background-image: url("/public/v1/img/title.png");
 }
 
 .v2 .img-title {
-    background-image: url('/public/v2/img/title.png');
+  background-image: url("/public/v2/img/title.png");
 }
 
 .v3 .img-title {
-    background-image: url('/public/v3/img/title.png');
+  background-image: url("/public/v3/img/title.png");
 }
 
 .v4 .img-title {
-    background-image: url('/public/v4/img/title.png');
+  background-image: url("/public/v4/img/title.png");
 }
 
 .v5 .img-title {
-    background-image: url('/public/v5/img/title.png');
+  background-image: url("/public/v5/img/title.png");
 }
 
 .v6 .img-title {
-    background-image: url('/public/v6/img/title.png');
+  background-image: url("/public/v6/img/title.png");
 }
 
 .v7 .img-title {
-    background-image: url('/public/v7/img/title.png');
+  background-image: url("/public/v7/img/title.png");
 }
 
 .v8 .img-title {
-    background-image: url('/public/v8/img/title.png');
+  background-image: url("/public/v8/img/title.png");
 }
 
 .v9 .img-title {
-    background-image: url('/public/v9/img/title.png');
+  background-image: url("/public/v9/img/title.png");
 }
 
-
 .v1 .v-title {
-    background-image: url('/public/v1/img/version.png');
+  background-image: url("/public/v1/img/version.png");
 }
 
 .v2 .v-title {
-    background-image: url('/public/v2/img/version.png');
+  background-image: url("/public/v2/img/version.png");
 }
 
 .v3 .v-title {
-    background-image: url('/public/v3/img/version.png');
+  background-image: url("/public/v3/img/version.png");
 }
 
 .v4 .v-title {
-    background-image: url('/public/v4/img/version.png');
+  background-image: url("/public/v4/img/version.png");
 }
 
 .v5 .v-title {
-    background-image: url('/public/v5/img/version.png');
+  background-image: url("/public/v5/img/version.png");
 }
 
 .v6 .v-title {
-    background-image: url('/public/v6/img/version.png');
+  background-image: url("/public/v6/img/version.png");
 }
 
 .v7 .v-title {
-    background-image: url('/public/v7/img/version.png');
+  background-image: url("/public/v7/img/version.png");
 }
 
 .v8 .v-title {
-    background-image: url('/public/v8/img/version.png');
+  background-image: url("/public/v8/img/version.png");
 }
 
 .v9 .v-title {
-    background-image: url('/public/v9/img/version.png');
+  background-image: url("/public/v9/img/version.png");
 }
 
-
-
 .v1 .home {
-    background-image: url(/public/v1/img/home.jpg);
+  background-image: url(/public/v1/img/home.jpg);
 }
 
 .v2 .home {
-    background-image: url(/public/v2/img/home.jpg);
+  background-image: url(/public/v2/img/home.jpg);
 }
 
 .v3 .home {
-    background-image: url(/public/v3/img/home.jpg);
+  background-image: url(/public/v3/img/home.jpg);
 }
 
 .v4 .home {
-    background-image: url(/public/v4/img/home.jpg);
+  background-image: url(/public/v4/img/home.jpg);
 }
 
 .v5 .home {
-    background-image: url(/public/v5/img/home.jpg);
+  background-image: url(/public/v5/img/home.jpg);
 }
 
 .v6 .home {
-    background-image: url(/public/v6/img/home.jpg);
+  background-image: url(/public/v6/img/home.jpg);
 }
 
 .v7 .home {
-    background-image: url(/public/v7/img/home.jpg);
+  background-image: url(/public/v7/img/home.jpg);
 }
 
 .v8 .home {
-    background-image: url(/public/v8/img/home.jpg);
+  background-image: url(/public/v8/img/home.jpg);
 }
 
 .v9 .home {
-    background-image: url(/public/v9/img/home.jpg);
+  background-image: url(/public/v9/img/home.jpg);
 }
 
 .v1 .video-player {
-    background-position-y: calc((100% / 9) * 1);
+  background-position-y: calc((100% / 9) * 1);
 }
 
 .v2 .video-player {
-    background-position-y: calc((100% / 9) * 2);
+  background-position-y: calc((100% / 9) * 2);
 }
 
 .v3 .video-player {
-    background-position-y: calc((100% / 9) * 3);
+  background-position-y: calc((100% / 9) * 3);
 }
 
 .v4 .video-player {
-    background-position-y: calc((100% / 9) * 4);
+  background-position-y: calc((100% / 9) * 4);
 }
 
 .v5 .video-player {
-    background-position-y: calc((100% / 9) * 5);
+  background-position-y: calc((100% / 9) * 5);
 }
 
 .v6 .video-player {
-    background-position-y: calc((100% / 9) * 6);
+  background-position-y: calc((100% / 9) * 6);
 }
 
 .v7 .video-player {
-    background-position-y: calc((100% / 9) * 7);
+  background-position-y: calc((100% / 9) * 7);
 }
 
 .v8 .video-player {
-    background-position-y: calc((100% / 9) * 8);
+  background-position-y: calc((100% / 9) * 8);
 }
 
 .v9 .video-player {
-    background-position-y: calc((100% / 9) * 9);
+  background-position-y: calc((100% / 9) * 9);
 }
 
 .v1 .song {
-    background-image: url(/public/v1/img/songs.png);
+  background-image: url(/public/v1/img/songs.png);
 }
 
 .v2 .song {
-    background-image: url(/public/v2/img/songs.png);
+  background-image: url(/public/v2/img/songs.png);
 }
 
 .v3 .song {
-    background-image: url(/public/v3/img/songs.png);
+  background-image: url(/public/v3/img/songs.png);
 }
 
 .v4 .song {
-    background-image: url(/public/v4/img/songs.png);
+  background-image: url(/public/v4/img/songs.png);
 }
 
 .v5 .song {
-    background-image: url(/public/v5/img/songs.png);
+  background-image: url(/public/v5/img/songs.png);
 }
 
 .v6 .song {
-    background-image: url(/public/v6/img/songs.png);
+  background-image: url(/public/v6/img/songs.png);
 }
 
 .v7 .song {
-    background-image: url(/public/v7/img/songs.png);
+  background-image: url(/public/v7/img/songs.png);
 }
 
 .v8 .song {
-    background-image: url(/public/v8/img/songs.png);
+  background-image: url(/public/v8/img/songs.png);
 }
 
 .v9 .song {
-    background-image: url(/public/v9/img/songs.png);
+  background-image: url(/public/v9/img/songs.png);
 }
 
 .v1 main {
-    background-image: url("/public/v1/img/bg.jpg");
+  background-image: url("/public/v1/img/bg.jpg");
 }
 
 .v2 main {
-    background-image: url("/public/v2/img/bg.jpg");
+  background-image: url("/public/v2/img/bg.jpg");
 }
 
 .v3 main {
-    background-image: url("/public/v3/img/bg.jpg");
+  background-image: url("/public/v3/img/bg.jpg");
 }
 
 .v4 main {
-    background-image: url("/public/v4/img/bg.jpg");
+  background-image: url("/public/v4/img/bg.jpg");
 }
 
 .v5 main {
-    background-image: url("/public/v5/img/bg.jpg");
+  background-image: url("/public/v5/img/bg.jpg");
 }
 
 .v6 main {
-    background-image: url("/public/v6/img/bg.jpg");
+  background-image: url("/public/v6/img/bg.jpg");
 }
 
 .v7 main {
-    background-image: url("/public/v7/img/bg.jpg");
+  background-image: url("/public/v7/img/bg.jpg");
 }
 
 .v8 main {
-    background-image: url("/public/v8/img/bg.jpg");
+  background-image: url("/public/v8/img/bg.jpg");
 }
 
 .v9 main {
-    background-image: url("/public/v9/img/bg.jpg");
+  background-image: url("/public/v9/img/bg.jpg");
 }
 
-
-
-
 .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .img-title {
-    transform: translate(-50%, 10%);
-    width: calc(var(--ratio-h) * 520);
-    position: absolute;
-    height: 100px;
-    bottom: 20%;
-    left: 50%;
-    max-width: 520px;
-    min-width: 200px;
-    margin: auto;
-    margin-bottom: 1%;
-    background-size: contain;
-    background-position: center;
+  transform: translate(-50%, 10%);
+  width: calc(var(--ratio-h) * 520);
+  position: absolute;
+  height: 100px;
+  bottom: 20%;
+  left: 50%;
+  max-width: 520px;
+  min-width: 200px;
+  margin: auto;
+  margin-bottom: 1%;
+  background-size: contain;
+  background-position: center;
 }
 
-.home .controls>* {
-    width: calc(var(--bt-scale) * 80px);
-    height: calc(var(--bt-scale) * 80px);
-    background-color: var(--col);
-    border-radius: 50%;
+.home .controls > * {
+  width: calc(var(--bt-scale) * 80px);
+  height: calc(var(--bt-scale) * 80px);
+  background-color: var(--col);
+  border-radius: 50%;
 }
 
 .app-loader {
-    display: none;
+  display: none;
 }
 
 .app-loader.show {
-    width: calc(var(--bt-scale) * 200px);
-    height: 20px;
-    display: block;
+  width: calc(var(--bt-scale) * 200px);
+  height: 20px;
+  display: block;
 }
 
 .app-loader-status {
-    width: 20%;
-    height: 100%;
-    border-radius: 20px;
-    background-color: var(--col);
-    transition: all .5s ease-in;
+  width: 20%;
+  height: 100%;
+  border-radius: 20px;
+  background-color: var(--col);
+  transition: all 0.5s ease-in;
 }
 
 .play {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .play:has(.app-loader.show) {
-    width: calc(var(--bt-scale) * 160px);
-    border-radius: 20px;
-    height: calc(var(--bt-scale) * 20px);
-    border: 2px solid var(--col3);
-    background-color: var(--col-general-bck);
+  width: calc(var(--bt-scale) * 160px);
+  border-radius: 20px;
+  height: calc(var(--bt-scale) * 20px);
+  border: 2px solid var(--col3);
+  background-color: var(--col-general-bck);
 }
 
 .play-icon {
-    display: none;
+  display: none;
 }
 
 .play-icon .play-loader {
-    display: none;
+  display: none;
 }
 
 .play-icon.loading .play-button {
-    display: none;
+  display: none;
 }
 
 .play-icon.loading .play-loader {
-    display: flex;
-    transition: all 3s ease-in-out;
+  display: flex;
+  transition: all 3s ease-in-out;
 }
 
 .rotate {
-    animation: rotate 3s ease-in-out infinite;
+  animation: rotate 3s ease-in-out infinite;
 }
 
 canvas {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .header-content {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    padding: 4px 16px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  padding: 4px 16px;
 }
 
 .head-controls {
-    height: 100%;
-    align-items: center;
-    gap: 12px;
+  height: 100%;
+  align-items: center;
+  gap: 12px;
 }
 
 .head-transition {
-    transition: all 250ms linear;
+  transition: all 250ms linear;
 }
 
-.left-controls>*:not(.close) {
-    display: flex;
-    fill: white;
-    background-color: black;
-    font-size: var(--big-medium-size);
-    color: white;
-    gap: 4px;
-    border-radius: 12px;
-    height: calc(var(--bt-scale) * 70%);
-    width: calc(var(--bt-scale) * 100px);
-    justify-content: space-around;
-    padding: 0% 8px;
-    align-items: center;
+.left-controls > *:not(.close) {
+  display: flex;
+  fill: white;
+  background-color: black;
+  font-size: var(--big-medium-size);
+  color: white;
+  gap: 4px;
+  border-radius: 12px;
+  height: calc(var(--bt-scale) * 70%);
+  width: calc(var(--bt-scale) * 100px);
+  justify-content: space-around;
+  padding: 0% 8px;
+  align-items: center;
 }
 
 .left-controls .reset {
-    background-color: var(--col1);
+  background-color: var(--col1);
 }
 
 .left-controls .auto {
-    background-color: #0a44a7;
-
+  background-color: #0a44a7;
 }
 
 .left-controls .reset:hover {
-    background-color: var(--col2);
+  background-color: var(--col2);
 }
 
 .left-controls .auto:hover {
-    background-color: #005cfa;
+  background-color: #005cfa;
 }
 
 .head-icons {
-    background-color: var(--col);
-    aspect-ratio: 1;
-    height: 80%;
-    max-height: 60px;
-    border-radius: 50%;
+  background-color: var(--col);
+  aspect-ratio: 1;
+  height: 80%;
+  max-height: 60px;
+  border-radius: 50%;
 }
 
 .justify-right {
-    justify-content: flex-end;
+  justify-content: flex-end;
 }
 
 video {
-    width: 100%;
-    position: absolute;
-    aspect-ratio: 16/9;
-    object-fit: contain;
-    display: none;
-    height: 100%;
+  width: 100%;
+  position: absolute;
+  aspect-ratio: 16/9;
+  object-fit: contain;
+  display: none;
+  height: 100%;
 }
 
 video.active {
-    display: block;
-    background-color: black;
-    z-index: 2;
+  display: block;
+  background-color: black;
+  z-index: 2;
 }
 
 .video-player {
-    border: 4px solid transparent;
-    background-image: url(/public//bonus.svg);
-    background-color: var(--col);
-    background-size: 300% 1000%;
+  border: 4px solid transparent;
+  background-image: url(/public//bonus.svg);
+  background-color: var(--col);
+  background-size: 300% 1000%;
 }
 
 .video-player[data-player-id="1"] {
-    background-position-x: 0%;
+  background-position-x: 0%;
 }
 
 .video-player[data-player-id="2"] {
-    background-position-x: 50%;
+  background-position-x: 50%;
 }
 
 .video-player[data-player-id="3"] {
-    background-position-x: 100%;
+  background-position-x: 100%;
 }
 
 .combo1 {
-    border-top-color: red !important;
+  border-top-color: red !important;
 }
 
 .combo2 {
-    border-right-color: aqua !important;
+  border-right-color: aqua !important;
 }
 
 .combo3 {
-    border-left-color: yellow !important;
+  border-left-color: yellow !important;
 }
 
 .combo4 {
-    border-bottom-color: green;
+  border-bottom-color: green;
 }
 
 .video-player .loader {
-    bottom: -8px;
-    height: 4px;
-    width: 100%;
-    border-radius: 2px;
+  bottom: -8px;
+  height: 4px;
+  width: 100%;
+  border-radius: 2px;
 }
 
 .playable {
-    border-color: green;
+  border-color: green;
 }
 
 .middle {
-    flex-grow: 2;
-    justify-content: space-evenly;
+  flex-grow: 2;
+  justify-content: space-evenly;
 }
 
 .pause {
-    justify-content: flex-end;
+  justify-content: flex-end;
 }
 
 h2 {
-    width: 100%;
-    text-align: center;
+  width: 100%;
+  text-align: center;
 }
 
 .splashscreen h2 {
-    font-weight: 900;
-    color: grey;
-    bottom: 20%;
+  font-weight: 900;
+  color: grey;
+  bottom: 20%;
 }
 
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    aspect-ratio: 16/9;
-    background-color: var(--col-general-bck);
-    background-color: var(--col-general-bck);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 16/9;
+  background-color: var(--col-general-bck);
+  background-color: var(--col-general-bck);
 }
 
 header {
-    height: calc(var(--bt-scale) * 15%);
-    background-color: var(--col-general-bck);
+  height: calc(var(--bt-scale) * 15%);
+  background-color: var(--col-general-bck);
 }
 
 .head-container {
-    display: flex;
-    height: 100%;
+  display: flex;
+  height: 100%;
 }
 
-.head-container>* {
-    display: flex;
-    width: 100%;
-    height: 100%;
+.head-container > * {
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
 .head-left {
-    transform: translateX(-100%);
-    z-index: 1;
-    padding: 0 20px;
-    justify-content: space-between;
-    align-items: center;
+  transform: translateX(-100%);
+  z-index: 1;
+  padding: 0 20px;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.head-left>* {
-    flex: 1;
-    display: flex;
+.head-left > * {
+  flex: 1;
+  display: flex;
 }
 
 .head-left.tright {
-    transform: translateX(0);
+  transform: translateX(0);
 }
 
 .head-right.tright {
-    transform: translateX(100%);
+  transform: translateX(100%);
 }
 
 .switch * {
-    opacity: 1;
+  opacity: 1;
 }
 
 main {
-    aspect-ratio: 1366/329;
-    display: flex;
-    width: 100%;
-    align-items: flex-end;
-    max-height: 329px;
-    justify-content: center;
-    background-size: cover;
-    background-repeat: no-repeat;
+  aspect-ratio: 1366/329;
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+  max-height: 329px;
+  justify-content: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .singers {
-    display: flex;
-    justify-content: space-around;
-    height: 100%;
-    width: 100%;
-    margin: 0 5%;
-    overflow: hidden;
+  display: flex;
+  justify-content: space-around;
+  height: 100%;
+  width: 100%;
+  margin: 0 5%;
+  overflow: hidden;
 }
 
 .singer {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 .loader-container {
-    height: 4px;
-    margin: 2px 0px;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
+  height: 4px;
+  margin: 2px 0px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 .loader-container .loader {
-    height: 4px;
-    width: 80%;
-    border-radius: 2px;
+  height: 4px;
+  width: 80%;
+  border-radius: 2px;
 }
 
-.loader-container .loader>.status,
-.video-player .loader>.status {
-    width: 0%;
-    height: 100%;
-    border-radius: 2px;
-    opacity: 0.1;
-    background-color: var(--col);
-    transition: width ease-in;
-    transition-duration: var(--transition-time);
+.loader-container .loader > .status,
+.video-player .loader > .status {
+  width: 0%;
+  height: 100%;
+  border-radius: 2px;
+  opacity: 0.1;
+  background-color: var(--col);
+  transition: width ease-in;
+  transition-duration: var(--transition-time);
 }
 
-.loader-container .loader.loading>.status,
-.video-player.loading .loader>.status {
-    width: 100%;
-    opacity: 1;
+.loader-container .loader.loading > .status,
+.video-player.loading .loader > .status {
+  width: 100%;
+  opacity: 1;
 }
 
 .singer.over {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .singer.active {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .singing {
-    animation: jump 250ms ease forwards;
+  animation: jump 250ms ease forwards;
 }
 
 .song.moved {
-    opacity: .7;
-
+  opacity: 0.7;
 }
 
 .song.active {
-    box-shadow: 3px 3px #555
+  box-shadow: 3px 3px #555;
+  background-position-y: 100% !important;
 }
 
 .darkmode .song.active {
-    box-shadow: 3px 3px #000
+  box-shadow: 3px 3px #000;
+  background-position-y: 100% !important;
 }
 
 @keyframes jump {
+  0%,
+  100% {
+    margin: 0;
+  }
 
-    0%,
-    100% {
-        margin: 0;
-    }
-
-    25%,
-    75% {
-        margin-top: -15px;
-    }
+  25%,
+  75% {
+    margin-top: -15px;
+  }
 }
 
 .absolute {
-    position: absolute;
+  position: absolute;
 }
 
 .relative {
-    position: relative;
+  position: relative;
 }
 
 .frame {
-    height: var(--frameHeight);
-    background-repeat: no-repeat;
-    background-size: contain;
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    background-position: bottom;
+  height: var(--frameHeight);
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  background-position: bottom;
 }
 
 * {
-    background-repeat: no-repeat;
+  background-repeat: no-repeat;
 }
 
 .frame .body {
-    height: var(--frameHeight);
-    margin-top: var(--marginTop);
-    width: 100%;
-    bottom: 0;
+  height: var(--frameHeight);
+  margin-top: var(--marginTop);
+  width: 100%;
+  bottom: 0;
 }
-
 
 .frame .head {
-    bottom: var(--headBottom);
-    height: var(--headHeight);
-    width: 100%;
-
+  bottom: var(--headBottom);
+  height: var(--headHeight);
+  width: 100%;
 }
 
-
-.singer[data-singer-id="1"]>.frame {
-    background-image: var(--background-1);
+.singer[data-singer-id="1"] > .frame {
+  background-image: var(--background-1);
 }
 
-.singer[data-singer-id="2"]>.frame {
-    background-image: var(--background-2);
+.singer[data-singer-id="2"] > .frame {
+  background-image: var(--background-2);
 }
 
-.singer[data-singer-id="3"]>.frame {
-    background-image: var(--background-3);
+.singer[data-singer-id="3"] > .frame {
+  background-image: var(--background-3);
 }
 
-.singer[data-singer-id="4"]>.frame {
-    background-image: var(--background-4);
+.singer[data-singer-id="4"] > .frame {
+  background-image: var(--background-4);
 }
 
-.singer[data-singer-id="5"]>.frame {
-    background-image: var(--background-5);
+.singer[data-singer-id="5"] > .frame {
+  background-image: var(--background-5);
 }
 
-.singer[data-singer-id="6"]>.frame {
-    background-image: var(--background-6);
+.singer[data-singer-id="6"] > .frame {
+  background-image: var(--background-6);
 }
 
-.singer[data-singer-id="7"]>.frame {
-    background-image: var(--background-7);
+.singer[data-singer-id="7"] > .frame {
+  background-image: var(--background-7);
 }
 
-.singer[data-singer-id="8"]>.frame {
-    background-image: var(--background-8);
+.singer[data-singer-id="8"] > .frame {
+  background-image: var(--background-8);
 }
 
 img {
-    width: 100%;
+  width: 100%;
 }
 
 footer {
-    height: calc(var(--bt-scale) * 33%);
-    padding: 1% 15%;
-    background-color: var(--col-general-bck);
+  height: calc(var(--bt-scale) * 33%);
+  padding: 1% 15%;
+  background-color: var(--col-general-bck);
 }
-
+.v1 footer {
+    background-color: var(--color-alt);
+}
 .songs {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    justify-content: flex-start;
-    align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: center;
 }
 
-.songs>* {
-    width: 100%;
-    height: fit-content;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: nowrap;
-    gap: 4px;
+.songs > * {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 4px;
 }
 
 .song {
-    aspect-ratio: 1 / 1;
-    flex: 1;
-    flex-basis: auto;
-    background-size: contain;
-    background-repeat: no-repeat;
-    cursor: grab;
-    border-radius: 8px;
-
+  aspect-ratio: 1 / 1;
+  flex: 1;
+  flex-basis: auto;
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: grab;
+  border-radius: 8px;
+}
+.song.disable {
+  background-image: none;
+  background-color: var(--col1);
+  pointer-events: none;
 }
 
 .songs .left {
-    padding-left: 5%;
+  padding-left: 5%;
 }
 
 .songs .right {
-    padding-right: 5%;
+  padding-right: 5%;
 }
 
-
 .song[data-song-id="1"] {
-    background-position: calc((100% / 19) * 0) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 0) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="2"] {
-    background-position: calc((100% / 19) * 1) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 1) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="3"] {
-    background-position: calc((100% / 19) * 2) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 2) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="4"] {
-    background-position: calc((100% / 19) * 3) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 3) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="5"] {
-    background-position: calc((100% / 19) * 4) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 4) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="6"] {
-    background-position: calc((100% / 19) * 5) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 5) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="7"] {
-    background-position: calc((100% / 19) * 6) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 6) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="8"] {
-    background-position: calc((100% / 19) * 7) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 7) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="9"] {
-    background-position: calc((100% / 19) * 8) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 8) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="10"] {
-    background-position: calc((100% / 19) * 9) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 9) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="11"] {
-    background-position: calc((100% / 19) * 10) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 10) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="12"] {
-    background-position: calc((100% / 19) * 11) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 11) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="13"] {
-    background-position: calc((100% / 19) * 12) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 12) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="14"] {
-    background-position: calc((100% / 19) * 13) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 13) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="15"] {
-    background-position: calc((100% / 19) * 14) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 14) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="16"] {
-    background-position: calc((100% / 19) * 15) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 15) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="17"] {
-    background-position: calc((100% / 19) * 16) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 16) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="18"] {
-    background-position: calc((100% / 19) * 17) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 17) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="19"] {
-    background-position: calc((100% / 19) * 18) 0;
-    background-size: auto 200%;
+  background-position: calc((100% / 19) * 18) 0;
+  background-size: auto 200%;
 }
 
 .song[data-song-id="20"] {
-    background-position: calc((100% / 19) * 19) 0;
-    background-size: auto 200%
+  background-position: calc((100% / 19) * 19) 0;
+  background-size: auto 200%;
 }
 
 @keyframes rotate {
-    100% {
-        transform: rotate(360deg);
-    }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media screen and (max-width: 768px) {
-
-    .singers {
-        margin: 0;
-        padding: 0;
-    }
+  .singers {
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .clock #pause {
-    display: block;
+  display: block;
 }
 
 .clock #play {
-    display: none;
+  display: none;
 }
 
 .clock.paused #pause {
-    display: none;
+  display: none;
 }
 
 .clock.paused #play {
-    display: block;
+  display: block;
 }

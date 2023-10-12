@@ -106,7 +106,10 @@ const addAudio = (singerId: number, audioId: number) => {
   global.audioQueue.push(newAudio);
   mixtape(audioId, "add");
   startAnim(singerId, audioId);
-  if (Object.keys(global.audiosInDom).length === 0) {
+  if (
+    Object.keys(global.audiosInDom).length === 0 ||
+    global.beatIntervalId === 0
+  ) {
     startBeatInterval();
   } else {
     global.allLoaders[singerId - 1].classList.add("loading");
@@ -116,26 +119,58 @@ const addAudio = (singerId: number, audioId: number) => {
 export function autoSongs(clear: boolean = false) {
   if (clear) {
     clearInterval(global.autoInterval);
+    global.audioQueue = [];
+    global.allSongs.forEach((song) => song.classList.remove("disable"));
     return;
   }
   let i = 0;
-  let singerIds = [1, 3, 5, 2, 4, 6, 7, 0];
+  let singerIds = [1, 3, 5, 2, 4, 6, 7, 8];
   let singerInt = 0;
+  global.allSongs.forEach((song) => song.classList.add("disable"));
   resetSongs();
+
+  setTimeout(() => {}, 500);
+  // this is messy I know just a prototype
   global.randomMix[i].forEach((songId) => {
-    console.log(singerIds[singerInt], songId);
-    addAudio(singerIds[singerInt], songId);
-    singerInt++;
+    global.allSingers[singerIds[singerInt] - 1].setAttribute(
+      "data-song-id",
+      `${songId}`
+    );
+    global.audioQueue.push({
+      audio: global.allAudios[songId],
+      singerId: singerIds[singerInt],
+    });
+    singerInt = (singerInt + 1) % singerIds.length;
   });
-  i++;
+  for (let i = 0; i < global.audioQueue.length; i++) {
+    const audioObj = global.audioQueue[i];
+    global.audioQueue.splice(i, 1);
+    global.audiosInDom[audioObj!.audio.id] = audioObj!.audio;
+    startAnim(audioObj.singerId, +audioObj.audio.id);
+    animate(audioObj.singerId, +audioObj.audio.id);
+  }
+  i = (i + 1) % global.randomMix.length;
   global.autoInterval = setInterval(() => {
     resetSongs();
     global.randomMix[i].forEach((songId) => {
-      console.log(singerIds[singerInt], songId);
-      addAudio(singerIds[singerInt], songId);
-      singerInt++;
+      global.allSingers[singerIds[singerInt] - 1].setAttribute(
+        "data-song-id",
+        `${songId}`
+      );
+      global.audioQueue.push({
+        audio: global.allAudios[songId],
+        singerId: singerIds[singerInt],
+      });
+      singerInt = (singerInt + 1) % singerIds.length;
     });
-    i++;
+    for (let i = 0; i < global.audioQueue.length; i++) {
+      const audioObj = global.audioQueue[i];
+      global.audioQueue.splice(i, 1);
+      global.audiosInDom[audioObj!.audio.id] = audioObj!.audio;
+      startAnim(audioObj.singerId, +audioObj.audio.id);
+      animate(audioObj.singerId, +audioObj.audio.id);
+    }
+    i = (i + 1) % global.randomMix.length;
   }, global.beat * 300);
   console.log(global.autoInterval);
 }
@@ -310,7 +345,7 @@ function startApplication(version: number) {
     switch (version) {
       // There has to be a better way HATE THE HARD-CODE
       case 1:
-        global.beat = 55; //100ms
+        global.beat = 53; //100ms
         global.randomMix = [
           [2, 4, 6],
           [1, 14, 18],
@@ -418,7 +453,7 @@ function startApplication(version: number) {
         };
         break;
       case 2:
-        global.beat = 45;
+        global.beat = 96;
         global.randomMix = [
           [2, 4],
           [2, 5, 9, 11, 17, 18],
@@ -659,96 +694,97 @@ function startApplication(version: number) {
           [1, 4, 7, 9, 11, 12],
           [1, 5, 9, 12, 14, 15, 19],
         ];
+        // See why I hate HARD-CODE too lazy to fix it now tho til v1.2
         allAudioLinks = {
-          1: "/public/v4/audios/chips1_feel.ogg",
-          2: "/public/v4/audios/chips2_chillin.ogg",
-          3: "/public/v4/audios/chips3_yeah.ogg",
-          4: "/public/v4/audios/chips4_filback.ogg",
-          5: "/public/v4/audios/chips5_teylo.ogg",
-          6: "/public/v4/audios/drum1_kick.ogg",
-          7: "/public/v4/audios/drum2_snare.ogg",
-          8: "/public/v4/audios/drum3_touti.ogg",
-          9: "/public/v4/audios/drum4_charley.ogg",
-          10: "/public/v4/audios/drum5_chatom.ogg",
-          11: "/public/v4/audios/effect1_bass.ogg",
-          12: "/public/v4/audios/effect2_enigmatic.ogg",
-          13: "/public/v4/audios/effect3_cry.ogg",
-          14: "/public/v4/audios/effect4_odoyouno.ogg",
-          15: "/public/v4/audios/effect5_oua.ogg",
-          16: "/public/v4/audios/melo1_toun.ogg",
-          17: "/public/v4/audios/melo2_flute.ogg",
-          18: "/public/v4/audios/melo3_neou.ogg",
-          19: "/public/v4/audios/melo4_hu.ogg",
-          20: "/public/v4/audios/melo5_ah.ogg",
+          16: "/public/v4/audios/chips1_feel.ogg",
+          17: "/public/v4/audios/chips2_chillin.ogg",
+          18: "/public/v4/audios/chips3_yeah.ogg",
+          19: "/public/v4/audios/chips4_filback.ogg",
+          20: "/public/v4/audios/chips5_teylo.ogg",
+          1: "/public/v4/audios/drum1_kick.ogg",
+          2: "/public/v4/audios/drum2_snare.ogg",
+          3: "/public/v4/audios/drum3_touti.ogg",
+          4: "/public/v4/audios/drum4_charley.ogg",
+          5: "/public/v4/audios/drum5_chatom.ogg",
+          6: "/public/v4/audios/effect1_bass.ogg",
+          7: "/public/v4/audios/effect2_enigmatic.ogg",
+          8: "/public/v4/audios/effect3_cry.ogg",
+          9: "/public/v4/audios/effect4_odoyouno.ogg",
+          10: "/public/v4/audios/effect5_oua.ogg",
+          11: "/public/v4/audios/melo1_toun.ogg",
+          12: "/public/v4/audios/melo2_flute.ogg",
+          13: "/public/v4/audios/melo3_neou.ogg",
+          14: "/public/v4/audios/melo4_hu.ogg",
+          15: "/public/v4/audios/melo5_ah.ogg",
           21: "/public/v4/audios/21_bonus.ogg",
           22: "/public/v4/audios/22_bonus.ogg",
           23: "/public/v4/audios/23_bonus.ogg",
         };
         allSpriteLinks = {
-          1: "/public/v4/sprites/chips1_feel-sprite.png",
-          2: "/public/v4/sprites/chips2_chillin-sprite.png",
-          3: "/public/v4/sprites/chips3_yeah-sprite.png",
-          4: "/public/v4/sprites/chips4_filback-sprite.png",
-          5: "/public/v4/sprites/chips5_teylo-sprite.png",
-          6: "/public/v4/sprites/drum1_kick-sprite.png",
-          7: "/public/v4/sprites/drum2_snare-sprite.png",
-          8: "/public/v4/sprites/drum3_touti-sprite.png",
-          9: "/public/v4/sprites/drum4_charley-sprite.png",
-          10: "/public/v4/sprites/drum5_chatom-sprite.png",
-          11: "/public/v4/sprites/effect1_bass-sprite.png",
-          12: "/public/v4/sprites/effect2_enigmatic-sprite.png",
-          13: "/public/v4/sprites/effect3_cry-sprite.png",
-          14: "/public/v4/sprites/effect4_odoyouno-sprite.png",
-          15: "/public/v4/sprites/effect5_oua-sprite.png",
-          16: "/public/v4/sprites/melo1_toun-sprite.png",
-          17: "/public/v4/sprites/melo2_flute-sprite.png",
-          18: "/public/v4/sprites/melo3_neou-sprite.png",
-          19: "/public/v4/sprites/melo4_hu-sprite.png",
-          20: "/public/v4/sprites/melo5_ah-sprite.png",
+          16: "/public/v4/sprites/chips1_feel-sprite.png",
+          17: "/public/v4/sprites/chips2_chillin-sprite.png",
+          18: "/public/v4/sprites/chips3_yeah-sprite.png",
+          19: "/public/v4/sprites/chips4_filback-sprite.png",
+          20: "/public/v4/sprites/chips5_teylo-sprite.png",
+          1: "/public/v4/sprites/drum1_kick-sprite.png",
+          2: "/public/v4/sprites/drum2_snare-sprite.png",
+          3: "/public/v4/sprites/drum3_touti-sprite.png",
+          4: "/public/v4/sprites/drum4_charley-sprite.png",
+          5: "/public/v4/sprites/drum5_chatom-sprite.png",
+          6: "/public/v4/sprites/effect1_bass-sprite.png",
+          7: "/public/v4/sprites/effect2_enigmatic-sprite.png",
+          8: "/public/v4/sprites/effect3_cry-sprite.png",
+          9: "/public/v4/sprites/effect4_odoyouno-sprite.png",
+          10: "/public/v4/sprites/effect5_oua-sprite.png",
+          11: "/public/v4/sprites/melo1_toun-sprite.png",
+          12: "/public/v4/sprites/melo2_flute-sprite.png",
+          13: "/public/v4/sprites/melo3_neou-sprite.png",
+          14: "/public/v4/sprites/melo4_hu-sprite.png",
+          15: "/public/v4/sprites/melo5_ah-sprite.png",
         };
         allSpriteHdLinks = {
-          1: "/public/v4/sprites/chips1_feel-sprite-hd.png",
-          2: "/public/v4/sprites/chips2_chillin-sprite-hd.png",
-          3: "/public/v4/sprites/chips3_yeah-sprite-hd.png",
-          4: "/public/v4/sprites/chips4_filback-sprite-hd.png",
-          5: "/public/v4/sprites/chips5_teylo-sprite-hd.png",
-          6: "/public/v4/sprites/drum1_kick-sprite-hd.png",
-          7: "/public/v4/sprites/drum2_snare-sprite-hd.png",
-          8: "/public/v4/sprites/drum3_touti-sprite-hd.png",
-          9: "/public/v4/sprites/drum4_charley-sprite-hd.png",
-          10: "/public/v4/sprites/drum5_chatom-sprite-hd.png",
-          11: "/public/v4/sprites/effect1_bass-sprite-hd.png",
-          12: "/public/v4/sprites/effect2_enigmatic-sprite-hd.png",
-          13: "/public/v4/sprites/effect3_cry-sprite-hd.png",
-          14: "/public/v4/sprites/effect4_odoyouno-sprite-hd.png",
-          15: "/public/v4/sprites/effect5_oua-sprite-hd.png",
-          16: "/public/v4/sprites/melo1_toun-sprite-hd.png",
-          17: "/public/v4/sprites/melo2_flute-sprite-hd.png",
-          18: "/public/v4/sprites/melo3_neou-sprite-hd.png",
-          19: "/public/v4/sprites/melo4_hu-sprite-hd.png",
-          20: "/public/v4/sprites/melo5_ah-sprite-hd.png",
+          16: "/public/v4/sprites/chips1_feel-sprite-hd.png",
+          17: "/public/v4/sprites/chips2_chillin-sprite-hd.png",
+          18: "/public/v4/sprites/chips3_yeah-sprite-hd.png",
+          19: "/public/v4/sprites/chips4_filback-sprite-hd.png",
+          20: "/public/v4/sprites/chips5_teylo-sprite-hd.png",
+          1: "/public/v4/sprites/drum1_kick-sprite-hd.png",
+          2: "/public/v4/sprites/drum2_snare-sprite-hd.png",
+          3: "/public/v4/sprites/drum3_touti-sprite-hd.png",
+          4: "/public/v4/sprites/drum4_charley-sprite-hd.png",
+          5: "/public/v4/sprites/drum5_chatom-sprite-hd.png",
+          6: "/public/v4/sprites/effect1_bass-sprite-hd.png",
+          7: "/public/v4/sprites/effect2_enigmatic-sprite-hd.png",
+          8: "/public/v4/sprites/effect3_cry-sprite-hd.png",
+          9: "/public/v4/sprites/effect4_odoyouno-sprite-hd.png",
+          10: "/public/v4/sprites/effect5_oua-sprite-hd.png",
+          11: "/public/v4/sprites/melo1_toun-sprite-hd.png",
+          12: "/public/v4/sprites/melo2_flute-sprite-hd.png",
+          13: "/public/v4/sprites/melo3_neou-sprite-hd.png",
+          14: "/public/v4/sprites/melo4_hu-sprite-hd.png",
+          15: "/public/v4/sprites/melo5_ah-sprite-hd.png",
         };
         allJsonLinks = {
-          1: "/public/v4/json/chips1_feel.json",
-          2: "/public/v4/json/chips2_chillin.json",
-          3: "/public/v4/json/chips3_yeah.json",
-          4: "/public/v4/json/chips4_filback.json",
-          5: "/public/v4/json/chips5_teylo.json",
-          6: "/public/v4/json/drum1_kick.json",
-          7: "/public/v4/json/drum2_snare.json",
-          8: "/public/v4/json/drum3_touti.json",
-          9: "/public/v4/json/drum4_charley.json",
-          10: "/public/v4/json/drum5_chatom.json",
-          11: "/public/v4/json/effect1_bass.json",
-          12: "/public/v4/json/effect2_enigmatic.json",
-          13: "/public/v4/json/effect3_cry.json",
-          14: "/public/v4/json/effect4_odoyouno.json",
-          15: "/public/v4/json/effect5_oua.json",
-          16: "/public/v4/json/melo1_toun.json",
-          17: "/public/v4/json/melo2_flute.json",
-          18: "/public/v4/json/melo3_neou.json",
-          19: "/public/v4/json/melo4_hu.json",
-          20: "/public/v4/json/melo5_ah.json",
+          16: "/public/v4/json/chips1_feel.json",
+          17: "/public/v4/json/chips2_chillin.json",
+          18: "/public/v4/json/chips3_yeah.json",
+          19: "/public/v4/json/chips4_filback.json",
+          20: "/public/v4/json/chips5_teylo.json",
+          1: "/public/v4/json/drum1_kick.json",
+          2: "/public/v4/json/drum2_snare.json",
+          3: "/public/v4/json/drum3_touti.json",
+          4: "/public/v4/json/drum4_charley.json",
+          5: "/public/v4/json/drum5_chatom.json",
+          6: "/public/v4/json/effect1_bass.json",
+          7: "/public/v4/json/effect2_enigmatic.json",
+          8: "/public/v4/json/effect3_cry.json",
+          9: "/public/v4/json/effect4_odoyouno.json",
+          10: "/public/v4/json/effect5_oua.json",
+          11: "/public/v4/json/melo1_toun.json",
+          12: "/public/v4/json/melo2_flute.json",
+          13: "/public/v4/json/melo3_neou.json",
+          14: "/public/v4/json/melo4_hu.json",
+          15: "/public/v4/json/melo5_ah.json",
         };
         allVideoLinks = {
           1:
@@ -883,7 +919,7 @@ function startApplication(version: number) {
 
         break;
       case 6:
-        global.beat = 70;
+        global.beat = 71;
         global.randomMix = [
           [4, 10],
           [1, 4, 5, 9, 10, 19, 20],
@@ -998,7 +1034,7 @@ function startApplication(version: number) {
 
         break;
       case 7:
-        global.beat = 65;
+        global.beat = 68;
         global.randomMix = [
           [5, 6, 7, 11, 14, 16],
           [4, 5, 6, 7, 14],
@@ -1113,7 +1149,7 @@ function startApplication(version: number) {
 
         break;
       case 8:
-        global.beat = 70;
+        global.beat = 68;
         global.randomMix = [
           [2, 12, 13, 14, 16],
           [2, 6, 12, 14, 16, 17, 19],
@@ -1430,7 +1466,6 @@ async function fetchFiles(
     localStorage.getItem("firsttime") ?? firstTime();
     document.body.addEventListener("pointermove", handleMovingSong);
     document.body.addEventListener("pointerup", handleReturnSong);
-    document.body.addEventListener("pointercancel", handleReturnSong);
     global.allSongs.forEach((song) =>
       song.addEventListener("pointerdown", handleSelectSong)
     );
@@ -1471,20 +1506,40 @@ function handleStartVideo(ev: MouseEvent) {
   const target = ev.target as HTMLDivElement;
   const videoId: string | null = target.getAttribute("data-player-id");
   if (video.getAttribute("data-played")) return;
-  if (target.classList.contains("combo4") && videoId) {
-    video.src = global.allVideo[+videoId];
-    target.classList.add("loading");
-    setTimeout(() => {
-      const audioId = +target.getAttribute("data-player-id")!;
-      pauseSongs();
-      video.classList.add("active");
-      video.setAttribute("data-video-id", `${audioId}`);
-
-      video.play();
-      video.setAttribute("data-played", "true");
-      global.allAudios[20 + audioId].play();
-    }, global.transition);
+  if (!target.classList.contains("combo4")) {
+    if (videoId) {
+      global.allSongs.forEach((song) => {
+        if (
+          !(
+            song.getAttribute("data-song-id") &&
+            global.mix[+videoId - 1].includes(
+              +song.getAttribute("data-song-id")!
+            )
+          )
+        ) {
+          song.classList.add("disable");
+        }
+      });
+      setTimeout(() => {
+        global.allSongs.forEach((song) => {
+          song.classList.remove("disable");
+        });
+      }, 500);
+    }
+    return;
   }
+  video.src = global.allVideo[+videoId!];
+  target.classList.add("loading");
+  setTimeout(() => {
+    const audioId = +target.getAttribute("data-player-id")!;
+    pauseSongs();
+    video.classList.add("active");
+    video.setAttribute("data-video-id", `${audioId}`);
+
+    video.play();
+    video.setAttribute("data-played", "true");
+    global.allAudios[20 + audioId].play();
+  }, global.transition);
 }
 
 const handleDropSong = (ev: PointerEvent) => {

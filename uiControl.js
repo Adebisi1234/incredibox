@@ -1,5 +1,5 @@
 import { pauseSongs, resetSongs, resumeSongs } from "./canvas.js";
-import { autoSongs } from "./main.js";
+import { autoSongs, global } from "./main.js";
 // header
 const menu = document.getElementsByClassName("menu")[0];
 const transitions = document.querySelectorAll(".head-transition");
@@ -20,20 +20,23 @@ reset.onclick = resetSongs;
 auto.onclick = () => {
     if (rotate.classList.contains("rotate")) {
         autoSongs(true);
+        reset.style.pointerEvents = "all";
         rotate.classList.remove("rotate");
     }
     else {
-        console.log("auto");
         autoSongs();
+        reset.style.pointerEvents = "none";
         rotate.classList.add("rotate");
     }
 };
 clock.onclick = () => {
     clock.classList.toggle("paused");
     if (clock.classList.contains("paused")) {
+        global.allSongs.forEach((song) => song.classList.add("disable"));
         pauseSongs();
     }
     else {
+        global.allSongs.forEach((song) => song.classList.remove("disable"));
         resumeSongs();
     }
 };

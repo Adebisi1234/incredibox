@@ -4,14 +4,16 @@ const pump = document.getElementById("pump");
 const experience = document.getElementById("experience");
 const headphone = document.getElementById("headphone");
 const choose = document.getElementById("choose");
-const versions = [...document.getElementsByClassName("version")];
+const versions = [...document.querySelectorAll(".version")];
 const settingsElem = document.getElementById("settings");
 window.onload = () => {
+    console.log(screen.orientation.type);
     if (screen.orientation.type.includes("landscape")) {
         introAnim();
     }
 };
 window.addEventListener("orientationchange", () => {
+    console.log(screen.orientation.type);
     if (screen.orientation.type.includes("landscape")) {
         introAnim();
     }
