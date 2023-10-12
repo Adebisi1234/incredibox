@@ -1484,7 +1484,7 @@ const handlePauseSong = (ev: MouseEvent) => {
     "data-song-id"
   );
   if (songId && (ev.target as HTMLDivElement).classList.contains("singer")) {
-    if (global.audiosInDom[songId].isMute() === 1) {
+    if (global.audiosInDom[songId]?.isMute() === 1) {
       global.timeouts[songId].paused = true;
       global.audiosInDom[songId].muteSound();
       (ev.target as HTMLDivElement).classList.remove("active");
