@@ -27,29 +27,15 @@ fullscreen.onclick = () => {
     }
 };
 window.addEventListener("load", () => {
-    if (screen.orientation.type.includes("portrait")) {
+    if (!screen.orientation.type.includes("portrait")) {
         pops.forEach((pop) => pop.classList.remove("active"));
-        if (!modal.classList.contains("animateFadeIn")) {
-            modal.classList.add("animateFadeIn");
-        }
-        popup.classList.remove("with-tab");
         pops[4].classList.add("active");
-    }
-    else {
-        modal.classList.remove("animateFadeIn");
     }
 });
 screen.orientation.addEventListener("change", () => {
-    if (screen.orientation.type.includes("portrait")) {
+    if (!screen.orientation.type.includes("portrait")) {
         pops.forEach((pop) => pop.classList.remove("active"));
-        if (!modal.classList.contains("animateFadeIn")) {
-            modal.classList.add("animateFadeIn");
-        }
-        popup.classList.remove("with-tab");
         pops[4].classList.add("active");
-    }
-    else {
-        modal.classList.remove("animateFadeIn");
     }
 });
 navl.onclick = moveSlideLeft;

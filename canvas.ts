@@ -1,4 +1,4 @@
-import { global } from "./main.js";
+import { global, mixtape } from "./main.js";
 import { prop } from "./classes";
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
@@ -38,7 +38,7 @@ window.addEventListener("resize", () => {
     };
   });
 });
-
+let imgSource: Blob;
 export const isSongInPosition = (
   left: number,
   right: number,
@@ -73,10 +73,11 @@ function hd(num: number) {
 async function drawAllSingers() {
   imgWidth = hd(164);
   imgHeight = hd(320);
-  const imgSource =
-    canvas.width < 1000
+  imgSource =
+    canvas.offsetWidth < 1000
       ? await (await fetch("/public/polo-sprite.png")).blob()
       : await (await fetch("/public/polo-sprite-hd.png")).blob();
+
   const img = await createImageBitmap(imgSource);
   for (let i = 0; i <= 8; i++) {
     ctx?.drawImage(
@@ -135,6 +136,7 @@ export function resetSongs() {
     const songId = singer.getAttribute("data-song-id");
     if (songId) {
       clearAnim(+singer.id, +songId);
+      mixtape(+songId, "drop");
     }
   });
 }
@@ -165,16 +167,9 @@ export function resumeSongs() {
 
 export async function clearAnim(singerId: number, songId: number) {
   global.timeouts[songId].clear = true;
-  global.allSingers[singerId - 1].classList.remove("active");
-  global.allSingers[singerId - 1].removeAttribute("data-song-id");
-  global.allSongs[songId - 1].classList.remove("moved");
+  clearTimeout(global.timeouts[songId].timeoutId);
   global.audiosInDom[songId]?.stop();
-  delete global.audiosInDom[songId];
-  const defaultSinger =
-    canvas.width < 1000
-      ? await (await fetch("/public/polo-sprite.png")).blob()
-      : await (await fetch("/public/polo-sprite-hd.png")).blob();
-  const img = await createImageBitmap(defaultSinger);
+  const img = await createImageBitmap(imgSource);
 
   ctx?.clearRect(
     (canvas.width / 8) * (singerId - 1),
@@ -201,6 +196,11 @@ export async function clearAnim(singerId: number, songId: number) {
       clear: false,
     };
   }, 200);
+  global.allSingers[singerId - 1].classList.remove("active");
+  global.allSingers[singerId - 1].removeAttribute("data-song-id");
+  global.allSongs[songId - 1].classList.remove("moved");
+  global.audiosInDom[songId]?.unmuteSound();
+  delete global.audiosInDom[songId];
 }
 
 export async function animate(singerId: number, songId: number) {

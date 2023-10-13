@@ -21,6 +21,9 @@ window.addEventListener("orientationchange", () => {
 });
 
 function introAnim() {
+  if (title.classList.contains("titleUp")) {
+    return;
+  }
   setTimeout(() => {
     title.classList.add("titleUp");
     pump.classList.add("pumpUpHide");

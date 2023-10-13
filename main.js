@@ -7,6 +7,7 @@ const appLoaderStatus = document.getElementById("app-loader-status");
 const playButton = document.getElementById("play-icon");
 const playLoader = document.getElementById("play-loader");
 const video = document.getElementById("video");
+let throttle = 0;
 video.onended = () => {
     video.classList.remove("active");
     if (video.getAttribute("data-video-id")) {
@@ -98,7 +99,7 @@ const addAudio = (singerId, audioId) => {
 };
 export function autoSongs(clear = false) {
     if (clear) {
-        clearInterval(global.autoInterval);
+        clearTimeout(global.autoInterval);
         global.audioQueue = [];
         global.allSongs.forEach((song) => song.classList.remove("disable"));
         return;
@@ -107,45 +108,26 @@ export function autoSongs(clear = false) {
     let singerIds = [1, 3, 5, 2, 4, 6, 7, 8];
     let singerInt = 0;
     global.allSongs.forEach((song) => song.classList.add("disable"));
-    resetSongs();
-    setTimeout(() => { }, 500);
     // this is messy I know just a prototype
-    global.randomMix[i].forEach((songId) => {
-        global.allSingers[singerIds[singerInt] - 1].setAttribute("data-song-id", `${songId}`);
-        global.audioQueue.push({
-            audio: global.allAudios[songId],
-            singerId: singerIds[singerInt],
-        });
-        singerInt = (singerInt + 1) % singerIds.length;
-    });
-    for (let i = 0; i < global.audioQueue.length; i++) {
-        const audioObj = global.audioQueue[i];
-        global.audioQueue.splice(i, 1);
-        global.audiosInDom[audioObj.audio.id] = audioObj.audio;
-        startAnim(audioObj.singerId, +audioObj.audio.id);
-        animate(audioObj.singerId, +audioObj.audio.id);
-    }
-    i = (i + 1) % global.randomMix.length;
-    global.autoInterval = setInterval(() => {
+    function auto() {
         resetSongs();
         global.randomMix[i].forEach((songId) => {
+            console.log(singerIds[singerInt], songId);
             global.allSingers[singerIds[singerInt] - 1].setAttribute("data-song-id", `${songId}`);
-            global.audioQueue.push({
-                audio: global.allAudios[songId],
-                singerId: singerIds[singerInt],
-            });
+            global.allSingers[singerIds[singerInt] - 1].classList.add("active");
+            global.audiosInDom[songId] = global.allAudios[songId];
+            if (global.beatIntervalId === 0) {
+                startBeatInterval();
+            }
+            animate(singerIds[singerInt], songId);
             singerInt = (singerInt + 1) % singerIds.length;
         });
-        for (let i = 0; i < global.audioQueue.length; i++) {
-            const audioObj = global.audioQueue[i];
-            global.audioQueue.splice(i, 1);
-            global.audiosInDom[audioObj.audio.id] = audioObj.audio;
-            startAnim(audioObj.singerId, +audioObj.audio.id);
-            animate(audioObj.singerId, +audioObj.audio.id);
-        }
         i = (i + 1) % global.randomMix.length;
-    }, global.beat * 300);
-    console.log(global.autoInterval);
+        global.autoInterval = setTimeout(() => {
+            auto();
+        }, global.beat * 300);
+    }
+    auto();
 }
 const startBeatInterval = (clear = false) => {
     if (clear) {
@@ -154,8 +136,10 @@ const startBeatInterval = (clear = false) => {
     }
     let i = 0;
     const audioObj = global.audioQueue.pop();
-    global.audiosInDom[audioObj.audio.id] = audioObj.audio;
-    animate(audioObj.singerId, +audioObj.audio?.id);
+    if (audioObj) {
+        global.audiosInDom[audioObj.audio.id] = audioObj.audio;
+        animate(audioObj.singerId, +audioObj.audio?.id);
+    }
     global.beatIntervalId = setInterval(() => {
         i += 1;
         if (i % 10 === 0) {
@@ -176,7 +160,7 @@ const addAudioToDom = () => {
         animate(audioObj.singerId, +audioObj.audio?.id);
     }
 };
-function mixtape(id, func) {
+export function mixtape(id, func) {
     if (func === "add") {
         global.mix.forEach((mix, i) => {
             if (mix.includes(id) && !global.userMix[i].includes(id)) {
@@ -1381,6 +1365,7 @@ async function fetchFiles(allAudioLinks, allVideoLinks, allSpriteLinks, allSprit
         localStorage.getItem("firsttime") ?? firstTime();
         document.body.addEventListener("pointermove", handleMovingSong);
         document.body.addEventListener("pointerup", handleReturnSong);
+        document.body.addEventListener("pointercancel", handleReturnSong);
         global.allSongs.forEach((song) => song.addEventListener("pointerdown", handleSelectSong));
         global.allSingers.forEach((singer) => {
             singer.addEventListener("click", handlePauseSong);
@@ -1393,13 +1378,16 @@ async function fetchFiles(allAudioLinks, allVideoLinks, allSpriteLinks, allSprit
 }
 const handlePauseSong = (ev) => {
     const songId = ev.target.getAttribute("data-song-id");
-    if (songId && ev.target.classList.contains("singer")) {
-        if (global.audiosInDom[songId].isMute() === 1) {
+    if (songId &&
+        ev.target.classList.contains("singer") &&
+        throttle === 0) {
+        console.log("pausing");
+        if (global.audiosInDom[songId]?.isMute() === 1) {
             global.timeouts[songId].paused = true;
             global.audiosInDom[songId].muteSound();
             ev.target.classList.remove("active");
         }
-        else if (global.audiosInDom[songId].isMute() === 0) {
+        else if (global.audiosInDom[songId]?.isMute() === 0) {
             global.timeouts[songId].paused = false;
             global.audiosInDom[songId].unmuteSound();
             ev.target.classList.add("active");
@@ -1447,7 +1435,7 @@ function handleStartVideo(ev) {
     }, global.transition);
 }
 const handleDropSong = (ev) => {
-    let throttle = 0;
+    throttle = 0;
     const target = ev.target;
     const songId = target.getAttribute("data-song-id");
     if (!songId)
@@ -1466,12 +1454,12 @@ const handleDropSong = (ev) => {
             downbottom > top &&
             throttle === 0) {
             console.log("Clear animation");
+            throttle = 1;
             clearAnim(+target.id, +songId);
             mixtape(+songId, "drop");
             if (Object.keys(global.audiosInDom).length === 0) {
                 startBeatInterval(true);
             }
         }
-        throttle++;
     });
 };

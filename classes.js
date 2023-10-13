@@ -11,6 +11,7 @@ export class GlobalState {
     autoInterval = 0;
     audiosInDom = {};
     audioQueue = [];
+    autoQueue = [];
     beat = 70;
     transition = 0;
     beatIntervalId = 0;

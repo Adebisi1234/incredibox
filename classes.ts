@@ -24,6 +24,7 @@ export class GlobalState {
   public autoInterval: number = 0;
   public audiosInDom: { [key: string]: Audios } = {};
   public audioQueue: { audio: Audios; singerId: number }[] = [];
+  public autoQueue: { audio: Audios; singerId: number }[] = [];
   public beat: number = 70;
   public transition: number = 0;
   public beatIntervalId: number = 0;
