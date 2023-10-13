@@ -143,7 +143,6 @@ body > * {
   width: 100%;
   top: 50%;
   transform: translate(0, 0);
-  opacity: 0;
 }
 
 .titleUp {
@@ -757,17 +756,7 @@ span {
   }
 }
 
-@keyframes pumpUp {
-  100% {
-    opacity: 1;
-  }
-}
-
 @keyframes pumpUpHide {
-  0% {
-    opacity: 1;
-  }
-
   100% {
     transform: translate(0, -60px);
     opacity: 0;
@@ -846,6 +835,9 @@ span {
   .modal {
     display: flex;
     animation: animateFadeIn 0.3s ease 0s forwards;
+  }
+  .pump {
+    opacity: 0;
   }
 }
 
