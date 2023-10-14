@@ -138,12 +138,13 @@ export function autoSongs(clear: boolean = false) {
         "data-song-id",
         `${songId}`
       );
-      global.allSingers[singerIds[singerInt] - 1].classList.add("active");
+  
       global.audiosInDom[songId] = global.allAudios[songId];
 
       if (global.beatIntervalId === 0) {
         startBeatInterval();
       }
+startAnim(singerIds[singerInt], songId);
       animate(singerIds[singerInt], songId);
       singerInt = (singerInt + 1) % singerIds.length;
     });
