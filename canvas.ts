@@ -109,7 +109,7 @@ export async function startAnim(singerId: number, songId: number) {
     ctx?.drawImage(
       img,
       (canvas.width / 8) * (singerId - 1),
-      -25,
+      25,
       canvas.width / 8,
       canvas.height
     );
