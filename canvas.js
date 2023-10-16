@@ -80,7 +80,7 @@ export async function startAnim(singerId, songId) {
     if (global.allSingers[singerId - 1].getAttribute("data-song-id")) {
         global.allSingers[singerId - 1].classList.add("active");
         ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
-        ctx?.drawImage(img, (canvas.width / 8) * (singerId - 1), -25, canvas.width / 8, canvas.height);
+        ctx?.drawImage(img, (canvas.width / 8) * (singerId - 1), 25, canvas.width / 8, canvas.height);
         setTimeout(() => {
             ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
             ctx?.drawImage(img, (canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
@@ -97,10 +97,10 @@ export function resetSongs() {
     });
 }
 export function pauseSongs() {
-    global.allSingers.forEach((singer) => {
+    global.allSingers.forEach((singer, singerId) => {
         const songId = singer.getAttribute("data-song-id");
         if (songId) {
-            global.timeouts[songId].paused = true;
+            global.timeouts[singerId + 1].paused = true;
             global.audiosInDom[songId]
                 ? global.audiosInDom[songId].muteSound()
                 : global.audioQueue
@@ -111,24 +111,24 @@ export function pauseSongs() {
     });
 }
 export function resumeSongs() {
-    global.allSingers.forEach((singer) => {
+    global.allSingers.forEach((singer, singerId) => {
         const songId = singer.getAttribute("data-song-id");
         if (songId) {
-            global.timeouts[songId].paused = false;
+            global.timeouts[singerId + 1].paused = false;
             global.audiosInDom[songId].unmuteSound();
             singer.classList.add("active");
         }
     });
 }
 export async function clearAnim(singerId, songId) {
-    global.timeouts[songId].clear = true;
-    clearTimeout(global.timeouts[songId].timeoutId);
+    global.timeouts[singerId].clear = true;
+    clearTimeout(global.timeouts[singerId].timeoutId);
     global.audiosInDom[songId]?.stop();
     const img = await createImageBitmap(imgSource);
     ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
     ctx?.drawImage(img, 0, 0, imgWidth, imgHeight, (canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
     setTimeout(() => {
-        global.timeouts[songId] = {
+        global.timeouts[singerId] = {
             i: 0,
             timeoutId: 0,
             paused: false,
@@ -142,6 +142,7 @@ export async function clearAnim(singerId, songId) {
     delete global.audiosInDom[songId];
 }
 export async function animate(singerId, songId) {
+    clearTimeout(global.timeouts[singerId].timeoutId);
     const animeImg = global.getSprite(songId);
     const img = await createImageBitmap(animeImg);
     const animeFrame = global.animeFrames[songId];
@@ -149,20 +150,20 @@ export async function animate(singerId, songId) {
     let fps = animeFrame.arrayFrame.length / global.getAudioLength(songId);
     const interval = Math.round(1000 / fps);
     // Draw the body
-    if (!global.timeouts[songId].clear &&
+    if (!global.timeouts[singerId].clear &&
         global.allSingers[singerId - 1].getAttribute("data-song-id")) {
         ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
         ctx?.drawImage(img, imgWidth, 0, imgWidth, imgHeight, (canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
     }
     const animation = () => {
-        if (global.timeouts[songId].clear) {
-            clearTimeout(global.timeouts[songId].timeoutId);
+        if (global.timeouts[singerId].clear) {
+            clearTimeout(global.timeouts[singerId].timeoutId);
             return;
         }
-        let i = global.timeouts[songId].i % animeFrame.arrayFrame.length;
+        let i = global.timeouts[singerId].i % animeFrame.arrayFrame.length;
         requestAnimationFrame(() => {
             if (global.allSingers[singerId - 1].getAttribute("data-song-id")) {
-                if (global.timeouts[songId].paused) {
+                if (global.timeouts[singerId].paused) {
                     // Draw first frame
                     ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
                     ctx?.drawImage(img, 0, 0, imgWidth, imgHeight, (canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
@@ -176,15 +177,16 @@ export async function animate(singerId, songId) {
                     ctx?.drawImage(img, hd(animeFrame.arrayFrame[i][0]), hd(animeFrame.arrayFrame[i][1]), imgWidth, hd(animeFrame.headHeight), (canvas.width / 8) * (singerId - 1) +
                         hd(animeFrame.arrayFrame[i][2] * canvasToIntrinsicRatio), hd(animeFrame.arrayFrame[i][3] * canvasToIntrinsicRatio), canvas.width / 8, animeFrame.headHeight * canvasToIntrinsicRatio);
                     // play song
-                    if (global.timeouts[songId].i === 0 &&
-                        (!global.timeouts[songId].clear || !global.timeouts[songId].paused)) {
+                    if (global.timeouts[singerId].i === 0 &&
+                        (!global.timeouts[singerId].clear ||
+                            !global.timeouts[singerId].paused)) {
                         global.audiosInDom[songId].play();
                     }
                 }
-                global.timeouts[songId].i++;
+                global.timeouts[singerId].i++;
             }
         });
-        global.timeouts[songId].timeoutId = setTimeout(animation, interval);
+        global.timeouts[singerId].timeoutId = setTimeout(animation, interval);
     };
     animation();
 }

@@ -138,12 +138,12 @@ export function autoSongs(clear: boolean = false) {
         "data-song-id",
         `${songId}`
       );
-      global.allSingers[singerIds[singerInt] - 1].classList.add("active");
       global.audiosInDom[songId] = global.allAudios[songId];
 
       if (global.beatIntervalId === 0) {
         startBeatInterval();
       }
+      startAnim(singerIds[singerInt], songId);
       animate(singerIds[singerInt], songId);
       singerInt = (singerInt + 1) % singerIds.length;
     });
@@ -1369,16 +1369,6 @@ function startApplication(version: number) {
       allSpriteHdLinks,
       allJsonLinks
     );
-    for (const id in allAudioLinks) {
-      if (Object.prototype.hasOwnProperty.call(allAudioLinks, id)) {
-        global.timeouts[id] = {
-          i: 0,
-          timeoutId: 0,
-          paused: false,
-          clear: false,
-        };
-      }
-    }
   }
 }
 
@@ -1456,6 +1446,12 @@ async function fetchFiles(
     global.allSingers.forEach((singer) => {
       singer.addEventListener("click", handlePauseSong);
       singer.addEventListener("pointerdown", handleDropSong);
+      global.timeouts[singer.id] = {
+        i: 0,
+        timeoutId: 0,
+        paused: false,
+        clear: false,
+      };
     });
     global.allVideoPlayers.forEach((videoPlayer) => {
       videoPlayer.addEventListener("click", handleStartVideo);
@@ -1467,18 +1463,20 @@ const handlePauseSong = (ev: MouseEvent) => {
   const songId: string | null = (ev.target as HTMLDivElement).getAttribute(
     "data-song-id"
   );
+  const singerId: string | null = (ev.target as HTMLDivElement).id;
   if (
     songId &&
     (ev.target as HTMLDivElement).classList.contains("singer") &&
-    throttle === 0
+    throttle === 0 &&
+    singerId
   ) {
     console.log("pausing");
     if (global.audiosInDom[songId]?.isMute() === 1) {
-      global.timeouts[songId].paused = true;
+      global.timeouts[singerId].paused = true;
       global.audiosInDom[songId].muteSound();
       (ev.target as HTMLDivElement).classList.remove("active");
     } else if (global.audiosInDom[songId]?.isMute() === 0) {
-      global.timeouts[songId].paused = false;
+      global.timeouts[singerId].paused = false;
       global.audiosInDom[songId].unmuteSound();
       (ev.target as HTMLDivElement).classList.add("active");
     }
