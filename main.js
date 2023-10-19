@@ -112,14 +112,15 @@ export function autoSongs(clear = false) {
     function auto() {
         resetSongs();
         global.randomMix[i].forEach((songId) => {
-            console.log(singerIds[singerInt], songId);
             global.allSingers[singerIds[singerInt] - 1].setAttribute("data-song-id", `${songId}`);
             global.audiosInDom[songId] = global.allAudios[songId];
             if (global.beatIntervalId === 0) {
                 startBeatInterval();
             }
-            startAnim(singerIds[singerInt], songId);
-            animate(singerIds[singerInt], songId);
+            if (songId > 0 && songId < 21) {
+                startAnim(singerIds[singerInt], songId);
+                animate(singerIds[singerInt], songId);
+            }
             singerInt = (singerInt + 1) % singerIds.length;
         });
         i = (i + 1) % global.randomMix.length;
@@ -1428,8 +1429,8 @@ function handleStartVideo(ev) {
         video.classList.add("active");
         video.setAttribute("data-video-id", `${audioId}`);
         video.play();
-        video.setAttribute("data-played", "true");
         global.allAudios[20 + audioId].play();
+        video.setAttribute("data-played", "true");
     }, global.transition);
 }
 const handleDropSong = (ev) => {

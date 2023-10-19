@@ -80,7 +80,7 @@ export async function startAnim(singerId, songId) {
     if (global.allSingers[singerId - 1].getAttribute("data-song-id")) {
         global.allSingers[singerId - 1].classList.add("active");
         ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
-        ctx?.drawImage(img, (canvas.width / 8) * (singerId - 1), 25, canvas.width / 8, canvas.height);
+        ctx?.drawImage(img, (canvas.width / 8) * (singerId - 1), 50, canvas.width / 8, canvas.height);
         setTimeout(() => {
             ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
             ctx?.drawImage(img, (canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
@@ -90,6 +90,7 @@ export async function startAnim(singerId, songId) {
 export function resetSongs() {
     global.allSingers.forEach((singer) => {
         const songId = singer.getAttribute("data-song-id");
+        singer.removeAttribute("data-song-id");
         if (songId) {
             clearAnim(+singer.id, +songId);
             mixtape(+songId, "drop");

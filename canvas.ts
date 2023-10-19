@@ -109,7 +109,7 @@ export async function startAnim(singerId: number, songId: number) {
     ctx?.drawImage(
       img,
       (canvas.width / 8) * (singerId - 1),
-      25,
+      50,
       canvas.width / 8,
       canvas.height
     );
@@ -134,6 +134,7 @@ export async function startAnim(singerId: number, songId: number) {
 export function resetSongs() {
   global.allSingers.forEach((singer) => {
     const songId = singer.getAttribute("data-song-id");
+    singer.removeAttribute("data-song-id");
     if (songId) {
       clearAnim(+singer.id, +songId);
       mixtape(+songId, "drop");
