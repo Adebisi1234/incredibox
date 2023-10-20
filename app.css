@@ -11,10 +11,6 @@
   --colV9: #005cfa;
 }
 
-* {
-  touch-action: none;
-}
-
 .settings {
   opacity: 1;
 }
@@ -552,7 +548,7 @@ h2 {
 }
 
 header {
-  height: calc(var(--bt-scale) * 15%);
+  height: 15%;
   background-color: var(--col-general-bck);
 }
 
@@ -796,7 +792,9 @@ footer {
   background-repeat: no-repeat;
   cursor: grab;
   border-radius: 8px;
+  touch-action: none;
 }
+
 .song.disable {
   background-image: none;
   background-color: var(--col1);

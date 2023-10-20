@@ -111,6 +111,7 @@ body {
   position: relative;
   align-items: center;
   width: 100vw;
+  width: 100svw;
   background-color: var(--col-general-bck);
   height: 100vh;
   height: 100svh;

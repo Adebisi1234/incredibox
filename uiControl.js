@@ -8,6 +8,7 @@ const home = document.getElementById("goHome");
 const landingPage = document.getElementById("home");
 const help = document.getElementById("help");
 const switchVersion = document.getElementById("switch");
+const outLinks = [...document.querySelectorAll("a")];
 const homeSwitch = document.getElementById("home-switch");
 const popup = document.getElementById("popup");
 const modal = document.getElementById("modal");
@@ -64,6 +65,8 @@ closeMenu.onclick = () => {
     transitions.forEach((header) => header.classList.remove("tright"));
 };
 home.onclick = () => {
+    autoSongs(true);
+    resetSongs();
     landingPage.classList.remove("hidden");
 };
 help.onclick = () => {
@@ -76,3 +79,4 @@ help.onclick = () => {
 };
 switchVersion.onclick = versionSwitch;
 homeSwitch.onclick = versionSwitch;
+outLinks.forEach((version) => version.addEventListener("click", resetSongs));

@@ -88,12 +88,6 @@ export async function startAnim(singerId, songId) {
     }
 }
 export function resetSongs() {
-    for (const audio in global.allAudios) {
-        try {
-            global.allAudios[audio].stop();
-        }
-        catch (err) { }
-    }
     global.allSingers.forEach((singer) => {
         const songId = singer.getAttribute("data-song-id");
         singer.removeAttribute("data-song-id");
@@ -102,6 +96,13 @@ export function resetSongs() {
             mixtape(+songId, "drop");
         }
     });
+    // Catching escapees
+    for (const audio in global.audiosInDom) {
+        global.audiosInDom[audio].stop();
+    }
+    for (const audio in global.audioQueue) {
+        global.audioQueue[audio].audio.stop();
+    }
 }
 export function pauseSongs() {
     global.allSingers.forEach((singer, singerId) => {
@@ -130,10 +131,7 @@ export function resumeSongs() {
 export async function clearAnim(singerId, songId) {
     global.timeouts[singerId].clear = true;
     clearTimeout(global.timeouts[singerId].timeoutId);
-    try {
-        global.audiosInDom[songId]?.stop();
-    }
-    catch (err) { }
+    global.audiosInDom[songId]?.stop();
     const img = await createImageBitmap(imgSource);
     ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
     ctx?.drawImage(img, 0, 0, imgWidth, imgHeight, (canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
@@ -190,7 +188,7 @@ export async function animate(singerId, songId) {
                     if (global.timeouts[singerId].i === 0 &&
                         (!global.timeouts[singerId].clear ||
                             !global.timeouts[singerId].paused)) {
-                        global.audiosInDom[songId].play();
+                        global.audiosInDom[songId]?.play();
                     }
                 }
                 global.timeouts[singerId].i++;

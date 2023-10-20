@@ -132,11 +132,6 @@ export async function startAnim(singerId: number, songId: number) {
 }
 
 export function resetSongs() {
-  for (const audio in global.allAudios) {
-    try {
-      global.allAudios[audio].stop();
-    } catch (err) {}
-  }
   global.allSingers.forEach((singer) => {
     const songId = singer.getAttribute("data-song-id");
     singer.removeAttribute("data-song-id");
@@ -145,6 +140,13 @@ export function resetSongs() {
       mixtape(+songId, "drop");
     }
   });
+  // Catching escapees
+  for (const audio in global.audiosInDom) {
+    global.audiosInDom[audio].stop();
+  }
+  for (const audio in global.audioQueue) {
+    global.audioQueue[audio].audio.stop();
+  }
 }
 export function pauseSongs() {
   global.allSingers.forEach((singer, singerId) => {
@@ -174,9 +176,7 @@ export function resumeSongs() {
 export async function clearAnim(singerId: number, songId: number) {
   global.timeouts[singerId].clear = true;
   clearTimeout(global.timeouts[singerId].timeoutId);
-  try {
-    global.audiosInDom[songId]?.stop();
-  } catch (err) {}
+  global.audiosInDom[songId]?.stop();
   const img = await createImageBitmap(imgSource);
 
   ctx?.clearRect(
@@ -308,7 +308,7 @@ export async function animate(singerId: number, songId: number) {
             (!global.timeouts[singerId].clear ||
               !global.timeouts[singerId].paused)
           ) {
-            global.audiosInDom[songId].play();
+            global.audiosInDom[songId]?.play();
           }
         }
         global.timeouts[singerId].i++;

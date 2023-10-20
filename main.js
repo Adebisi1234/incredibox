@@ -48,40 +48,36 @@ window.addEventListener("load", () => {
     }
 });
 const handleMovingSong = (ev) => {
-    if (global.currentMovingSong) {
-        global.currentMovingSong.classList.add("active");
-        const { left, right, top, bottom } = getMovingSongPosition(ev);
-        isSongInPosition(left, right, top, bottom);
-        const x = ev.clientX - global.currentMovingSong.offsetLeft;
-        const y = ev.clientY - global.currentMovingSong.offsetTop;
-        global.currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${y % innerHeight}px, 10px) translate(-50%, -50%) `;
-    }
-    else
+    if (!global.currentMovingSong)
         return;
+    global.currentMovingSong.classList.add("active");
+    const { left, right, top, bottom } = getMovingSongPosition(ev);
+    isSongInPosition(left, right, top, bottom);
+    const x = ev.clientX - global.currentMovingSong.offsetLeft;
+    const y = ev.clientY - global.currentMovingSong.offsetTop;
+    global.currentMovingSong.style.transform = `translate3d(${x % innerWidth}px, ${y % innerHeight}px, 10px) translate(-50%, -50%) `;
 };
 const handleReturnSong = (ev) => {
-    if (global.currentMovingSong) {
-        global.currentMovingSong.classList.remove("active");
-        const { left, right, top, bottom } = getMovingSongPosition(ev);
-        const singerId = isSongInPosition(left, right, top, bottom);
-        if (singerId !== 0 && typeof singerId === "number") {
-            const audioId = global.currentMovingSong.getAttribute("data-song-id");
-            if (audioId &&
-                !global.allSingers[singerId - 1].getAttribute("data-song-id")) {
-                addAudio(singerId, +audioId);
-            }
-            else
-                console.log("audioId error");
-            global.currentMovingSong.classList.add("moved");
-        }
-        global.allSingers.forEach((singer) => {
-            singer.classList.remove("over");
-        });
-        global.currentMovingSong.style.transform = `translate3d(0,0,0) translate(0,0) `;
-        global.currentMovingSong = undefined;
-    }
-    else
+    if (!global.currentMovingSong)
         return;
+    global.currentMovingSong.classList.remove("active");
+    const { left, right, top, bottom } = getMovingSongPosition(ev);
+    const singerId = isSongInPosition(left, right, top, bottom);
+    if (singerId !== 0 && typeof singerId === "number") {
+        const audioId = global.currentMovingSong.getAttribute("data-song-id");
+        if (audioId &&
+            !global.allSingers[singerId - 1].getAttribute("data-song-id")) {
+            addAudio(singerId, +audioId);
+        }
+        else
+            console.log("audioId error");
+        global.currentMovingSong.classList.add("moved");
+    }
+    global.allSingers.forEach((singer) => {
+        singer.classList.remove("over");
+    });
+    global.currentMovingSong.style.transform = `translate3d(0,0,0) translate(0,0) `;
+    global.currentMovingSong = undefined;
 };
 const addAudio = (singerId, audioId) => {
     const newAudio = { audio: global.allAudios[audioId], singerId };

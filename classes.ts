@@ -52,10 +52,7 @@ export class GlobalState {
    *
    */
   public getAudioLength(songId: number) {
-    return (
-      this.audiosInDom[songId]?.buffer.duration ||
-      this.audioQueue[songId]?.audio.buffer.duration
-    );
+    return this.allAudios[songId]?.buffer.duration;
   }
 
   public getSprite(songId: number) {
