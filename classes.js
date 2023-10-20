@@ -31,8 +31,8 @@ export class GlobalState {
      *
      */
     getAudioLength(songId) {
-        return (this.audiosInDom[songId].buffer.duration ||
-            this.audioQueue[songId].audio.buffer.duration);
+        return (this.audiosInDom[songId]?.buffer.duration ||
+            this.audioQueue[songId]?.audio.buffer.duration);
     }
     getSprite(songId) {
         return this.allSprites[songId];

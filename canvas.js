@@ -88,6 +88,12 @@ export async function startAnim(singerId, songId) {
     }
 }
 export function resetSongs() {
+    for (const audio in global.allAudios) {
+        try {
+            global.allAudios[audio].stop();
+        }
+        catch (err) { }
+    }
     global.allSingers.forEach((singer) => {
         const songId = singer.getAttribute("data-song-id");
         singer.removeAttribute("data-song-id");
@@ -124,7 +130,10 @@ export function resumeSongs() {
 export async function clearAnim(singerId, songId) {
     global.timeouts[singerId].clear = true;
     clearTimeout(global.timeouts[singerId].timeoutId);
-    global.audiosInDom[songId]?.stop();
+    try {
+        global.audiosInDom[songId]?.stop();
+    }
+    catch (err) { }
     const img = await createImageBitmap(imgSource);
     ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
     ctx?.drawImage(img, 0, 0, imgWidth, imgHeight, (canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
