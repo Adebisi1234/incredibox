@@ -3,12 +3,12 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let imgWidth = hd(164);
 let imgHeight = hd(318);
-let canvasToIntrinsicRatio = canvas.offsetHeight / imgHeight;
+let canvasToIntrinsicRatio = canvas.clientHeight / imgHeight;
 ctx.imageSmoothingEnabled = false;
 window.addEventListener("load", () => {
     // Draw all the singers
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     drawAllSingers();
     global.singersPost = global.allSingers.map((singer) => {
         const { left, right, top, bottom } = singer.getBoundingClientRect();
@@ -23,8 +23,8 @@ window.addEventListener("load", () => {
 });
 window.addEventListener("resize", () => {
     // RE-draw all the singers
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     drawAllSingers();
     global.singersPost = global.allSingers.map((singer) => {
         const { left, right, top, bottom } = singer.getBoundingClientRect();
@@ -65,7 +65,7 @@ async function drawAllSingers() {
     imgWidth = hd(164);
     imgHeight = hd(320);
     imgSource =
-        canvas.offsetWidth < 1000
+        canvas.clientWidth < 1000
             ? await (await fetch("/public/polo-sprite.png")).blob()
             : await (await fetch("/public/polo-sprite-hd.png")).blob();
     const img = await createImageBitmap(imgSource);
@@ -131,7 +131,7 @@ export function resumeSongs() {
 export async function clearAnim(singerId, songId) {
     global.timeouts[singerId].clear = true;
     clearTimeout(global.timeouts[singerId].timeoutId);
-    global.audiosInDom[songId]?.stop();
+    global.allAudios[songId]?.stop();
     const img = await createImageBitmap(imgSource);
     ctx?.clearRect((canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);
     ctx?.drawImage(img, 0, 0, imgWidth, imgHeight, (canvas.width / 8) * (singerId - 1), 0, canvas.width / 8, canvas.height);

@@ -238,6 +238,7 @@
 
 .v2 .song {
   background-image: url(/public/v2/img/songs.png);
+  background-color: var(--col1);
 }
 
 .v3 .song {
@@ -792,9 +793,10 @@ footer {
   background-repeat: no-repeat;
   cursor: grab;
   border-radius: 8px;
+}
+* {
   touch-action: none;
 }
-
 .song.disable {
   background-image: none;
   background-color: var(--col1);

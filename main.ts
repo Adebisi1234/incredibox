@@ -231,7 +231,6 @@ function combo(id: number) {
 
 function dropCombo(id: number) {
   const classList = global.allVideoPlayers[id].classList;
-  console.log("dropCombo");
   switch (true) {
     case classList.contains("combo4") &&
       classList.contains("combo3") &&
@@ -1445,6 +1444,11 @@ async function fetchFiles(
     global.allSingers.forEach((singer) => {
       singer.addEventListener("click", handlePauseSong);
       singer.addEventListener("pointerdown", handleDropSong);
+      singer.addEventListener("pointermove", handleTouch);
+      singer.addEventListener("pointerup", () => {
+        lastSeen.y = null;
+      });
+
       global.timeouts[singer.id] = {
         i: 0,
         timeoutId: 0,
@@ -1457,6 +1461,32 @@ async function fetchFiles(
     });
   });
 }
+// Rough test
+let lastSeen: { y: null | number } = { y: null };
+const handleTouch = (ev: PointerEvent) => {
+  const target = ev.target as HTMLDivElement;
+  if (
+    !target.getAttribute("data-song-id") ||
+    ev.clientY > target.getBoundingClientRect().bottom ||
+    ev.pointerType !== "touch"
+  ) {
+    lastSeen.y = null;
+    return;
+  }
+
+  const songId = target.getAttribute("data-song-id")!;
+  if (lastSeen.y && ev.clientY - lastSeen.y > 50) {
+    clearAnim(+target.id, +songId);
+    mixtape(+songId, "drop");
+    if (Object.keys(global.audiosInDom).length === 0) {
+      startBeatInterval(true);
+    }
+    lastSeen.y = null;
+  }
+  if (!lastSeen.y) {
+    lastSeen.y = ev.clientY;
+  }
+};
 
 const handlePauseSong = (ev: MouseEvent) => {
   const songId: string | null = (ev.target as HTMLDivElement).getAttribute(
