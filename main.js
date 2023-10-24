@@ -1375,6 +1375,7 @@ async function fetchFiles(allAudioLinks, allVideoLinks, allSpriteLinks, allSprit
 // Rough test
 let lastSeen = { y: null };
 const handleTouch = (ev) => {
+    console.log(lastSeen.y, ev.clientX);
     const target = ev.target;
     if (!target.getAttribute("data-song-id") ||
         ev.clientY > target.getBoundingClientRect().bottom ||
@@ -1456,6 +1457,9 @@ function handleStartVideo(ev) {
     }, global.transition);
 }
 const handleDropSong = (ev) => {
+    if (ev.pointerType === "touch") {
+        return;
+    }
     throttle = 0;
     const target = ev.target;
     const songId = target.getAttribute("data-song-id");

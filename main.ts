@@ -1464,6 +1464,7 @@ async function fetchFiles(
 // Rough test
 let lastSeen: { y: null | number } = { y: null };
 const handleTouch = (ev: PointerEvent) => {
+  console.log(lastSeen.y, ev.clientX);
   const target = ev.target as HTMLDivElement;
   if (
     !target.getAttribute("data-song-id") ||
@@ -1559,6 +1560,9 @@ function handleStartVideo(ev: MouseEvent) {
 }
 
 const handleDropSong = (ev: PointerEvent) => {
+  if (ev.pointerType === "touch") {
+    return;
+  }
   throttle = 0;
 
   const target = ev.target as HTMLDivElement;
