@@ -77,7 +77,7 @@ async function drawAllSingers() {
     canvas.clientWidth < 1000
       ? await (await fetch("/public/polo-sprite.png")).blob()
       : await (await fetch("/public/polo-sprite-hd.png")).blob();
-
+  ctx?.clearRect(0, 0, canvas.width, canvas.height);
   const img = await createImageBitmap(imgSource);
   for (let i = 0; i <= 8; i++) {
     ctx?.drawImage(
