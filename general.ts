@@ -58,10 +58,8 @@ function moveSlideRight() {
     }
   });
   slide.style.transform = `translate(-${progress * 20}%, 0%)`;
-  console.log(progress);
 }
 function moveSlideLeft() {
-  console.log("fuck");
   if (!(progress <= 0)) {
     progress = --progress % 5;
   } else {
@@ -99,7 +97,6 @@ tabButtons.forEach((tabButton) => {
   tabButton.onclick = (ev: MouseEvent) => {
     const target = ev.target as HTMLDivElement;
     tabButtons.forEach((tab, i) => {
-      console.log(ev.target);
       if (
         tab.id === target.id ||
         (target.parentElement!.classList.contains("tab-button") &&

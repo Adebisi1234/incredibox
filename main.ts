@@ -1464,6 +1464,7 @@ async function fetchFiles(
 // Rough test
 let lastSeen: { y: null | number } = { y: null };
 const handleTouch = (ev: PointerEvent) => {
+  
   const target = ev.target as HTMLDivElement;
   if (
     !target.getAttribute("data-song-id") ||
@@ -1499,7 +1500,7 @@ const handlePauseSong = (ev: MouseEvent) => {
     throttle === 0 &&
     singerId
   ) {
-    console.log("pausing");
+    
     if (global.audiosInDom[songId]?.isMute() === 1) {
       global.timeouts[singerId].paused = true;
       global.audiosInDom[songId].muteSound();
@@ -1552,13 +1553,17 @@ function handleStartVideo(ev: MouseEvent) {
     video.classList.add("active");
     video.setAttribute("data-video-id", `${audioId}`);
 
-    video.play();
+    global.allAudios[20 + audioId].unmuteSound()
     global.allAudios[20 + audioId].play();
+    video.play();
     video.setAttribute("data-played", "true");
   }, global.transition);
 }
 
 const handleDropSong = (ev: PointerEvent) => {
+  if (ev.pointerType === "touch") {
+    return;
+  }
   throttle = 0;
 
   const target = ev.target as HTMLDivElement;
@@ -1579,7 +1584,7 @@ const handleDropSong = (ev: PointerEvent) => {
       downbottom > top &&
       throttle === 0
     ) {
-      console.log("Clear animation");
+      
       throttle = 1;
       clearAnim(+target.id, +songId);
       mixtape(+songId, "drop");
