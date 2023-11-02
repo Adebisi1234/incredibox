@@ -172,7 +172,7 @@ export function resumeSongs() {
     }
   });
 }
-
+console.log("trying to figure out what the fuck is wrong with netlify");
 export async function clearAnim(singerId: number, songId: number) {
   global.timeouts[singerId].clear = true;
   clearTimeout(global.timeouts[singerId].timeoutId);
