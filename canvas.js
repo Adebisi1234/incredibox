@@ -124,7 +124,7 @@ export function resumeSongs() {
         const songId = singer.getAttribute("data-song-id");
         if (songId) {
             global.timeouts[singerId + 1].paused = false;
-            global.audiosInDom[songId].unmuteSound();
+            global.audiosInDom[songId]?.unmuteSound();
             singer.classList.add("active");
         }
     });
@@ -189,6 +189,7 @@ export async function animate(singerId, songId) {
                     if (global.timeouts[singerId].i === 0 &&
                         (!global.timeouts[singerId].clear ||
                             !global.timeouts[singerId].paused)) {
+                        global.audiosInDom[songId]?.unmuteSound();
                         global.audiosInDom[songId]?.play();
                     }
                 }

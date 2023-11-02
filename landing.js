@@ -7,13 +7,11 @@ const choose = document.getElementById("choose");
 const versions = [...document.querySelectorAll(".version")];
 const settingsElem = document.getElementById("settings");
 window.onload = () => {
-    console.log(screen.orientation.type);
     if (screen.orientation.type.includes("landscape")) {
         introAnim();
     }
 };
 window.addEventListener("orientationchange", () => {
-    console.log(screen.orientation.type);
     if (screen.orientation.type.includes("landscape")) {
         introAnim();
     }

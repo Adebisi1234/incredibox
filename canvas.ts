@@ -167,12 +167,12 @@ export function resumeSongs() {
     const songId = singer.getAttribute("data-song-id");
     if (songId) {
       global.timeouts[singerId + 1].paused = false;
-      global.audiosInDom[songId].unmuteSound();
+      global.audiosInDom[songId]?.unmuteSound();
       singer.classList.add("active");
     }
   });
 }
-
+console.log("trying to figure out what the fuck is wrong with netlify");
 export async function clearAnim(singerId: number, songId: number) {
   global.timeouts[singerId].clear = true;
   clearTimeout(global.timeouts[singerId].timeoutId);
@@ -308,6 +308,7 @@ export async function animate(singerId: number, songId: number) {
             (!global.timeouts[singerId].clear ||
               !global.timeouts[singerId].paused)
           ) {
+            global.audiosInDom[songId]?.unmuteSound();
             global.audiosInDom[songId]?.play();
           }
         }

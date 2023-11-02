@@ -91,10 +91,10 @@ export class Audios {
     return this.gainNode.gain.value;
   }
   muteSound() {
-    this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
+    this.gainNode.gain.value = 0;
   }
   unmuteSound() {
-    this.gainNode.gain.setValueAtTime(1, this.audioCtx.currentTime);
+    this.gainNode.gain.value = 1;
   }
   play() {
     try {
